@@ -2,6 +2,7 @@ from .chi_index import ChiFinder
 from .diffusion import LinearDiffuser
 from .fire_generator import FireGenerator
 from .detachment_ltd_erosion import DetachmentLtdErosion
+from .vegetation_limited_erosion import vegetationLimitErosion
 from .flexure import Flexure
 from .flow_routing import FlowRouter, DepressionFinderAndRouter
 from .nonlinear_diffusion import PerronNLDiffuse
@@ -31,7 +32,7 @@ COMPONENTS = [ChiFinder, LinearDiffuser,
               FastscapeEroder, SedDepEroder, KinematicWaveRengers,
               SteepnessFinder, DetachmentLtdErosion, gFlex,
               SoilMoisture, Vegetation, VegCA, DrainageDensity,
-              SoilInfiltrationGreenAmpt, FireGenerator]
+              SoilInfiltrationGreenAmpt, FireGenerator, vegetationLimitErosion]
 
 
 __all__ = [cls.__name__ for cls in COMPONENTS]
