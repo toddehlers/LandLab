@@ -15,13 +15,16 @@ from .soil_moisture import SoilMoisture
 from .vegetation_dynamics import Vegetation
 from .sink_fill import SinkFiller
 from .steepness_index import SteepnessFinder
-from .stream_power import StreamPowerEroder, FastscapeEroder, SedDepEroder
+from .stream_power import StreamPowerEroder, FastscapeEroder, StreamPowerSmoothThresholdEroder, SedDepEroder
 from .uniform_precip import PrecipitationDistribution
 from .soil_moisture import SoilInfiltrationGreenAmpt
 from .plant_competition_ca import VegCA
 from .gflex import gFlex
 from .drainage_density import DrainageDensity
 from .fire_generator import FireGenerator
+from .weathering import ExponentialWeatherer
+from .depth_dependent_diffusion import DepthDependentDiffuser
+from .cubic_nonlinear_hillslope_flux import CubicNonLinearDiffuser
 
 
 COMPONENTS = [ChiFinder, LinearDiffuser,
@@ -31,8 +34,12 @@ COMPONENTS = [ChiFinder, LinearDiffuser,
               Radiation, SinkFiller, StreamPowerEroder,
               FastscapeEroder, SedDepEroder, KinematicWaveRengers,
               SteepnessFinder, DetachmentLtdErosion, gFlex,
+              SoilInfiltrationGreenAmpt, FireGenerator,
               SoilMoisture, Vegetation, VegCA, DrainageDensity,
-              SoilInfiltrationGreenAmpt, FireGenerator, vegetationLimitErosion]
+              SoilInfiltrationGreenAmpt, FireGenerator,
+	          ExponentialWeatherer, DepthDependentDiffuser,
+	          CubicNonLinearDiffuser ]
+
 
 
 __all__ = [cls.__name__ for cls in COMPONENTS]

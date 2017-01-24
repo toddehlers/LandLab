@@ -169,8 +169,11 @@ class DetachmentLtdErosion(Component):
 
         self.dzdt = self._grid.zeros(at='node')
 
-    def erode(self, dt, discharge_cms='surface_water__discharge',
-              slope='topographic__steepest_slope'):
+
+    def erode(self, dt, elevs='topographic__elevation',
+              discharge_cms='surface_water__discharge',
+              slope='topographic__slope'):
+
         """Erode into grid topography.
 
         For one time step, this erodes into the grid topography using
@@ -210,4 +213,4 @@ class DetachmentLtdErosion(Component):
 
         self.dzdt = (self.uplift_rate - self.I)
 
-        self._grid['node']['topographic__elevation'] += self.dzdt
+        self._grid['node'][elevs] += self.dzdt
