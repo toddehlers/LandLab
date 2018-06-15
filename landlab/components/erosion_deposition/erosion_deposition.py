@@ -1,17 +1,31 @@
 import numpy as np
+<<<<<<< HEAD
 from landlab import Component
 from landlab import RasterModelGrid
+=======
+from landlab.components.erosion_deposition.generalized_erosion_deposition import (_GeneralizedErosionDeposition,
+                                                            DEFAULT_MINIMUM_TIME_STEP)
+from landlab.utils.return_array import return_array_at_node
+>>>>>>> upstream/master
 from .cfuncs import calculate_qs_in
 
 ROOT2 = np.sqrt(2.0)    # syntactic sugar for precalculated square root of 2
 TIME_STEP_FACTOR = 0.5  # factor used in simple subdivision solver
 DEFAULT_MINIMUM_TIME_STEP = 0.001  # default minimum time step duration
 
+<<<<<<< HEAD
 class ErosionDeposition(Component):
     """
     Erosion-Deposition model in the style of Davy and Lague (2009)
 
     Component written by C. Shobe, begun July 2016.
+=======
+class ErosionDeposition(_GeneralizedErosionDeposition):
+    """
+    Erosion-Deposition model in the style of Davy and Lague (2009)
+
+    Component written by C. Shobe, K. Barnhart, and G. Tucker.
+>>>>>>> upstream/master
     """
 
     _name= 'ErosionDeposition'
@@ -60,9 +74,15 @@ class ErosionDeposition(Component):
     }
 
     def __init__(self, grid, K=None, phi=None, v_s=None,
+<<<<<<< HEAD
                  m_sp=None, n_sp=None, sp_crit=None, F_f=0.0,
                  method=None, discharge_method=None,
                  area_field=None, discharge_field=None, solver='basic',
+=======
+                 m_sp=None, n_sp=None, sp_crit=0.0, F_f=0.0,
+                 discharge_field='surface_water__discharge',
+                 solver='basic',
+>>>>>>> upstream/master
                  dt_min=DEFAULT_MINIMUM_TIME_STEP,
                  **kwds):
         """Initialize the ErosionDeposition model.
@@ -71,8 +91,13 @@ class ErosionDeposition(Component):
         ----------
         grid : ModelGrid
             Landlab ModelGrid object
+<<<<<<< HEAD
         K : float
             Erodibility constant for substrate (units vary).
+=======
+        K : float, field name, or array
+            Erodibility for substrate (units vary).
+>>>>>>> upstream/master
         phi : float
             Sediment porosity [-].
         v_s : float
@@ -81,11 +106,16 @@ class ErosionDeposition(Component):
             Drainage area exponent (units vary)
         n_sp : float
             Slope exponent (units vary)
+<<<<<<< HEAD
         sp_crit : float
+=======
+        sp_crit : float, field name, or array
+>>>>>>> upstream/master
             Critical stream power to erode substrate [E/(TL^2)]
         F_f : float
             Fraction of eroded material that turns into "fines" that do not
             contribute to (coarse) sediment load. Defaults to zero.
+<<<<<<< HEAD
         method : string
             Either "simple_stream_power", "threshold_stream_power", or
             "stochastic_hydrology". Method for calculating sediment
@@ -100,6 +130,10 @@ class ErosionDeposition(Component):
         discharge_field : string or array
             Used if discharge_method = 'discharge_field'.Either field name or
             array of length(number_of_nodes) containing drainage areas [L^2/T].
+=======
+        discharge_field : float, field name, or array
+            Discharge [L^2/T].
+>>>>>>> upstream/master
         solver : string
             Solver to use. Options at present include:
                 (1) 'basic' (default): explicit forward-time extrapolation.
@@ -128,12 +162,21 @@ class ErosionDeposition(Component):
         >>> dx = 10
         >>> mg = RasterModelGrid((nr, nc), 10.0)
         >>> _ = mg.add_zeros('node', 'topographic__elevation')
+<<<<<<< HEAD
         >>> mg['node']['topographic__elevation'] += mg.node_y/10 + \
                 mg.node_x/10 + np.random.rand(len(mg.node_y)) / 10
         >>> mg.set_closed_boundaries_at_grid_edges(bottom_is_closed=True,\
                                                        left_is_closed=True,\
                                                        right_is_closed=True,\
                                                        top_is_closed=True)
+=======
+        >>> mg['node']['topographic__elevation'] += (mg.node_y/10 +
+        ...        mg.node_x/10 + np.random.rand(len(mg.node_y)) / 10)
+        >>> mg.set_closed_boundaries_at_grid_edges(bottom_is_closed=True,
+        ...                                               left_is_closed=True,
+        ...                                               right_is_closed=True,
+        ...                                               top_is_closed=True)
+>>>>>>> upstream/master
         >>> mg.set_watershed_boundary_condition_outlet_id(0,\
                 mg['node']['topographic__elevation'], -9999.)
         >>> fsc_dt = 100.
@@ -165,11 +208,16 @@ class ErosionDeposition(Component):
 
         Instantiate the E/D component:
 
+<<<<<<< HEAD
         >>> ed = ErosionDeposition(mg, K=0.00001, phi=0.0, v_s=0.001,\
                                 m_sp=0.5, n_sp = 1.0, sp_crit=0,\
                                 method='simple_stream_power',\
                                 discharge_method=None, area_field=None,\
                                 discharge_field=None)
+=======
+        >>> ed = ErosionDeposition(mg, K=0.00001, phi=0.0, v_s=0.001,
+        ...                        m_sp=0.5, n_sp = 1.0, sp_crit=0)
+>>>>>>> upstream/master
 
         Now run the E/D component for 2000 short timesteps:
 
@@ -188,6 +236,7 @@ class ErosionDeposition(Component):
            -0.054, -0.053, -0.035,  7.053,  4.059,  5.041,  6.07 ,  7.004,
             8.01 ])
         """
+<<<<<<< HEAD
 #        array([-0.47709402,  1.03606698,  2.0727653 ,  3.01126678,  4.06077707,
 #            1.08157495, -0.0799798 , -0.06459322, -0.05380581,  5.00969486,
 #            2.04008677, -0.06457996, -0.06457219, -0.05266169,  6.02641123,
@@ -284,6 +333,21 @@ class ErosionDeposition(Component):
             print(self.method)
             raise ValueError('Specify erosion method (simple stream power,\
                             threshold stream power, or stochastic hydrology)!')
+=======
+        super(ErosionDeposition, self).__init__(grid, m_sp=m_sp, n_sp=n_sp,
+                                                phi=phi, F_f=F_f, v_s=v_s,
+                                                dt_min=dt_min,
+                                                discharge_field=discharge_field)
+
+
+        self._grid = grid #store grid
+
+        # E/D specific inits.
+
+        # K's and critical values can be floats, grid fields, or arrays
+        self.K = return_array_at_node(grid, K)
+        self.sp_crit = return_array_at_node(grid, sp_crit)
+>>>>>>> upstream/master
 
         # Handle option for solver
         if solver == 'basic':
@@ -295,6 +359,7 @@ class ErosionDeposition(Component):
             raise ValueError("Parameter 'solver' must be one of: "
                              + "'basic', 'adaptive'")
 
+<<<<<<< HEAD
     #three choices for erosion methods:
     def simple_stream_power(self):
         """Use non-threshold stream power.
@@ -452,6 +517,15 @@ class ErosionDeposition(Component):
         r = self._grid.at_node['flow__receiver_node']
         slp = self._grid.at_node['topographic__steepest_slope']
         slp[:] = (z - z[r]) / self.link_lengths[self.link_to_reciever]
+=======
+    def _calc_erosion_rates(self):
+        """Calculate erosion rates"""
+        omega = self.K * self.Q_to_the_m * np.power(self.slope, self.n_sp)
+        omega_over_sp_crit = np.divide(omega, self.sp_crit,
+                             out=np.zeros_like(omega), where=self.sp_crit!=0)
+
+        self.erosion_term = omega - self.sp_crit * (1.0 - np.exp(-omega_over_sp_crit))
+>>>>>>> upstream/master
 
     def run_one_step_basic(self, dt=1.0, flooded_nodes=[], **kwds):
         """Calculate change in rock and alluvium thickness for
@@ -465,7 +539,13 @@ class ErosionDeposition(Component):
             Indices of flooded nodes, passed from flow router
         """
 
+<<<<<<< HEAD
         self.calc_ero_rate()
+=======
+        self._calc_hydrology()
+        self._calc_erosion_rates()
+
+>>>>>>> upstream/master
         self.erosion_term[flooded_nodes] = 0.0
         self.qs_in[:] = 0.0
 
@@ -479,7 +559,11 @@ class ErosionDeposition(Component):
                         self.qs_in,
                         self.erosion_term,
                         self.v_s,
+<<<<<<< HEAD
                         self.frac_coarse,
+=======
+                        self.F_f,
+>>>>>>> upstream/master
                         self.phi)
 
         self.depo_rate[:] = 0.0
@@ -488,7 +572,12 @@ class ErosionDeposition(Component):
 
         #topo elev is old elev + deposition - erosion
         cores = self.grid.core_nodes
+<<<<<<< HEAD
         self.elev[cores] += ((self.depo_rate[cores]
+=======
+        self.topographic__elevation[cores] += (((self.depo_rate[cores] /
+                            (1 - self.phi))
+>>>>>>> upstream/master
                               - self.erosion_term[cores]) * dt)
 
     def run_with_adaptive_time_step_solver(self, dt=1.0, flooded_nodes=[],
@@ -527,8 +616,15 @@ class ErosionDeposition(Component):
                 first_iteration = False
 
             # Calculate rates of entrainment
+<<<<<<< HEAD
             self.calc_ero_rate()
             self.erosion_term[flooded_nodes] = 0.0
+=======
+            self._calc_hydrology()
+            self._calc_erosion_rates()
+            self.erosion_term[flooded_nodes] = 0.0
+            self.qs_in[:] = 0.0
+>>>>>>> upstream/master
 
             # Sweep through nodes from upstream to downstream, calculating Qs.
             calculate_qs_in(np.flipud(self.stack),
@@ -539,7 +635,11 @@ class ErosionDeposition(Component):
                             self.qs_in,
                             self.erosion_term,
                             self.v_s,
+<<<<<<< HEAD
                             self.frac_coarse,
+=======
+                            self.F_f,
+>>>>>>> upstream/master
                             self.phi)
 
             # Use Qs to calculate deposition rate at each node.
@@ -548,7 +648,11 @@ class ErosionDeposition(Component):
                                           * (self.v_s / self.q[self.q > 0]))
 
             # Rate of change of elevation at core nodes:
+<<<<<<< HEAD
             dzdt[cores] = self.depo_rate[cores] - self.erosion_term[cores]
+=======
+            dzdt[cores] = (self.depo_rate[cores] / (1 - self.phi)) - self.erosion_term[cores]
+>>>>>>> upstream/master
 
             # Difference in elevation between each upstream-downstream pair
             zdif = z - z[r]
