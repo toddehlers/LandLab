@@ -2,6 +2,7 @@ from .chi_index import ChiFinder
 from .diffusion import LinearDiffuser
 from .fire_generator import FireGenerator
 from .detachment_ltd_erosion import DetachmentLtdErosion, DepthSlopeProductErosion
+from .vegetation_limited_erosion import vegetationLimitErosion
 from .flexure import Flexure
 from .flow_routing import FlowRouter, DepressionFinderAndRouter
 from .nonlinear_diffusion import PerronNLDiffuse
@@ -21,12 +22,14 @@ from .sink_fill import SinkFiller
 from .steepness_index import SteepnessFinder
 from .stream_power import StreamPowerEroder, FastscapeEroder, StreamPowerSmoothThresholdEroder, SedDepEroder
 from .uniform_precip import PrecipitationDistribution
+from .uniform_precip import rainfallOscillation
 from .soil_moisture import SoilInfiltrationGreenAmpt
 from .plant_competition_ca import VegCA
 from .gflex import gFlex
 from .drainage_density import DrainageDensity
 from .weathering import ExponentialWeatherer
 from .depth_dependent_diffusion import DepthDependentDiffuser
+from .depth_dependent_vegi_diffusion import DepthDependentVegiDiffuser
 from .taylor_nonlinear_hillslope_flux import TaylorNonLinearDiffuser
 from .depth_dependent_taylor_soil_creep import DepthDependentTaylorDiffuser
 from .erosion_deposition import ErosionDeposition
@@ -34,6 +37,7 @@ from .space import Space
 from .landslides import LandslideProbability
 from .transport_length_diffusion import TransportLengthHillslopeDiffuser
 from .normal_fault import NormalFault
+from .landform_classifier import landformClassifier
 
 COMPONENTS = [ChiFinder, LinearDiffuser,
               Flexure, FlowRouter, DepressionFinderAndRouter,
@@ -52,6 +56,6 @@ COMPONENTS = [ChiFinder, LinearDiffuser,
               FlowDirectorD8, FlowDirectorSteepest, FlowDirectorMFD,
               FlowDirectorDINF, FlowAccumulator, Space, ErosionDeposition,
               LandslideProbability, DepthDependentTaylorDiffuser,
-              NormalFault]
+              NormalFault, DepthDependentVegiDiffuser, landformClassifier]
 
 __all__ = [cls.__name__ for cls in COMPONENTS]
