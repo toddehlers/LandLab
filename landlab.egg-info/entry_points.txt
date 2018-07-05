@@ -1,0 +1,3 @@
+[console_scripts]
+landlab = landlab.cmd.landlab:main
+
