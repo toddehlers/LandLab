@@ -57,6 +57,9 @@ landlab/components/depth_dependent_taylor_soil_creep/__init__.py
 landlab/components/depth_dependent_taylor_soil_creep/hillslope_depth_dependent_taylor_flux.py
 landlab/components/depth_dependent_taylor_soil_creep/tests/__init__.py
 landlab/components/depth_dependent_taylor_soil_creep/tests/test_depth_dependent_taylor_diffuser.py
+landlab/components/depth_dependent_vegi_diffusion/__init__.py
+landlab/components/depth_dependent_vegi_diffusion/hillslope_depth_dependent_linear_flux_vegi.py
+landlab/components/depth_dependent_vegi_diffusion/tests/__init__.py
 landlab/components/detachment_ltd_erosion/__init__.py
 landlab/components/detachment_ltd_erosion/generate_detachment_ltd_erosion.py
 landlab/components/detachment_ltd_erosion/generate_erosion_by_depth_slope.py
@@ -114,6 +117,8 @@ landlab/components/fracture_grid/tests/__init__.py
 landlab/components/fracture_grid/tests/test_fracture_grid.py
 landlab/components/gflex/__init__.py
 landlab/components/gflex/flexure.py
+landlab/components/landform_classifier/__init__.py
+landlab/components/landform_classifier/landformClassifier.py
 landlab/components/landslides/__init__.py
 landlab/components/landslides/landslide_probability.py
 landlab/components/landslides/tests/__init__.py
@@ -204,6 +209,7 @@ landlab/components/transport_length_diffusion/tests/__init__.py
 landlab/components/transport_length_diffusion/tests/test_tl_hill_diff.py
 landlab/components/uniform_precip/__init__.py
 landlab/components/uniform_precip/generate_uniform_precip.py
+landlab/components/uniform_precip/rainfallOscillation.py
 landlab/components/vegetation_dynamics/__init__.py
 landlab/components/vegetation_dynamics/vegetation_dynamics.py
 landlab/components/vegetation_dynamics/tests/__init__.py
