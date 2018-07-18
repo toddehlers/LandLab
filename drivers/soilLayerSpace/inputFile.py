@@ -28,9 +28,10 @@ nrows = 101 #number of rows
 dx    = 100 #spacing between nodes
 
 #Model Runtime Parameters
-totalT = 15.e6 #total model runtime
-ssT    = 10.e6  #spin-up time before sin-modulation, set to same value as totalT for steady-state-simulations
-sfT    = 10.e6  #spin-up time before step-change-modulation, set to same value as totalT for steady-state-simulations
+totalT = 7.105e6 #total model runtime
+ssT    = 7.105e6  #spin-up time before sin-modulation, set to same value as totalT for steady-state-simulations
+sfT    = 7.105e6  #spin-up time before step-change-modulation, set to same value as totalT for steady-state-simulations
+spin_up = 7.e6
 dt = 100
 
 #Uplift
@@ -42,10 +43,6 @@ linDiffBase = 2e-1 #m2/yr, base linear diffusivity for bare-bedrock
 alphaDiff   = 0.3  #Scaling factor for vegetation-influence (see Instabulluoglu and Bras 2005)
 
 #Fluvial Erosion:
-ksp = 7e-8 #base fluvial erodibility for bare-bedrock
-msp = 0.5  #m factor from SPL
-nsp = 1    #n factor from SPL
-thresholdSP = 4.e-4 #threshold erosion-factor from SPL
 critArea    = 1e6 #L^2, Minimum Area which the steepness-calculator assumes for channel formation.
 aqDens      = 1000 #Kg/m^3, density of water
 grav        = 9.81 #m/s^2, acceleration of gravity
@@ -54,18 +51,32 @@ nVRef       = 0.6  #Mannings number for reference vegetation
 vRef        = 1    #1 = 100%, reference vegetation-cover for fully vegetated conditions
 w           = 1    #Scaling factor for vegetation-influence (see Istanbulluoglu and Bras 2005)
 
+#Fluvial Erosion/SPACE:
+k_sediment = 7e-8 
+k_bedrock  = 7e-6 
+Ff         = 0.5
+phi        = 0.1
+Hstar      = 1.,
+vs         = 0.001
+m          = 0.5
+n          = 1
+sp_crit_sedi = 0.00001
+sp_crit_bedrock = 0.00001
+solverMethod = 'simple_stream_power'
+solver = 'adaptive'
+
 #Lithology
 initialSoilDepth = 1 #m
-soilProductionRate = 0.0002 #m/dt
+soilProductionRate = 0.0003 #m/dt
 
 #Climate Parameters
-baseRainfall = 3 #m/dt, base steady-state rainfall-mean over the dt-timespan
+baseRainfall = float(35) #m/dt, base steady-state rainfall-mean over the dt-timespan
 rfA          = 0 #m, rainfall-step-change if used
 
 #Vegetation Cover
-vp = .1 #initial vegetation cover, 1 = 100%
+vp = .7 #initial vegetation cover, 1 = 100%
 sinAmp = 0.1 #vegetation cover amplitude for oscillation
 sinPeriod = 1e5 #yrs, period of sin-modification
 
 #output
-outInt = 10000 #yrs, model-time-interval in which output is created
+outInt = 100 #yrs, model-time-interval in which output is created
