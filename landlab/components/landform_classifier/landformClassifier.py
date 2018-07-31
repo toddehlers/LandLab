@@ -43,6 +43,7 @@ class landformClassifier(Component):
         self._grid.add_zeros('node', 'topographic_position__class')
         self._grid.add_zeros('node', 'elevation__ID')
         self._grid.add_zeros('node', 'landform__ID')
+        self._grid.add_zeros('node', 'aspectSlope')
 
         #Flags
         self._tpiTYPE = ''
@@ -529,4 +530,14 @@ class landformClassifier(Component):
             self.createLandformID()
             self.writeTpiToGrid()
 
-        
+       
+    def calc_asp_slope(self):
+            """
+            calculate some strange aspect-slope-metric that lpjguess needs and
+            nobody understand excepts some random climate-dude from senckenberg
+            """
+            _aspSlope = self._slope * np.abs(np.cos(np.radians(self._aspect)))
+
+            self._grid.at_node['aspectSlope'] = _aspSlope
+
+            return _aspSlope
