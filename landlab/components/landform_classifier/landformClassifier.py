@@ -474,7 +474,7 @@ class landformClassifier(Component):
             [elevationID, slopeID, aspectID]
             
             elevationID:
-                1 = [minium:step[i]] e.g   1 = [0:200]
+                1 = [minium:step[i]] e.g    1 = [0:200]
                                             2 = [200:400]
                                             3 = [400 : 600]
             
@@ -515,22 +515,6 @@ class landformClassifier(Component):
             self._grid.at_node['landform__ID'][i] = lfIndex
 
 
-    def run_one_step(self, scalefact, classtype):
-            """
-            Landlab style wrapper function which is to be called in the main-model-loop
-            """
-            #self.createLandlabDatafields() #moved to constructor.
-            self.updateGrid()
-            self.reshapeGrid(nrows = self._grid.number_of_node_rows,
-                            ncols = self._grid.number_of_node_columns)
-            self.calculate_tpi(scalefact, res = self._grid.dx, TYPE = classtype)
-            self.calcAspect()
-            self.classifyAspect(classNum = '4')
-            self.createElevationID(self._dem, 0, 6000, 200) #hardcoding of value... BAD!
-            self.createLandformID()
-            self.writeTpiToGrid()
-
-       
     def calc_asp_slope(self):
             """
             calculate some strange aspect-slope-metric that lpjguess needs and
@@ -538,6 +522,40 @@ class landformClassifier(Component):
             """
             _aspSlope = self._slope * np.abs(np.cos(np.radians(self._aspect)))
 
-            self._grid.at_node['aspectSlope'] = _aspSlope
-
             return _aspSlope
+
+    def write_asp_slope_to_grid(self):
+            """
+            Calls the calc_asp_slope function and writes the returned values
+            back to the landlab grid
+            """
+            
+            _aspSlope = self.calc_asp_slope()
+            _aspSlopeFlat = _aspSlope.flatten().astype(float)
+
+            self._grid.at_node['aspectSlope'] = _aspSlopeFlat
+            self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
+
+    def run_one_step(self, elevationBin, scalefact, classtype):
+            """
+            Landlab style wrapper function which is to be called in the main-model-loop
+
+            inputs: 
+                elevationBin : bin-size for elevation Id
+                scalefact: scalefactor for classification donut 
+                classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
+            """
+            #self.createLandlabDatafields() #moved to constructor.
+            self.updateGrid()
+            self.reshapeGrid(nrows = self._grid.number_of_node_rows,
+                            ncols = self._grid.number_of_node_columns)
+            self.calculate_tpi(scalefact, res = self._grid.dx, TYPE = classtype)
+            self.calcAspect()
+            self.write_asp_slope_to_grid()
+            self.classifyAspect(classNum = '4')
+            self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
+            self.createLandformID()
+            self.writeTpiToGrid()
+            
+
+       
