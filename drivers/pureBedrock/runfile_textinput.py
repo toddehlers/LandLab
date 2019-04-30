@@ -66,22 +66,29 @@ except:
     print('There is no file containing a initial topography')
 
 #Initate all the fields that are needed for calculations
-mg.add_zeros('node','topographic__elevation')
+mg.add_zeros('node', 'topographic__elevation')
+mg.add_zeros('node', 'erosion__rate')
 #checks if standart topo is used. if not creates own
 if 'topoSeed' in locals():
-    mg.at_node['topographic__elevation'] += topoSeed 
+    topo_tilt = mg.node_y/100000000 + mg.node_x/100000000
+    mg.at_node['topographic__elevation'] += (topoSeed + topo_tilt)
     print('Using pre-existing topography from file topoSeed.npy')
+
 else:
-    mg.at_node['topographic__elevation'] += np.random.rand(mg.at_node.size)/10000 
+    topo_tilt = mg.node_y/100000000 + mg.node_x/100000000
+    mg.at_node['topographic__elevation'] += (np.random.rand(mg.at_node.size)/10000)
+    mg.at_node['topographic__elevation'] += topo_tilt
     print('No pre-existing topography. Creating own random noise topo.')
 
 mg.add_zeros('node','vegetation__density')
 
 #Create boundary conditions of the model grid (either closed or fixed-head)
-for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge, mg.nodes_at_top_edge):
+for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge,
+        mg.nodes_at_top_edge, mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = CLOSED_BOUNDARY
-for edge in (mg.nodes_at_bottom_edge):
-    mg.status_at_node[edge] = FIXED_VALUE_BOUNDARY
+
+#Create one single outlet node
+mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
 
 print("finished with setup of modelgrid")
 print("---------------------")
@@ -95,7 +102,6 @@ vegiTimeseries  = np.zeros(int(totalT / dt)) + vp
 #This part sets the modification of the vegi-distribution. comment/uncomment
 #for usage
 #this modifies the vegiTimeseries array with a sinusoidal curve:
-#vegiDens = sinAmp * sin(sinB * timeVec) + vp
 sinB = (2*np.pi) / sinPeriod
 vegiTimeseries[ssnt:] =  sinAmp * np.sin(sinB * transTimeVec) + vp
 #this incorporates a vegi step-function at timestep sfT with amplitude sfA
@@ -136,7 +142,7 @@ mg.at_node['rainvalue'][:] = int(baseRainfall)
 #rainTimeseries[ssntSF:] = baseRainfall - rfA 
 
 if transientRainfallTimespan != 0: 
-    rainTimeseries[ssntSF:] = ro.createAsymWave(baseRainfall, 6, 0, sinPeriod,
+    rainTimeseries[ssntSF:] = ro.createAsymWave(baseRainfall, maxRain, lowRain, sinPeriod,
             transientRainfallTimespan, dt)  
 
     

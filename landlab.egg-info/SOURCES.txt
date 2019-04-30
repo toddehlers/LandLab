@@ -389,6 +389,8 @@ landlab/io/esri_ascii.py
 landlab/io/native_landlab.py
 landlab/io/gebco/__init__.py
 landlab/io/gebco/read.py
+landlab/io/lpj/__init__.py
+landlab/io/lpj/lpj_landlab_import.py
 landlab/io/netcdf/__init__.py
 landlab/io/netcdf/_constants.py
 landlab/io/netcdf/errors.py

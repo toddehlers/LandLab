@@ -2,7 +2,7 @@
 ## Example run script for SLURM
 
 ## General configuration options
-#SBATCH -J LaCamp 
+#SBATCH -J LaCamp
 #SBATCH -o myjob.%j.%N.out
 #SBATCH -e myjob.%j.%N_Err.out
 #SBATCH --mail-user=manuel.schmid@uni-tuebingen.de
@@ -20,7 +20,9 @@
 ##Set the correct python PATH variables
 #LANDLABWRKDIR=/esd/esd/data/mschmid/model_runs/runningSimus
 LANDLABWRKDIR=$(pwd)
-PYTHONBIN=/esd/esd01/data/mschmid/anaconda3/bin
+USERNAME=$(whoami)
+PYTHONBIN=/esd/esd01/data/${USERNAME}/anaconda3/bin
+RUNFILE=runfile_textinput.py
 
 ##Set up correct folder structure
 if [ ! -d DEM ] ; then mkdir DEM ; fi
@@ -33,4 +35,4 @@ if [ ! -d CSVOutput ] ; then mkdir CSVOutput ; fi
 if [ ! -d SoilDepth ] ; then mkdir SoilDepth ; fi
 
 ##Run Landlab
-${PYTHONBIN}/python ${LANDLABWRKDIR}/runfile_combined_soil.py
+${PYTHONBIN}/python ${LANDLABWRKDIR}/${RUNFILE}

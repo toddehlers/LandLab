@@ -37,6 +37,7 @@ from .landslides import LandslideProbability
 from .transport_length_diffusion import TransportLengthHillslopeDiffuser
 from .normal_fault import NormalFault
 from .landform_classifier import landformClassifier
+from .dynveg_lpjguess import DynVeg_LpjGuess
 
 COMPONENTS = [ChiFinder, LinearDiffuser,
               Flexure, FlowRouter, DepressionFinderAndRouter,
@@ -55,6 +56,7 @@ COMPONENTS = [ChiFinder, LinearDiffuser,
               FlowDirectorD8, FlowDirectorSteepest, FlowDirectorMFD,
               FlowDirectorDINF, FlowAccumulator, Space, ErosionDeposition,
               LandslideProbability, DepthDependentTaylorDiffuser,
-              NormalFault, DepthDependentVegiDiffuser, landformClassifier]
+              NormalFault, DepthDependentVegiDiffuser, landformClassifier,
+              DynVeg_LpjGuess]
 
 __all__ = [cls.__name__ for cls in COMPONENTS]

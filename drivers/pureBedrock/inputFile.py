@@ -23,14 +23,14 @@ Created by: Manuel Schmid, May 28th, 2018
 """
 
 #Model Grid Parameters
-ncols = 101	#number of columns
-nrows = 101 #number of rows
-dx    = 100  #spacing between nodes
+ncols = 11	#number of columns
+nrows = 11  #number of rows
+dx    = 100 #spacing between nodes
 
 #Model Runtime Parameters
-totalT = 25.e6 #total model runtime
-ssT    = 25.e6  #spin-up time before sin-modulation, set to same value as totalT for steady-state-simulations
-sfT    = 25.e6  #spin-up time before step-change-modulation, set to same value as totalT for steady-state-simulations
+totalT = 5.e6  #total model runtime
+ssT    = 2.e6  #spin-up time before sin-modulation, set to same value as totalT for steady-state-simulations
+sfT    = 2.e6  #spin-up time before step-change-modulation, set to same value as totalT for steady-state-simulations
 dt     = 100
 #Uplift
 upliftRate = 2.1e-4 #m/yr, Topographic uplift rate
@@ -41,7 +41,7 @@ linDiffBase = 2e-1 #m2/yr, base linear diffusivity for bare-bedrock
 alphaDiff   = 0.3  #Scaling factor for vegetation-influence (see Instabulluoglu and Bras 2005)
 
 #Fluvial Erosion:
-ksp = 7e-8 #base fluvial erodibility for bare-bedrock
+ksp = 2e-7 #base fluvial erodibility for bare-bedrock
 msp = 0.5  #m factor from SPL
 nsp = 1    #n factor from SPL
 thresholdSP = 4.e-4 #threshold erosion-factor from SPL
@@ -54,13 +54,15 @@ vRef        = 1    #1 = 100%, reference vegetation-cover for fully vegetated con
 w           = 1    #Scaling factor for vegetation-influence (see Istanbulluoglu and Bras 2005)
 
 #Climate Parameters
-baseRainfall = 3 #m/dt, base steady-state rainfall-mean over the dt-timespan
-rfA          = 0 #m, rainfall-step-change if used
+baseRainfall = 30 #m/dt, base steady-state rainfall-mean over the dt-timespan
+rfA          = 0  #m, rainfall-step-change if used
+maxRain      = 60 #m/dt, IF you use the rainfall oscillation, -> upper amplitude
+lowRain      = 15 #s.o -> lower amplitude
 
 #Vegetation Cover
-vp = .1 #initial vegetation cover, 1 = 100%
-sinAmp = 0.1 #vegetation cover amplitude for oscillation
-sinPeriod = 1e5 #yrs, period of sin-modification
+vp = .5 #initial vegetation cover, 1 = 100%
+sinAmp = 0.3 #vegetation cover amplitude for oscillation
+sinPeriod = 1e6 #yrs, period of sin-modification
 
 #output
-outInt = 50000 #yrs, model-time-interval in which output is created
+outInt = 100000 #yrs, model-time-interval in which output is created

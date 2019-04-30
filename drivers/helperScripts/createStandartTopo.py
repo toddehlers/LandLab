@@ -16,8 +16,8 @@ import time
 
 #---------------------------Parameter Definitions------------------------------#
 ##Model Grid:##
-ncols = 101 
-nrows = 101 
+ncols = 21 
+nrows = 21 
 dx    = 100
 
 #This is the total amount of steps the fastscape eroder runs
@@ -51,10 +51,13 @@ else:
     print('No pre-existing topography. Creating own random noise topo.')
 
 #Create boundary conditions of the model grid (either closed or fixed-head)
-for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge, mg.nodes_at_top_edge):
+#Create boundary conditions of the model grid (eeither closed or fixed-head)
+for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge,
+        mg.nodes_at_top_edge, mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = CLOSED_BOUNDARY
-for edge in (mg.nodes_at_bottom_edge):
-    mg.status_at_node[edge] = FIXED_VALUE_BOUNDARY
+
+#Create one single outlet node
+mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
 
 #Initialize Fastscape
 fc = FastscapeEroder(mg,
@@ -75,7 +78,10 @@ z = mg.at_node['topographic__elevation']
 
 plt.figure()
 imshow_grid(mg,z)
-plt.savefig('test.png')
+plt.savefig('intialTopography.png')
 plt.close()
 
-np.save('iniTopo',z)
+np.save('topoSeed',z)
+
+print('Done.')
+print('I have created initialTopography.png for you and topoSeed.npy for landlab')

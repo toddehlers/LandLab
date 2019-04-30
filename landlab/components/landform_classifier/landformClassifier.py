@@ -44,6 +44,8 @@ class landformClassifier(Component):
         self._grid.add_zeros('node', 'elevation__ID')
         self._grid.add_zeros('node', 'landform__ID')
         self._grid.add_zeros('node', 'aspectSlope')
+        self._grid.add_zeros('node', 'aspect')
+        self._grid.add_zeros('node', 'slope_degrees')
 
         #Flags
         self._tpiTYPE = ''
@@ -59,7 +61,8 @@ class landformClassifier(Component):
     ---------------------------------------------------------------------------
     HERE ARE THE DEPRECATED FUNCTIONS WHICH WORK ON A NORMAL .CSV FORMATTED DEM
     FOR THE LANDLAB MODULE WE WILL USE THE LANDLAB NATIVE FUNCTIONS.
-    AT SOME POINT JUST MOVE THIS TO A OWN NIFTY LITTLE CLASS
+    WHOEVER NEEDS TO CLASSIFY .CSV FORMATTED DEM-DATA:
+        THIS IS WHERE YOU CAN START IMPLEMENTING THE SHIT OUT OF IT!
     ----------------------------------------------------------------------------
     """
 
@@ -257,6 +260,15 @@ class landformClassifier(Component):
         #             self._grid.number_of_node_columns)
         self._aspect = aspect.reshape(self._grid.number_of_node_rows, self._grid.number_of_node_columns)
 
+    def writeAspectToGrid(self):
+        """
+        writes aspect values to landlab-data-field
+        """
+        
+        _aspectFlat = self._aspect.flatten().astype(int)
+        self._grid.at_node['aspect'] = _aspectFlat
+        self._grid.at_node['aspect'][self._grid.boundary_nodes] = 0
+        
     def classifyAspect(self, classNum = 4):
         #print('aspect classifier was run!')
         """
@@ -446,7 +458,8 @@ class landformClassifier(Component):
         """
 
         self._dem = self._grid.at_node['topographic__elevation']
-        self._slope = np.rad2deg(self._grid.at_node['topographic__steepest_slope'])
+        self._slope = np.degrees(np.arctan(self._grid.at_node['topographic__steepest_slope']))
+        self._grid.at_node['slope_degrees'] = self._slope
         self._aspect = self._grid.calc_aspect_at_node()
         
         
@@ -531,7 +544,7 @@ class landformClassifier(Component):
             """
             
             _aspSlope = self.calc_asp_slope()
-            _aspSlopeFlat = _aspSlope.flatten().astype(float)
+            _aspSlopeFlat = _aspSlope.flatten().astype(int)
 
             self._grid.at_node['aspectSlope'] = _aspSlopeFlat
             self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
@@ -552,6 +565,7 @@ class landformClassifier(Component):
             self.calculate_tpi(scalefact, res = self._grid.dx, TYPE = classtype)
             self.calcAspect()
             self.write_asp_slope_to_grid()
+            self.writeAspectToGrid()
             self.classifyAspect(classNum = '4')
             self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
             self.createLandformID()
