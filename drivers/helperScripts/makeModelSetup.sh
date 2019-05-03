@@ -1,22 +1,20 @@
 #!/bin/bash -l
 
-##Sets up landlab model setup structure
-##NOTE: If you set this up for your personal folder-setup
-##then you need to change the modelpaths
-##Created by: Manuel Schmid, 28th May, 2018
+## Sets up landlab model setup structure
+## NOTE: If you set this up for your personal folder-setup
+## then you need to change the modelpaths
+## Created by: Manuel Schmid, 28th May, 2018
+## Additions by: Willi Kappler, 2019.05.2
 
-#Set up Model Paths
-CURRENTDIR=$(pwd)
-USERNAME=$(whoami)
-LANDLABDIR=/esd/esd01/data/${USERNAME}/landlab/drivers
+LANDLABDRIVER=/usr/share/modules/Modules/3.2.10/landlab/drivers
 
 function setup_folders {
-  #catches the user input for folder-name
+  # Catches the user input for folder-name
   read -p "Enter Simulationfolder name: " foldername
   mkdir ${foldername}
   cd ./${foldername}
 
-  #Set up correct folder structure
+  # Set up correct folder structure
   if [ ! -d DEM ] ; then mkdir DEM ; fi
   if [ ! -d ACC ] ; then mkdir ACC ; fi
   if [ ! -d DHDT ] ; then mkdir DHDT ; fi
@@ -29,38 +27,40 @@ function setup_folders {
   echo "Folder structure set up."
 
   echo "Greetings User. Setting up $3"
-  cp ${LANDLABDIR}/$1/inputFile.py .
-  cp ${LANDLABDIR}/$1/$2 .
-  cp ${LANDLABDIR}/helperScripts/createStandartTopo.py .
-  cp ${LANDLABDIR}/Slurm_runfile.sbatch .
-  cp ${LANDLABDIR}/README.txt .
+  cp ${LANDLABDRIVER}/$1/inputFile.py .
+  cp ${LANDLABDRIVER}/$1/$2 .
+  cp ${LANDLABDRIVER}/helperScripts/createStandartTopo.py .
+  cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
+  cp ${LANDLABDRIVER}/README.txt .
 }
 
-#check the passed arguments
+# Check the passed arguments
 case "$1" in
 	-b|--bedrock)
-    setup_folders pureBedrock runfile_textinput.py "Bedrock Simulation"
+		setup_folders pureBedrock runfile_textinput.py "Bedrock Simulation"
 	;;
 	-s|--soil)
-    setup_folders soilLayer runfile_textinput_soil.py "Soil/Fastscape Simulation"
+		setup_folders soilLayer runfile_textinput_soil.py "Soil/Fastscape Simulation"
 	;;
 	-S|--soilSpace)
-    setup_folders soilLayerSpace runfile_textinput_soilSpace.py "Space Simulation"
+		setup_folders soilLayerSpace runfile_textinput_soilSpace.py "Space Simulation"
 	;;
-	-l|--lpjCoupled
-  *)
-    echo "This script sets up the landlab model setup structure"
-    echo -e "Use on of the following parameters:\n"
-    echo "-b|--bedrock"
-    echo -e "\tUse the detachment-limited only model without soil cover"
-    echo "-s|--soil"
-    echo -e "\tUse the detachment-limited model with soil cover and weathering"
-    echo "-S|--soilSpace"
-    echo -e "\tUse the space-fluvial model with soil cover and weatherin\n"
-    echo "-l|--lpjCoupled"
-    echo -e "\tUse the coupled lpj-landlab model \n"
-
+	-l|--lpjCoupled)
+		setup_folders lpj_coupled runfile_space.py "LPJ Coupled"
   ;;
+  *)
+		echo "This script sets up the landlab model setup structure"
+		echo -e "Use on of the following parameters:\n"
+		echo "-b|--bedrock"
+		echo -e "\tUse the detachment-limited only model without soil cover"
+		echo "-s|--soil"
+		echo -e "\tUse the detachment-limited model with soil cover and weathering"
+		echo "-S|--soilSpace"
+		echo -e "\tUse the space-fluvial model with soil cover and weatherin"
+		echo "-l|--lpjCoupled"
+		echo -e "\tUse the coupled lpj-landlab model \n"
+		exit 0
+	;;
 esac
 
 echo "Folder structure is setup. I recommend reading README.txt within your new directory"
