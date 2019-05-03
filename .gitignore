@@ -1,0 +1,15 @@
+# Added by Willi Kappler 2019.05.03
+
+# Object files after compiling:
+*.o
+
+# Shared libraries after compiling:
+*.so
+
+# Python cache files:
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
