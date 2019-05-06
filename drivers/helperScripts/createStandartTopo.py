@@ -24,10 +24,10 @@ dx    = 100
 nSteps = int(50)
 
 #Parameters used for Fastscape
-ksp = 0.1 
+ksp = 0.1 # Adapt to domain size
 msp = 0.5
 nsp = 1 
-thresholdSP = 2.e-4 
+thresholdSP = 2.e-4 # May not bee needed
 
 #Grid setup
 mg = RasterModelGrid((nrows,ncols), dx)
@@ -51,13 +51,21 @@ else:
     print('No pre-existing topography. Creating own random noise topo.')
 
 #Create boundary conditions of the model grid (either closed or fixed-head)
-#Create boundary conditions of the model grid (eeither closed or fixed-head)
 for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge,
         mg.nodes_at_top_edge, mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = CLOSED_BOUNDARY
 
-#Create one single outlet node
+# Create one single outlet node, remove if FIXED_VALUE_BOUNDARY is used above
 mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
+
+# You may want to add a Gauss elevation in order to speed up depression finding
+#gauss_x, gauss_y = np.meshgrid(np.linspace(-1,1,ncols), np.linspace(-1,1,nrows))
+#gauss_d = np.sqrt(gauss_x * gauss_x + gauss_y * gauss_y)
+#sigma, mu = 1.0, 0.0
+#gauss_g = np.exp(-( (gauss_d - mu)**2 / ( 2.0 * sigma**2 ) ) )
+#gauss_g2 = np.reshape(gauss_g, (ncols*nrows, ))
+#mg.at_node['topographic__elevation'] += gauss_g2
+
 
 #Initialize Fastscape
 fc = FastscapeEroder(mg,
@@ -69,6 +77,7 @@ fr = FlowRouter(mg)
 lm = DepressionFinderAndRouter(mg)
 
 for i in range(nSteps):
+    print('Current step: {}'.format(i))
     fr.run_one_step(dt=1)
     lm.map_depressions()
     fc.run_one_step(dt=1)
