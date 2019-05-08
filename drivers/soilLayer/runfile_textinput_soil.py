@@ -298,7 +298,8 @@ while elapsed_time < totalT:
         print('Elapsed Time:' , elapsed_time,', writing output!')
         ##Create DEM
         plt.figure()
-        imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
+        #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
+        imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [yrs]'.format(elapsed_time))
         plt.savefig('./DEM/DEM_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
         plt.close()
         ##Create Flow Accumulation Map
