@@ -78,9 +78,9 @@ rfA = float(config['Climate']['rfA'])
 maxRain = float(config['Climate']['maxRain'])
 lowRain = float(config['Climate']['lowRain'])
 
-vp = float(config['Vegatation']['vp'])
-sinAmp = float(config['Vegatation']['sinAmp'])
-sinPeriod = float(config['Vegatation']['sinPeriod'])
+vp = float(config['Vegetation']['vp'])
+sinAmp = float(config['Vegetation']['sinAmp'])
+sinPeriod = float(config['Vegetation']['sinPeriod'])
 
 outInt = int(config['Output']['outInt'])
 

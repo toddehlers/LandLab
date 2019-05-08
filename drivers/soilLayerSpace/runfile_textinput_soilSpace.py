@@ -92,9 +92,9 @@ soilProductionRate = float(config['Lithology']['soilProductionRate'])
 baseRainfall = float(config['Climate']['baseRainfall'])
 rfA = float(config['Climate']['rfA'])
 
-vp = float(config['Vegatation']['vp'])
-sinAmp = float(config['Vegatation']['sinAmp'])
-sinPeriod = float(config['Vegatation']['sinPeriod'])
+vp = float(config['Vegetation']['vp'])
+sinAmp = float(config['Vegetation']['sinAmp'])
+sinPeriod = float(config['Vegetation']['sinPeriod'])
 
 latitude = float(config['LPJ']['latitude'])
 longitude = float(config['LPJ']['longitude'])

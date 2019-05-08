@@ -82,10 +82,10 @@ soilProductionDepth = float(config['Lithology']['soilProductionDepth'])
 baseRainfall = float(config['Climate']['baseRainfall'])
 rfA = float(config['Climate']['rfA'])
 
-vp = float(config['Vegatation']['vp'])
-sinAmp = float(config['Vegatation']['sinAmp'])
-stepChangeVegi = float(config['Vegatation']['stepChangeVegi'])
-sinPeriod = float(config['Vegatation']['sinPeriod'])
+vp = float(config['Vegetation']['vp'])
+sinAmp = float(config['Vegetation']['sinAmp'])
+stepChangeVegi = float(config['Vegetation']['stepChangeVegi'])
+sinPeriod = float(config['Vegetation']['sinPeriod'])
 
 outInt = int(config['Output']['outInt'])
 
