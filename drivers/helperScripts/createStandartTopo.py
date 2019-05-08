@@ -28,13 +28,13 @@ ncols = int(config['Grid']['ncols'])
 dx = int(config['Grid']['dx'])
 
 #This is the total amount of steps the fastscape eroder runs
-nSteps = int(config['Fastscape']['nSteps'])
+nSteps = int(config['Erosion']['nSteps'])
 
 #Parameters used for Fastscape
-ksp = float(config['Fastscape']['ksp']) # Adapt to domain size
-msp = float(config['Fastscape']['msp'])
-nsp = float(config['Fastscape']['nsp']) 
-thresholdSP = float(config['Fastscape']['thresholdSP']) # May not bee needed
+ksp = float(config['Erosion']['ksp']) # Adapt to domain size
+msp = float(config['Erosion']['msp'])
+nsp = float(config['Erosion']['nsp']) 
+thresholdSP = float(config['Erosion']['thresholdSP']) # May not bee needed
 
 #Grid setup
 mg = RasterModelGrid((nrows,ncols), dx)
