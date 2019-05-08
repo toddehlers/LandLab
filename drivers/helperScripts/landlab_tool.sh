@@ -25,6 +25,6 @@ case "$1" in
         echo "soil: the detachment-limited model with soil cover and weathering"
         echo "space: he space-fluvial model with soil cover and weathering"
         echo "lpj: the coupled lpj-landlab model"
-        echo "reser_output: removes all of the output files"
+        echo "reset_output: removes all of the output files"
     ;;
 esac
