@@ -25,7 +25,7 @@ case "$1" in
         mkdir ACC CSVOutput DEM DHDT Ksn NC SA SoilDepth dd
     ;;
     create_topo)
-        $LANDLABDRIVER/helperScripts/createStandartTopo.py
+        python3 $LANDLABDRIVER/helperScripts/createStandartTopo.py
     ;;
     *)
         echo "This script initializes and runs the apropriate landlab model."
@@ -40,21 +40,23 @@ case "$1" in
 
         echo -e "The following simulation types (<sim_type>) are available:\n"
 
-        echo -e "\tbedrock: the detachment-limited only model without soil cover"
-        echo -e "\tsoil: the detachment-limited model with soil cover and weathering"
-        echo -e "\tspace: he space-fluvial model with soil cover and weathering"
-        echo -e "\tlpj: the coupled lpj-landlab model\n"
+        echo -e "\t- bedrock: the detachment-limited only model without soil cover"
+        echo -e "\t- soil: the detachment-limited model with soil cover and weathering"
+        echo -e "\t- space: he space-fluvial model with soil cover and weathering"
+        echo -e "\t- lpj: the coupled lpj-landlab model\n"
 
         echo -e "\n"
 
         echo -e "Examples:\n"
 
+        SCRIPT_NAME=$(basename $0)
+
         echo "Initialize the soil simulation:"
-        echo "$0 init soil"
+        echo "$SCRIPT_NAME init soil"
 
         echo -e "\n"
 
         echo "Run the lpj coupled simulation:"
-        echo "$0 run lpj"
+        echo "$SCRIPT_NAME run lpj"
     ;;
 esac
