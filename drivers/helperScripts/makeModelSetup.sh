@@ -26,9 +26,8 @@ function setup_folders {
   if [ ! -d Ksn ] ; then mkdir Ksn ; fi
   echo "Folder structure set up."
 
-  echo "Greetings User. Setting up $3"
+  echo "Greetings User. Setting up $2"
   cp ${LANDLABDRIVER}/$1/inputFile.py .
-  cp ${LANDLABDRIVER}/$1/$2 .
   cp ${LANDLABDRIVER}/helperScripts/createStandartTopo.py .
   cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
   cp ${LANDLABDRIVER}/README.txt .
@@ -37,16 +36,16 @@ function setup_folders {
 # Check the passed arguments
 case "$1" in
 	-b|--bedrock)
-		setup_folders pureBedrock runfile_textinput.py "Bedrock Simulation"
+		setup_folders pureBedrock "Bedrock Simulation"
 	;;
 	-s|--soil)
-		setup_folders soilLayer runfile_textinput_soil.py "Soil/Fastscape Simulation"
+		setup_folders soilLayer "Soil/Fastscape Simulation"
 	;;
 	-S|--soilSpace)
-		setup_folders soilLayerSpace runfile_textinput_soilSpace.py "Space Simulation"
+		setup_folders soilLayerSpace "Space Simulation"
 	;;
 	-l|--lpjCoupled)
-		setup_folders lpj_coupled runfile_space.py "LPJ Coupled"
+		setup_folders lpj_coupled "LPJ Coupled"
   ;;
   *)
 		echo "This script sets up the landlab model setup structure"
@@ -56,7 +55,7 @@ case "$1" in
 		echo "-s|--soil"
 		echo -e "\tUse the detachment-limited model with soil cover and weathering"
 		echo "-S|--soilSpace"
-		echo -e "\tUse the space-fluvial model with soil cover and weatherin"
+		echo -e "\tUse the space-fluvial model with soil cover and weathering"
 		echo "-l|--lpjCoupled"
 		echo -e "\tUse the coupled lpj-landlab model \n"
 		exit 0
