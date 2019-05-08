@@ -37,7 +37,13 @@ import logging
 #from inputFile import *
 import configparser
 
-logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO, filename='landlab.log')
+logger = logging.getLogger('runfile')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler('landlab.log')
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 config = configparser.ConfigParser()
 config.read('inputFile.ini')
@@ -99,7 +105,7 @@ no = totalT / outInt
 #number of zeros for file_naming. Don't meddle with this.
 zp = len(str(int(no)))
 
-logging.info("finished with parameter-initiation")
+logger.info("finished with parameter-initiation")
 
 #---------------------------------Grid Setup-----------------------------------#
 #This initiates a Modelgrid with dimensions nrows x ncols and spatial scaling of dx
@@ -109,9 +115,9 @@ mg = RasterModelGrid((nrows,ncols), dx)
 #right now this only works if the topo was saved in numpys .npy format.
 try:
     topoSeed = np.load('topoSeed.npy')
-    logging.info('loaded topoSeed.npy')
+    logger.info('loaded topoSeed.npy')
 except:
-    logging.info('There is no file containing a initial topography')
+    logger.info('There is no file containing a initial topography')
 
 #Initate all the fields that are needed for calculations
 mg.add_zeros('node','topographic__elevation')
@@ -122,14 +128,14 @@ mg.at_node['soil_production__rate'] += soilProductionRate
 if 'topoSeed' in locals():
     mg.at_node['topographic__elevation'] += (topoSeed + initialSoilDepth) 
     mg.at_node['bedrock__elevation'] += topoSeed 
-    logging.info('Using pre-existing topography from file topoSeed.npy')
+    logger.info('Using pre-existing topography from file topoSeed.npy')
 
 else:
     mg.at_node['topographic__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
     mg.at_node['bedrock__elevation'] += topoSeed
-    logging.info('No pre-existing topography. Creating own random noise topo.')
+    logger.info('No pre-existing topography. Creating own random noise topo.')
 
-logging.info('Creating soil layer under bedrock layer with {}m thickness'.format(initialSoilDepth))
+logger.info('Creating soil layer under bedrock layer with {}m thickness'.format(initialSoilDepth))
 
 mg.add_zeros('node','vegetation__density')
 
@@ -139,7 +145,7 @@ for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge, mg.nodes_at_top_edge)
 for edge in (mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = FIXED_VALUE_BOUNDARY
 
-logging.info("finished with setup of modelgrid")
+logger.info("finished with setup of modelgrid")
 
 ##---------------------------------Vegi implementation--------------------------#
 ##Set up a timeseries for vegetation-densities
@@ -169,7 +175,7 @@ n_v_frac = nSoil + (nVRef * ((mg.at_node['vegetation__density'] / vRef)**w)) #se
 Prefect = np.power(n_v_frac, 0.9)
 Kv = ksp * Ford/Prefect
 
-logging.info("finished setting up the vegetation fields and Kdiff and Kriv")
+logger.info("finished setting up the vegetation fields and Kdiff and Kriv")
 
 ##---------------------------------Rain implementation--------------------------#
 ##Set up a Timeseries of rainfall values
@@ -236,12 +242,12 @@ DDdiff = DepthDependentVegiDiffuser(mg, alpha=alphaDiff, soil_creep_efficiency=s
 sf = SteepnessFinder(mg,
                     min_drainage_area = 1e6)
 
-logging.info("finished with the initialization of the erosion components")   
+logger.info("finished with the initialization of the erosion components")   
 
 ##---------------------------------Main Loop------------------------------------#
 t0 = time.time()
 elapsed_time = 0
-logging.info("starting with main loop.")
+logger.info("starting with main loop.")
 #Create incremental counter for controlling progress of mainloop
 counter = 0
 #Create Limits for DHDT plot. Move this somewhere else later..
@@ -337,7 +343,7 @@ while elapsed_time < totalT:
     #Run the output loop every outInt-times
     if elapsed_time % outInt  == 0:
 
-        logging.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
+        logger.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
         ##Create DEM
         plt.figure()
         #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
@@ -381,7 +387,7 @@ while elapsed_time < totalT:
 
     elapsed_time += dt #update elapsed time
 tE = time.time()
-logging.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
+logger.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
 
 
 ##---------------------------------Plotting-------------------------------------#
@@ -494,4 +500,4 @@ np.savetxt('./CSVOutput/RainTimeseries.csv', rainTimeseries)
 plt.plot(vegi_P_mean)
 plt.savefig('./vegi_P_bugfix.png', dpi = 720)
 plt.close()
-logging.info("FINALLY! TADA! IT IS DONE! LOOK AT ALL THE OUTPUT I MADE!!!!")
+logger.info("FINALLY! TADA! IT IS DONE! LOOK AT ALL THE OUTPUT I MADE!!!!")

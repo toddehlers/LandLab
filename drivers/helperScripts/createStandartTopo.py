@@ -16,7 +16,13 @@ import time
 import logging
 import configparser
 
-logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO, filename='landlab.log')
+logger = logging.getLogger('createStandartTopo')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler('landlab.log')
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 #---------------------------Parameter Definitions------------------------------#
 ##Model Grid:##
@@ -43,19 +49,19 @@ mg = RasterModelGrid((nrows,ncols), dx)
 #right now this only works if the topo was saved in numpys .npy format.
 try:
     topoSeed = np.load('topoSeed.npy')
-    logging.info('loaded topoSeed.npy')
+    logger.info('loaded topoSeed.npy')
 except:
-    logging.info('There is no file containing a initial topography')
+    logger.info('There is no file containing a initial topography')
 
 #Initate all the fields that are needed for calculations
 mg.add_zeros('node','topographic__elevation')
 #checks if standart topo is used. if not creates own
 if 'topoSeed' in locals():
     mg.at_node['topographic__elevation'] += topoSeed
-    logging.info('Using pre-existing topography from file topoSeed.npy')
+    logger.info('Using pre-existing topography from file topoSeed.npy')
 else:
     mg.at_node['topographic__elevation'] += np.random.rand(mg.at_node.size)/10000 
-    logging.info('No pre-existing topography. Creating own random noise topo.')
+    logger.info('No pre-existing topography. Creating own random noise topo.')
 
 #Create boundary conditions of the model grid (either closed or fixed-head)
 for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge,
@@ -84,7 +90,7 @@ fr = FlowRouter(mg)
 lm = DepressionFinderAndRouter(mg)
 
 for i in range(nSteps):
-    logging.info('Current step: {}'.format(i))
+    logger.info('Current step: {}'.format(i))
     fr.run_one_step(dt=1)
     lm.map_depressions()
     fc.run_one_step(dt=1)
@@ -99,5 +105,5 @@ plt.close()
 
 np.save('topoSeed',z)
 
-logging.info('Done.')
-logging.info('I have created initialTopography.png for you and topoSeed.npy for landlab')
+logger.info('Done.')
+logger.info('I have created initialTopography.png for you and topoSeed.npy for landlab')
