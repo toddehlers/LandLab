@@ -6,8 +6,6 @@
 ## Created by: Manuel Schmid, 28th May, 2018
 ## Additions by: Willi Kappler, 2019.05.2
 
-LANDLABDRIVER=/usr/share/modules/Modules/3.2.10/landlab/drivers
-
 function setup_folders {
   # Catches the user input for folder-name
   read -p "Enter Simulationfolder name: " foldername

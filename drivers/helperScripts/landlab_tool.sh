@@ -1,7 +1,5 @@
 #!/bin/bash
 
-LANDLABDRIVER=/usr/share/modules/Modules/3.2.10/landlab/drivers
-
 case "$1" in
     init)
         bash $LANDLABDRIVER/helperScripts/makeModelSetup.sh $2
