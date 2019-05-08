@@ -36,9 +36,67 @@ import numpy as np
 import os.path
 import shutil
 #import the .py-inputfile
-from inputFile import *
+#from inputFile import *
+
+import configparser
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO, filename='landlab.log')
+
+config = configparser.ConfigParser()
+config.read('inputFile.ini')
+
+nrows = int(config['Grid']['nrows'])
+ncols = int(config['Grid']['ncols'])
+dx = int(config['Grid']['dx'])
+
+totalT = float(config['Runtime']['totalT'])
+ssT = float(config['Runtime']['ssT'])
+sfT = float(config['Runtime']['sfT'])
+spin_up = float(config['Runtime']['spin_up'])
+dt = float(config['Runtime']['dt'])
+
+upliftRate = float(config['Uplift']['upliftRate'])
+
+linDiffBase = float(config['Surface']['linDiffBase'])
+alphaDiff = float(config['Surface']['alphaDiff'])
+
+critArea = float(config['Erosion']['critArea'])
+aqDens = float(config['Erosion']['aqDens'])
+grav = float(config['Erosion']['grav'])
+nSoil = float(config['Erosion']['nSoil'])
+nVRef = float(config['Erosion']['nVRef'])
+vRef = float(config['Erosion']['vRef'])
+w = float(config['Erosion']['w'])
+
+k_sediment = float(config['Erosion_SPACE']['k_sediment'])
+k_bedrock = float(config['Erosion_SPACE']['k_bedrock'])
+Ff = float(config['Erosion_SPACE']['Ff'])
+phi = float(config['Erosion_SPACE']['phi'])
+Hstar = float(config['Erosion_SPACE']['Hstar'])
+vs = float(config['Erosion_SPACE']['vs'])
+m = float(config['Erosion_SPACE']['m'])
+n = float(config['Erosion_SPACE']['n'])
+sp_crit_sedi = float(config['Erosion_SPACE']['sp_crit_sedi'])
+sp_crit_bedrock = float(config['Erosion_SPACE']['sp_crit_bedrock'])
+solverMethod = config['Erosion_SPACE']['solverMethod']
+solver = config['Erosion_SPACE']['solver']
+
+initialSoilDepth = float(config['Lithology']['initialSoilDepth'])
+soilProductionRate = float(config['Lithology']['soilProductionRate'])
+
+baseRainfall = float(config['Climate']['baseRainfall'])
+rfA = float(config['Climate']['rfA'])
+
+vp = float(config['Vegatation']['vp'])
+sinAmp = float(config['Vegatation']['sinAmp'])
+sinPeriod = float(config['Vegatation']['sinPeriod'])
+
+latitude = float(config['LPJ']['latitude'])
+longitude = float(config['LPJ']['longitude'])
+classificationType = config['LPJ']['classificationType']
+elevationStepBin = float(config['LPJ']['elevationStepBin'])
+
+outInt = int(config['Output']['outInt'])
 
 ##----------------------Basic setup of global variables------------------------
 #Set basic output interval for transient conditions

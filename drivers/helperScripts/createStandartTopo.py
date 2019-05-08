@@ -14,23 +14,27 @@ from landlab import imshow_grid
 from matplotlib import pyplot as plt
 import time
 import logging
+import configparser
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO, filename='landlab.log')
 
 #---------------------------Parameter Definitions------------------------------#
 ##Model Grid:##
-ncols = 21 
-nrows = 21 
-dx    = 100
+config = configparser.ConfigParser()
+config.read('inputFile.ini')
+
+nrows = int(config['Grid']['nrows'])
+ncols = int(config['Grid']['ncols'])
+dx = int(config['Grid']['dx'])
 
 #This is the total amount of steps the fastscape eroder runs
-nSteps = int(50)
+nSteps = int(config['Fastscape']['nSteps'])
 
 #Parameters used for Fastscape
-ksp = 0.1 # Adapt to domain size
-msp = 0.5
-nsp = 1 
-thresholdSP = 2.e-4 # May not bee needed
+ksp = float(config['Fastscape']['ksp']) # Adapt to domain size
+msp = float(config['Fastscape']['msp'])
+nsp = float(config['Fastscape']['nsp']) 
+thresholdSP = float(config['Fastscape']['thresholdSP']) # May not bee needed
 
 #Grid setup
 mg = RasterModelGrid((nrows,ncols), dx)

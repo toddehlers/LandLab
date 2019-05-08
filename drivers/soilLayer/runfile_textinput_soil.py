@@ -34,9 +34,54 @@ rcParams['agg.path.chunksize'] = 200000000
 import time
 import logging
 #import the .py-inputfile
-from inputFile import *
+#from inputFile import *
+import configparser
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO, filename='landlab.log')
+
+config = configparser.ConfigParser()
+config.read('inputFile.ini')
+
+nrows = int(config['Grid']['nrows'])
+ncols = int(config['Grid']['ncols'])
+dx = int(config['Grid']['dx'])
+
+totalT = float(config['Runtime']['totalT'])
+ssT = float(config['Runtime']['ssT'])
+sfT = float(config['Runtime']['sfT'])
+spin_up = float(config['Runtime']['spin_up'])
+dt = float(config['Runtime']['dt'])
+
+upliftRate = float(config['Uplift']['upliftRate'])
+
+soilCreepEfficienyBase = float(config['Surface']['soilCreepEfficienyBase'])
+alphaDiff = float(config['Surface']['alphaDiff'])
+
+ksp = float(config['Erosion']['ksp'])
+msp = float(config['Erosion']['msp'])
+nsp = float(config['Erosion']['nsp'])
+thresholdSP = float(config['Erosion']['thresholdSP'])
+critArea = float(config['Erosion']['critArea'])
+aqDens = float(config['Erosion']['aqDens'])
+grav = float(config['Erosion']['grav'])
+nSoil = float(config['Erosion']['nSoil'])
+nVRef = float(config['Erosion']['nVRef'])
+vRef = float(config['Erosion']['vRef'])
+w = float(config['Erosion']['w'])
+
+initialSoilDepth = float(config['Lithology']['initialSoilDepth'])
+soilProductionRate = float(config['Lithology']['soilProductionRate'])
+soilProductionDepth = float(config['Lithology']['soilProductionDepth'])
+
+baseRainfall = float(config['Climate']['baseRainfall'])
+rfA = float(config['Climate']['rfA'])
+
+vp = float(config['Vegatation']['vp'])
+sinAmp = float(config['Vegatation']['sinAmp'])
+stepChangeVegi = float(config['Vegatation']['stepChangeVegi'])
+sinPeriod = float(config['Vegatation']['sinPeriod'])
+
+outInt = int(config['Output']['outInt'])
 
 #input-processing:
 #Number of total-timestep (nt) and spin-up timesteps (ssnt)

@@ -27,36 +27,35 @@ function setup_folders {
   echo "Folder structure set up."
 
   echo "Greetings User. Setting up $2"
-  cp ${LANDLABDRIVER}/$1/inputFile.py .
-  cp ${LANDLABDRIVER}/helperScripts/createStandartTopo.py .
+  cp ${LANDLABDRIVER}/$1/inputFile.ini .
   cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
   cp ${LANDLABDRIVER}/README.txt .
 }
 
 # Check the passed arguments
 case "$1" in
-	-b|--bedrock)
+	bedrock)
 		setup_folders pureBedrock "Bedrock Simulation"
 	;;
-	-s|--soil)
+	soil)
 		setup_folders soilLayer "Soil/Fastscape Simulation"
 	;;
-	-S|--soilSpace)
+	space)
 		setup_folders soilLayerSpace "Space Simulation"
 	;;
-	-l|--lpjCoupled)
+	lpj)
 		setup_folders lpj_coupled "LPJ Coupled"
   ;;
   *)
 		echo "This script sets up the landlab model setup structure"
 		echo -e "Use on of the following parameters:\n"
-		echo "-b|--bedrock"
+		echo "bedrock"
 		echo -e "\tUse the detachment-limited only model without soil cover"
-		echo "-s|--soil"
+		echo "soil"
 		echo -e "\tUse the detachment-limited model with soil cover and weathering"
-		echo "-S|--soilSpace"
+		echo "space"
 		echo -e "\tUse the space-fluvial model with soil cover and weathering"
-		echo "-l|--lpjCoupled"
+		echo "lpj"
 		echo -e "\tUse the coupled lpj-landlab model \n"
 		exit 0
 	;;
