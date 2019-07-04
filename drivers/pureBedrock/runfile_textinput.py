@@ -149,6 +149,8 @@ for c in config['Grid']['boundary']:
     elif c == 'P':
         #Create one single outlet node
         mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
+    else:
+        logger.error("Unknown boundary parameter: {}".format(c))
 
 logger.info("finished with setup of modelgrid")
 

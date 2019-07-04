@@ -139,11 +139,26 @@ logger.info('Creating soil layer under bedrock layer with {}m thickness'.format(
 
 mg.add_zeros('node','vegetation__density')
 
-#Create boundary conditions of the model grid (eeither closed or fixed-head)
-for edge in (mg.nodes_at_left_edge,mg.nodes_at_right_edge, mg.nodes_at_top_edge):
-    mg.status_at_node[edge] = CLOSED_BOUNDARY
-for edge in (mg.nodes_at_bottom_edge):
+# Create boundary conditions of the model grid (either closed or fixed-head)
+for edge in (mg.nodes_at_left_edge, mg.nodes_at_right_edge,
+        mg.nodes_at_top_edge, mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = FIXED_VALUE_BOUNDARY
+
+for c in config['Grid']['boundary']:
+    if c == 'E':
+        mg.status_at_node[mg.nodes_at_right_edge] = CLOSED_BOUNDARY
+    elif c == 'S':
+        mg.status_at_node[mg.nodes_at_bottom_edge] = CLOSED_BOUNDARY
+    elif c == 'W':
+        mg.status_at_node[mg.nodes_at_left_edge] = CLOSED_BOUNDARY
+    elif c == 'N':
+        mg.status_at_node[mg.nodes_at_top_edge] = CLOSED_BOUNDARY
+    elif c == 'P':
+        # Create one single outlet node
+        mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
+    else:
+        logger.error("Unknown boundary parameter: {}".format(c))
+
 
 logger.info("finished with setup of modelgrid")
 
