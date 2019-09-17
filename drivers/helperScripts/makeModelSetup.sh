@@ -39,11 +39,10 @@ function setup_folders {
 	if [ $1 == "lpj_coupled" ]; then
 		# For LPJ coupling more files are needed:
  		# cp -r ${LANDLABDRIVER}/lpj_coupled/temp_lpj .
-		mkdir ${LANDLABDRIVER}/lpj_coupled/temp_lpj
+		mkdir temp_output
 		cp -r ${LANDLABDRIVER}/lpj_coupled/lpjguess.template .
 		cp -r ${LANDLABDRIVER}/lpj_coupled/forcings .
 	fi
-
 }
 
 # Check the passed arguments
