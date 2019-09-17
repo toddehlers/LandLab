@@ -181,7 +181,7 @@ def main():
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
-    lf_classes, lf_ele_levels = define_landform_classes(ele_step, 6000, TYPE=classification)
+    lf_classes, lf_ele_levels = define_landform_classes(int(ele_step), 6000, TYPE=classification)
 
     # config object / totally overkill here but kept for consistency
     cfg = Bunch(dict(OUTDIR=LPJGUESS_INPUT_PATH, 

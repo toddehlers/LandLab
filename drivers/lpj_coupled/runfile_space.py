@@ -59,7 +59,7 @@ totalT = float(config['Runtime']['totalT'])
 ssT = float(config['Runtime']['ssT'])
 sfT = float(config['Runtime']['sfT'])
 spin_up = float(config['Runtime']['spin_up'])
-dt = float(config['Runtime']['dt'])
+dt = int(config['Runtime']['dt'])
 
 upliftRate = float(config['Uplift']['upliftRate'])
 
