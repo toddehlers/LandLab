@@ -6,6 +6,13 @@
 ## Created by: Manuel Schmid, 28th May, 2018
 ## Additions by: Willi Kappler, 2019.05.2
 
+if [[ -z "${LANDLABDRIVER}" ]]; then
+    echo "Environment variable LANDLABDRIVER is not set"
+    echo "You should load the module first:"
+    echo "module load landlab"
+    exit 1
+fi
+
 function setup_folders {
   # Catches the user input for folder-name
   read -p "Enter Simulationfolder name: " foldername
@@ -43,6 +50,7 @@ case "$1" in
 	;;
 	lpj)
 		setup_folders lpj_coupled "LPJ Coupled"
+		# cp ${LANDLABDRIVER}/lpj_coupled/
   ;;
   *)
 		echo "This script sets up the landlab model setup structure"

@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ -z "${LANDLABDRIVER}" ]]; then
+    echo "Environment variable LANDLABDRIVER is not set"
+    echo "You should load the module first:"
+    echo "module load landlab"
+    exit 1
+fi
+
 case "$1" in
     init)
         bash $LANDLABDRIVER/helperScripts/makeModelSetup.sh $2
@@ -17,6 +24,9 @@ case "$1" in
             ;;
             lpj)
                 python3 $LANDLABDRIVER/lpj_coupled/runfile_space.py
+            ;;
+            *)
+                echo "Unknown simulation type: $2"
             ;;
         esac
     ;;
