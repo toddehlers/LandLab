@@ -14,27 +14,36 @@ if [[ -z "${LANDLABDRIVER}" ]]; then
 fi
 
 function setup_folders {
-  # Catches the user input for folder-name
-  read -p "Enter Simulationfolder name: " foldername
-  mkdir ${foldername}
-  cd ./${foldername}
+	# Catches the user input for folder-name
+	read -p "Enter Simulationfolder name: " foldername
+	mkdir ${foldername}
+	cd ./${foldername}
 
-  # Set up correct folder structure
-  if [ ! -d DEM ] ; then mkdir DEM ; fi
-  if [ ! -d ACC ] ; then mkdir ACC ; fi
-  if [ ! -d DHDT ] ; then mkdir DHDT ; fi
-  if [ ! -d NC ] ; then mkdir NC ; fi
-  if [ ! -d SA ] ; then mkdir SA ; fi
-  if [ ! -d dd ] ; then mkdir dd ; fi
-  if [ ! -d CSVOutput ] ; then mkdir CSVOutput ; fi
-  if [ ! -d SoilDepth ] ; then mkdir SoilDepth ; fi
-  if [ ! -d Ksn ] ; then mkdir Ksn ; fi
-  echo "Folder structure set up."
+	# Set up correct folder structure
+	if [ ! -d DEM ] ; then mkdir DEM ; fi
+	if [ ! -d ACC ] ; then mkdir ACC ; fi
+	if [ ! -d DHDT ] ; then mkdir DHDT ; fi
+	if [ ! -d NC ] ; then mkdir NC ; fi
+	if [ ! -d SA ] ; then mkdir SA ; fi
+	if [ ! -d dd ] ; then mkdir dd ; fi
+	if [ ! -d CSVOutput ] ; then mkdir CSVOutput ; fi
+	if [ ! -d SoilDepth ] ; then mkdir SoilDepth ; fi
+	if [ ! -d Ksn ] ; then mkdir Ksn ; fi
+	echo "Folder structure set up."
 
-  echo "Greetings User. Setting up $2"
-  cp ${LANDLABDRIVER}/$1/inputFile.ini .
-  cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
-  cp ${LANDLABDRIVER}/README.txt .
+	echo "Greetings User. Setting up $2"
+	cp ${LANDLABDRIVER}/$1/inputFile.ini .
+	cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
+	cp ${LANDLABDRIVER}/README.txt .
+
+	if [ $1 == "lpj_coupled" ]; then
+		# For LPJ coupling more files are needed:
+ 		# cp -r ${LANDLABDRIVER}/lpj_coupled/temp_lpj .
+		mkdir ${LANDLABDRIVER}/lpj_coupled/temp_lpj
+		cp -r ${LANDLABDRIVER}/lpj_coupled/lpjguess.template .
+		cp -r ${LANDLABDRIVER}/lpj_coupled/forcings .
+	fi
+
 }
 
 # Check the passed arguments
@@ -50,7 +59,6 @@ case "$1" in
 	;;
 	lpj)
 		setup_folders lpj_coupled "LPJ Coupled"
-		# cp ${LANDLABDRIVER}/lpj_coupled/
   ;;
   *)
 		echo "This script sets up the landlab model setup structure"

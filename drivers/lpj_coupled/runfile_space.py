@@ -89,6 +89,7 @@ solver = config['Erosion_SPACE']['solver']
 
 initialSoilDepth = float(config['Lithology']['initialSoilDepth'])
 soilProductionRate = float(config['Lithology']['soilProductionRate'])
+soilProductionDecayDepth = float(config['Lithology']['soilProductionDecayDepth'])
 
 baseRainfall = float(config['Climate']['baseRainfall'])
 rfA = float(config['Climate']['rfA'])
@@ -101,12 +102,20 @@ latitude = float(config['LPJ']['latitude'])
 longitude = float(config['LPJ']['longitude'])
 classificationType = config['LPJ']['classificationType']
 elevationStepBin = float(config['LPJ']['elevationStepBin'])
+LPJGUESS_INPUT_PATH = config['LPJ']['LPJGUESS_INPUT_PATH']
+LPJGUESS_TEMPLATE_PATH = config['LPJ']['LPJGUESS_TEMPLATE_PATH']
+LPJGUESS_FORCINGS_PATH = config['LPJ']['LPJGUESS_FORCINGS_PATH']
+LPJGUESS_INS_FILE_TPL = config['LPJ']['LPJGUESS_INS_FILE_TPL']
+# LPJGUESS_BIN = os.environ["LANDLABDRIVER"] + ""
+LPJGUESS_BIN = "guess" # Should be in PATH
+LPJGUESS_CO2FILE = config['LPJ']['LPJGUESS_CO2FILE']
+LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
+LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 
-outInt = int(config['Output']['outInt'])
+outInt = int(config['Output']['outIntSpinUp'])
 
 ##----------------------Basic setup of global variables------------------------
 #Set basic output interval for transient conditions
-outInt = outIntTransient
 #Number of total-timestep (nt)
 nt = int(totalT / dt)
 #time-vector (total and transient), used for plotting later
@@ -169,7 +178,9 @@ for edge in (mg.nodes_at_left_edge, mg.nodes_at_right_edge,
         mg.nodes_at_top_edge, mg.nodes_at_bottom_edge):
     mg.status_at_node[edge] = FIXED_VALUE_BOUNDARY
 
-for c in config['Grid']['boundary']:
+boundary = config['Grid']['boundary'].strip()
+
+for c in boundary:
     if c == 'E':
         mg.status_at_node[mg.nodes_at_right_edge] = CLOSED_BOUNDARY
     elif c == 'S':
@@ -185,7 +196,7 @@ for c in config['Grid']['boundary']:
         logger.error("Unknown boundary parameter: {}".format(c))
 
 #create mask datafield which defaults to 1 to all core nodes and to 0 for
-#booundary nodes. LPJGUESS needs this
+#boundary nodes. LPJGUESS needs this
 mg.at_node['tpi__mask'][mg.core_nodes] = 1
 mg.at_node['tpi__mask'][mg.boundary_nodes] = 0
 
@@ -244,7 +255,8 @@ DDdiff = DepthDependentDiffuser(mg,
             linear_diffusivity = linDiff,
             soil_transport_decay_depth = 2)
 
-lpj = DynVeg_LpjGuess(LPJGUESS_INPUT_PATH,
+lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
+                    LPJGUESS_INPUT_PATH,
                     LPJGUESS_TEMPLATE_PATH,
                     LPJGUESS_FORCINGS_PATH,
                     LPJGUESS_INS_FILE_TPL,
@@ -282,7 +294,7 @@ while elapsed_time < totalT:
 
     #run lpjguess once at the beginning and then each timestep after the spinup.
     if elapsed_time < spin_up:
-        outInt = outIntSpinUp
+        outInt = int(config['Output']['outIntSpinUp'])
         if elapsed_time == 0:
             
             #create all possible landform__ID's in here ONCE before lpjguess is called
@@ -312,7 +324,7 @@ while elapsed_time < totalT:
         elif elapsed_time > 0:
             pass
     elif elapsed_time >= spin_up:
-        outInt = outIntTransient
+        outInt = int(config['Output']['outIntTransient'])
         #reset counter to 1, to get right position in climate file
         if elapsed_time == spin_up:
             counter = 1
