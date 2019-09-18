@@ -19,32 +19,38 @@ function setup_folders {
 	mkdir ${foldername}
 	cd ./${foldername}
 
-	# Set up correct folder structure
-	if [ ! -d DEM ] ; then mkdir DEM ; fi
-	if [ ! -d ACC ] ; then mkdir ACC ; fi
-	if [ ! -d DHDT ] ; then mkdir DHDT ; fi
-	if [ ! -d NC ] ; then mkdir NC ; fi
-	if [ ! -d SA ] ; then mkdir SA ; fi
-	if [ ! -d dd ] ; then mkdir dd ; fi
-	if [ ! -d CSVOutput ] ; then mkdir CSVOutput ; fi
-	if [ ! -d SoilDepth ] ; then mkdir SoilDepth ; fi
-	if [ ! -d Ksn ] ; then mkdir Ksn ; fi
-	echo "Folder structure set up."
-
 	echo "Greetings User. Setting up $2"
 	cp ${LANDLABDRIVER}/$1/inputFile.ini .
 	cp ${LANDLABDRIVER}/$1/Slurm_runfile.sbatch .
 	cp ${LANDLABDRIVER}/README.txt .
 
+	# Set up correct folder structure
 	if [ $1 == "lpj_coupled" ]; then
-		# For LPJ coupling more files are needed:
- 		# cp -r ${LANDLABDRIVER}/lpj_coupled/temp_lpj .
-		mkdir temp_output
-		mkdir debugging
-		mkdir ll_output
 		cp -r ${LANDLABDRIVER}/lpj_coupled/lpjguess.template .
 		cp -r ${LANDLABDRIVER}/lpj_coupled/forcings .
+		mkdir -p temp_output
+		mkdir -p debugging
+		mkdir -p ll_output/BED
+		mkdir -p ll_output/DEM
+		mkdir -p ll_output/DHDT
+		mkdir -p ll_output/NC
+		mkdir -p ll_output/SA
+		mkdir -p ll_output/SoilDepth
+		mkdir -p ll_output/SoilP
+		mkdir -p ll_output/Veg
+	else
+		mkdir -p DEM
+		mkdir -p ACC
+		mkdir -p DHDT
+		mkdir -p NC
+		mkdir -p SA
+		mkdir -p dd
+		mkdir -p CSVOutput
+		mkdir -p SoilDepth
+		mkdir -p Ksn
 	fi
+
+	echo "Folder structure set up."
 }
 
 # Check the passed arguments
