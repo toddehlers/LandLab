@@ -33,13 +33,14 @@ function setup_folders {
 
 	echo "Greetings User. Setting up $2"
 	cp ${LANDLABDRIVER}/$1/inputFile.ini .
-	cp ${LANDLABDRIVER}/Slurm_runfile.sbatch .
+	cp ${LANDLABDRIVER}/$1/Slurm_runfile.sbatch .
 	cp ${LANDLABDRIVER}/README.txt .
 
 	if [ $1 == "lpj_coupled" ]; then
 		# For LPJ coupling more files are needed:
  		# cp -r ${LANDLABDRIVER}/lpj_coupled/temp_lpj .
 		mkdir temp_output
+		mkdir debugging
 		cp -r ${LANDLABDRIVER}/lpj_coupled/lpjguess.template .
 		cp -r ${LANDLABDRIVER}/lpj_coupled/forcings .
 	fi
