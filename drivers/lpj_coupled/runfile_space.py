@@ -62,6 +62,7 @@ spin_up = float(config['Runtime']['spin_up'])
 dt = int(config['Runtime']['dt'])
 
 upliftRate = float(config['Uplift']['upliftRate'])
+baseElevation = float(config['Uplift']['baseElevation'])
 
 linDiffBase = float(config['Surface']['linDiffBase'])
 alphaDiff = float(config['Surface']['alphaDiff'])
@@ -73,6 +74,9 @@ nSoil = float(config['Erosion']['nSoil'])
 nVRef = float(config['Erosion']['nVRef'])
 vRef = float(config['Erosion']['vRef'])
 w = float(config['Erosion']['w'])
+nGrass = float(config['Erosion']['nGrass'])
+nTree = float(config['Erosion']['nTree'])
+nShrub = float(config['Erosion']['nShrub'])
 
 k_sediment = float(config['Erosion_SPACE']['k_sediment'])
 k_bedrock = float(config['Erosion_SPACE']['k_bedrock'])
@@ -112,6 +116,7 @@ LPJGUESS_CO2FILE = config['LPJ']['LPJGUESS_CO2FILE']
 LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
 LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
+lpj_output = config['LPJ']['lpj_output']
 
 outInt = int(config['Output']['outIntSpinUp'])
 
