@@ -41,6 +41,7 @@ function setup_folders {
  		# cp -r ${LANDLABDRIVER}/lpj_coupled/temp_lpj .
 		mkdir temp_output
 		mkdir debugging
+		mkdir ll_output
 		cp -r ${LANDLABDRIVER}/lpj_coupled/lpjguess.template .
 		cp -r ${LANDLABDRIVER}/lpj_coupled/forcings .
 	fi
