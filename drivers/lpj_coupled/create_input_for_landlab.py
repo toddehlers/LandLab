@@ -73,7 +73,7 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
             del x['Lon'], x['Lat']
 
             data = x.mean(level=1).T / 100
-        except pandas.errors.EmptyDataError:
+        except pd.errors.EmptyDataError:
             return None
     
     elif ftype == 'mprec':
@@ -87,7 +87,7 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
             del x['index'], x['Lon'], x['Lat']
 
             data = x.mean(level=1).T / 10
-        except pandas.errors.EmptyDataError:
+        except pd.errors.EmptyDataError:
             return None
 
     else:
