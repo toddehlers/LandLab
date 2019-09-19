@@ -31,8 +31,26 @@ case "$1" in
         esac
     ;;
     reset_output)
-        rm ACC/* CSVOutput/* DEM/* DHDT/* Ksn/* NC/* SA/* SoilDepth/* dd/* dynveg_lpjguess.log Multiplot_absolut.png vegi_P_bugfix.png
-        mkdir ACC CSVOutput DEM DHDT Ksn NC SA SoilDepth dd
+        rm -f ACC/*
+        rm -f CSVOutput/*
+        rm -f DEM/*
+        rm -f DHDT/*
+        rm -f Ksn/*
+        rm -f NC/*
+        rm -f SA/*
+        rm -f SoilDepth/*
+        rm -f dd/*
+        rm -f dynveg_lpjguess.log
+        rm -f Multiplot_absolut.png
+        rm -f vegi_P_bugfix.png
+
+        # For LPJ:
+        rm -f -r temp_lpj
+        rm -f temp_output/*
+        rm -f debugging/*
+        rm -f myjob*
+        for f in ll_output/*; do rm -f "$f"/*; done
+
     ;;
     create_topo)
         python3 $LANDLABDRIVER/helperScripts/createStandartTopo.py

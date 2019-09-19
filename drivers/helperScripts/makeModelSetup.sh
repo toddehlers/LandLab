@@ -49,8 +49,6 @@ function setup_folders {
 		mkdir -p SoilDepth
 		mkdir -p Ksn
 	fi
-
-	echo "Folder structure set up."
 }
 
 # Check the passed arguments
