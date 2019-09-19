@@ -155,7 +155,7 @@ def lpj_import_run_one_step(grid, inputFile, var='lai', method = 'cumulative'):
             #add individual landlab fields to the grid if they don't exist
             if all(fpc in grid.keys('node') for fpc in ('grass_fpc', 'tree_fpc',
                 'shrub_fpc')):
-                #no need to initalize something. just do nothing
+                #no need to initialize something. just do nothing
                 pass
             else:
                 grid.add_zeros('node', 'grass_fpc')
@@ -167,7 +167,7 @@ def lpj_import_run_one_step(grid, inputFile, var='lai', method = 'cumulative'):
             shrub_fpc = read_csv_files(inputFile, ftype = 'lai', pft_class = 'shrub')
             cum_fpc = read_csv_files(inputFile, ftype = var, pft_class = 'total')
 
-            #map values to individual fiels
+            #map values to individual fields
             grid.at_node['grass_fpc'] = map_fpc_per_landform_on_grid(grid, grass_fpc)
             grid.at_node['tree_fpc']  = map_fpc_per_landform_on_grid(grid, tree_fpc)
             grid.at_node['shrub_fpc'] = map_fpc_per_landform_on_grid(grid, shrub_fpc)
