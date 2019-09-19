@@ -62,17 +62,20 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
         else:
             raise NotImplementedError
 
-        df = pd.read_table(filename, delim_whitespace=True)[index_cols + requested_cols]
-        df = df[df.Stand > 0]
-        del df['Patch']
-        df_grp = df.groupby(['Lon', 'Lat', 'Year', 'Stand'], sort = False).mean()
-        df_grp = df_grp.apply(_calc_fpc, 1).sum(axis=1)
-        x = df_grp.reset_index().set_index(['Year', 'Stand'])
+        try:
+            df = pd.read_table(filename, delim_whitespace=True)[index_cols + requested_cols]
+            df = df[df.Stand > 0]
+            del df['Patch']
+            df_grp = df.groupby(['Lon', 'Lat', 'Year', 'Stand'], sort = False).mean()
+            df_grp = df_grp.apply(_calc_fpc, 1).sum(axis=1)
+            x = df_grp.reset_index().set_index(['Year', 'Stand'])
 
-        del x['Lon'], x['Lat']
+            del x['Lon'], x['Lat']
 
-        data = x.mean(level=1).T / 100
-    
+            data = x.mean(level=1).T / 100
+            return data
+        except pandas.errors.EmptyDataError:
+            return []
     
     elif ftype == 'mprec':
         df = pd.read_table(filename, delim_whitespace=True)[index_cols + month_cols]        
