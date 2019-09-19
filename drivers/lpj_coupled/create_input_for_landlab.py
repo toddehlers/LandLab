@@ -106,7 +106,7 @@ def map_fpc_per_landform_on_grid(grid, fpc_array):
     #creates grid_structure for landlab
     fpc_grid = np.zeros(np.shape(grid.at_node['landform__ID']))
     
-    if fpc_array != None:
+    if fpc_array is not None:
         for landform in fpc_array.dtype.names[1:]:
             fpc_grid[grid.at_node['landform__ID'] == int(landform)] = fpc_array[str(landform)]
 
@@ -124,8 +124,10 @@ def map_precip_per_landform_on_grid(grid, precip_array):
     """
 
     precip_grid = np.zeros(np.shape(grid.at_node['precipitation']))
-    for landform in precip_array.dtype.names[1:]:
-        precip_grid[grid.at_node['landform__ID'] == int(landform)] = precip_array[str(landform)]
+
+    if precip_array is not None:
+        for landform in precip_array.dtype.names[1:]:
+            precip_grid[grid.at_node['landform__ID'] == int(landform)] = precip_array[str(landform)]
 
     return precip_grid
 
