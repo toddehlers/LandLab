@@ -75,7 +75,7 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
             data = x.mean(level=1).T / 100
             return data
         except pandas.errors.EmptyDataError:
-            return []
+            return None
     
     elif ftype == 'mprec':
         df = pd.read_table(filename, delim_whitespace=True)[index_cols + month_cols]        
@@ -106,8 +106,9 @@ def map_fpc_per_landform_on_grid(grid, fpc_array):
     #creates grid_structure for landlab
     fpc_grid = np.zeros(np.shape(grid.at_node['landform__ID']))
     
-    for landform in fpc_array.dtype.names[1:]:
-        fpc_grid[grid.at_node['landform__ID'] == int(landform)] = fpc_array[str(landform)]
+    if fpc_array != None:
+        for landform in fpc_array.dtype.names[1:]:
+            fpc_grid[grid.at_node['landform__ID'] == int(landform)] = fpc_array[str(landform)]
 
     #print('map_fpc_per_landform_on_grid was run')
     return fpc_grid
@@ -177,16 +178,9 @@ def lpj_import_run_one_step(grid, inputFile, var='lai', method = 'cumulative'):
             grid.at_node['vegetation__density'] = map_fpc_per_landform_on_grid(grid, cum_fpc)
 
     elif var == 'mprec':
-        
-        prec = read_csv_files(inputFile, ftype = var)
-
-        #Check if precipitation field already exists in grid, if not, initiate it
-        if 'precipitation' in grid.keys('node'):
-            #Precipitation field already initiated
-            pass
-        else:
+        # Check if precipitation field already exists in grid, if not, initiate it
+        if 'precipitation' not in grid.keys('node'):
             grid.add_zeros('node', 'precipitation')
-
         
         precip_array = read_csv_files(inputFile, ftype = 'mprec')
         grid.at_node['precipitation'] = map_precip_per_landform_on_grid(grid, precip_array )
