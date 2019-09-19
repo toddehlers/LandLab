@@ -164,8 +164,8 @@ def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str) -> No
     """Prepare files specific to this dt run"""
     # fill template files with per-run data:
     log.warn('REPEATING SPINUP FOR EACH DT !!!')
-    restart = '0' if step_counter == 0 else '1'
-    #restart='0'
+    #restart = '0' if step_counter == 0 else '1'
+    restart = '0'
 
     run_data = {# climate data
                 'CLIMPREC': str(input_name) + '_prec_%s.nc' % str(int(step_counter)).zfill(6),
