@@ -40,8 +40,8 @@ param "variable_temp" (str "temp")
 param "file_prec"     (str "input/climdata/$CLIMPREC")
 param "variable_prec" (str "prec")
 
-param "file_wetdays"  (str "input/climdata/$CLIMWET") 
-param "variable_wetdays" (str "wet")
+param "file_wetdays"  (str "") 
+param "variable_wetdays" (str "")
 
 param "file_insol"      (str "input/climdata/$CLIMRAD") 
 param "variable_insol"  (str "rad")
