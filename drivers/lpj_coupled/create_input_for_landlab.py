@@ -73,20 +73,22 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
             del x['Lon'], x['Lat']
 
             data = x.mean(level=1).T / 100
-            return data
         except pandas.errors.EmptyDataError:
             return None
     
     elif ftype == 'mprec':
-        df = pd.read_table(filename, delim_whitespace=True)[index_cols + month_cols]        
-        df = df[df.Stand > 0]
-        df['Annual'] = df[month_cols].sum(axis=1)
-        for mc in month_cols:
-            del df[mc]
-        x = df.reset_index().set_index(['Year', 'Stand'])
-        del x['index'], x['Lon'], x['Lat']
+        try:
+            df = pd.read_table(filename, delim_whitespace=True)[index_cols + month_cols]        
+            df = df[df.Stand > 0]
+            df['Annual'] = df[month_cols].sum(axis=1)
+            for mc in month_cols:
+                del df[mc]
+            x = df.reset_index().set_index(['Year', 'Stand'])
+            del x['index'], x['Lon'], x['Lat']
 
-        data = x.mean(level=1).T / 10
+            data = x.mean(level=1).T / 10
+        except pandas.errors.EmptyDataError:
+            return None
 
     else:
         raise NotImplementedError    
