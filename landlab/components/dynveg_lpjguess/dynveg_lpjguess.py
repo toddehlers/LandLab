@@ -35,10 +35,6 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 coloredlogs.install(level='CRITICAL', fmt=FORMAT, datefmt="%H:%M:%S")
 
-class TS(Enum):
-    DAILY = 1
-    MONTHLY = 2
-
 def add_time_attrs(ds, calendar_year=0):
     ds['time'].attrs['units'] = "days since 1-1-15 00:00:00" 
     ds['time'].attrs['axis'] = "T" 
@@ -54,8 +50,6 @@ def fill_template(template: str, data: Dict[str, str]) -> str:
         src = Template( f.read() )
     return src.substitute(data)
 
-
-
 def split_climate(time_step,
                   ds_files:List[str],
                   CO2FILE:str, 
@@ -63,11 +57,6 @@ def split_climate(time_step,
                   ds_path:Optional[str]=None, 
                   dest_path:Optional[str]=None) -> None: 
     """Split climte files into dt-length chunks"""
-    
-    if time_step == 'daily':
-        TS.DAILY
-    elif time_step == 'monthly':
-        TS.MONTHLY
 
     log.debug('ds_path: %s' % ds_path)
     log.debug('dest_path: %s' % dest_path)
@@ -85,7 +74,7 @@ def split_climate(time_step,
             n_rest_daily = len(ds.time) % (dt*365)
             log.debug('Number of climate episodes: %d' % n_episodes_daily)
             
-            if time_step == TS.MONTHLY:
+            if time_step == "monthly":
                 episode_int  = np.repeat(list(range(n_episodes_monthly)), dt*12)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_monthly)
                 episode = np.hstack([episode_int, episode_rest])
@@ -101,9 +90,9 @@ def split_climate(time_step,
                 del ds_grp['grouper']
 
                 # modify time coord
-                # us first dt years data
+                # use first dt years data
                 if g_cnt == 0:
-                    if TS.MONTHLY:
+                    if time_step == "monthly":
                         time_ = ds_grp['time'][:dt*12]
                     else:
                         time_ = ds_grp['time'][:dt*365]
