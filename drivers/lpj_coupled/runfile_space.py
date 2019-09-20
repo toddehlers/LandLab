@@ -40,6 +40,8 @@ import shutil
 
 import configparser
 
+t0 = time.time()
+
 logger = logging.getLogger('runfile')
 logger.setLevel(logging.INFO)
 fh = logging.FileHandler('landlab.log')
@@ -478,4 +480,6 @@ while elapsed_time < totalT:
 
 
     elapsed_time += dt #update elapsed time
+tE = time.time()
 logger.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
+
