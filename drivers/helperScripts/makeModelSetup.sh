@@ -39,6 +39,7 @@ function setup_folders {
 		mkdir -p ll_output/SoilP
 		mkdir -p ll_output/Veg
 	else
+		mkdir -p BED
 		mkdir -p DEM
 		mkdir -p ACC
 		mkdir -p DHDT
@@ -47,6 +48,7 @@ function setup_folders {
 		mkdir -p dd
 		mkdir -p CSVOutput
 		mkdir -p SoilDepth
+		mkdir -p SoilP
 		mkdir -p Ksn
 	fi
 }

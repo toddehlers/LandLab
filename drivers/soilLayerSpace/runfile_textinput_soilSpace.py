@@ -30,7 +30,6 @@ from landlab.io.netcdf import read_netcdf
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import time
-from timer import timed
 import logging
 rcParams.update({'figure.autolayout': True})
 rcParams['agg.path.chunksize'] = 200000000
@@ -48,7 +47,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-onfig = configparser.ConfigParser()
+config = configparser.ConfigParser()
 config.read('inputFile.ini')
 
 nrows = int(config['Grid']['nrows'])
@@ -90,7 +89,6 @@ initialSoilDepth = float(config['Lithology']['initialSoilDepth'])
 soilProductionRate = float(config['Lithology']['soilProductionRate'])
 
 baseRainfall = float(config['Climate']['baseRainfall'])
-rfA = float(config['Climate']['rfA'])
 
 vp = float(config['Vegetation']['vp'])
 sinAmp = float(config['Vegetation']['sinAmp'])
@@ -98,7 +96,7 @@ sinPeriod = float(config['Vegetation']['sinPeriod'])
 
 latitude = float(config['LPJ']['latitude'])
 longitude = float(config['LPJ']['longitude'])
-lpj_output = float(config['LPJ']['lpj_output'])
+lpj_output = config['LPJ']['lpj_output']
 classificationType = config['LPJ']['classificationType']
 elevationStepBin = float(config['LPJ']['elevationStepBin'])
 

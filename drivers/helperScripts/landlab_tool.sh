@@ -33,6 +33,7 @@ case "$1" in
         esac
     ;;
     reset_output)
+        rm -f BED/*
         rm -f ACC/*
         rm -f CSVOutput/*
         rm -f DEM/*
@@ -41,6 +42,7 @@ case "$1" in
         rm -f NC/*
         rm -f SA/*
         rm -f SoilDepth/*
+        rm -f SoilP/*
         rm -f dd/*
         rm -f dynveg_lpjguess.log
         rm -f Multiplot_absolut.png
