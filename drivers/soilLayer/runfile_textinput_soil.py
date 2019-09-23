@@ -132,7 +132,7 @@ if 'topoSeed' in locals():
 
 else:
     mg.at_node['topographic__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
-    mg.at_node['bedrock__elevation'] += topoSeed
+    mg.at_node['bedrock__elevation'] += np.random.rand(mg.at_node.size)/10000
     logger.info('No pre-existing topography. Creating own random noise topo.')
 
 logger.info('Creating soil layer under bedrock layer with {}m thickness'.format(initialSoilDepth))
