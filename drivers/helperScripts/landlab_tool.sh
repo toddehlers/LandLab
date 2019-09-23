@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PYTHON_BIN=/usr/bin/python3
+
 if [[ -z "${LANDLABDRIVER}" ]]; then
     echo "Environment variable LANDLABDRIVER is not set"
     echo "You should load the module first:"
@@ -14,16 +16,16 @@ case "$1" in
     run)
         case "$2" in
             bedrock)
-                python3 $LANDLABDRIVER/pureBedrock/runfile_textinput.py
+                $PYTHON_BIN $LANDLABDRIVER/pureBedrock/runfile_textinput.py
             ;;
             soil)
-                python3 $LANDLABDRIVER/soilLayer/runfile_textinput_soil.py
+                $PYTHON_BIN $LANDLABDRIVER/soilLayer/runfile_textinput_soil.py
             ;;
             space)
-                python3 $LANDLABDRIVER/soilLayerSpace/runfile_textinput_soilSpace.py
+                $PYTHON_BIN $LANDLABDRIVER/soilLayerSpace/runfile_textinput_soilSpace.py
             ;;
             lpj)
-                python3 $LANDLABDRIVER/lpj_coupled/runfile_space.py
+                $PYTHON_BIN $LANDLABDRIVER/lpj_coupled/runfile_space.py
             ;;
             *)
                 echo "Unknown simulation type: $2"
@@ -53,7 +55,7 @@ case "$1" in
 
     ;;
     create_topo)
-        python3 $LANDLABDRIVER/helperScripts/createStandartTopo.py
+        $PYTHON_BIN $LANDLABDRIVER/helperScripts/createStandartTopo.py
     ;;
     *)
         echo "This script initializes and runs the apropriate landlab model."
