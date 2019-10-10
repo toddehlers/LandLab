@@ -52,7 +52,7 @@ def fill_template(template: str, data: Dict[str, str]) -> str:
 
 def split_climate(time_step,
                   ds_files:List[str],
-                  CO2FILE:str, 
+                  co2_file:str, 
                   dt:int, 
                   ds_path:Optional[str]=None, 
                   dest_path:Optional[str]=None) -> None: 
@@ -104,9 +104,9 @@ def split_climate(time_step,
                 ds_grp.to_netcdf(foutname, format='NETCDF4_CLASSIC')
         
     # copy co2 file
-    src = os.path.join(ds_path, CO2FILE) if ds_path else CO2FILE
+    src = os.path.join(ds_path, co2_file) if ds_path else co2_file
     log.debug('co2_path: %s' % ds_path) 
-    shutil.copyfile(src, os.path.join(dest_path, CO2FILE))
+    shutil.copyfile(src, os.path.join(dest_path, co2_file))
             
 
 def generate_landform_files(self) -> None:
@@ -128,7 +128,7 @@ def move_state(self) -> None:
 
         # for debugging:
         shutil.copy(state_file, os.path.join('tmp.state'))
-            
+
 def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None) -> None:
     log.debug('Prepare file structure')
     log.debug('Dest: %s' % dest)
@@ -146,7 +146,7 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
     os.makedirs(os.path.join(dest, 'output'), exist_ok=True)
 
 
-def prepare_input(dest:str,CO2_path:str,  template_path:str, forcings_path, input_path:str, input_name:str, time_step) -> None:
+def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path, input_path:str, input_name:str, time_step) -> None:
     log.debug('Prepare input')
     log.debug('dest: %s' % dest)
     
@@ -157,10 +157,10 @@ def prepare_input(dest:str,CO2_path:str,  template_path:str, forcings_path, inpu
     #TODO: CHANGE HARDCODING OF file_name
     ds_files = [str(input_name) + '_%s.nc' % v for v in vars ]
     #ds_files = ['coupl_%s_35ka_lcy_landid.nc' % v for v in vars]
-    split_climate(time_step ,ds_files, CO2FILE=CO2_path,  dt=100, ds_path=os.path.join(forcings_path, 'climdata'),
+    split_climate(time_step ,ds_files, co2_file=co2_file,  dt=100, ds_path=os.path.join(forcings_path, 'climdata'),
                                     dest_path=os.path.join(input_path, 'input', 'climdata'))
 
-def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str) -> None:
+def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
     """Prepare files specific to this dt run"""
     # fill template files with per-run data:
     log.warn('REPEATING SPINUP FOR EACH DT !!!')
@@ -178,7 +178,8 @@ def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str) -> No
                 # setup data
                 'GRIDLIST': 'landid.txt',
                 'NYEARSPINUP': '500',
-                'RESTART': restart
+                'RESTART': restart,
+                'CO2FILE': co2_file
                 }
 
     insfile = fill_template( os.path.join(self._dest, ins_file), run_data )
@@ -202,6 +203,8 @@ class DynVeg_LpjGuess(Component):
         self._templatepath = LPJGUESS_INS_FILE_TPL
         self._binpath = LPJGUESS_BIN
         self._forcingsstring = LPJGUESS_FORCINGS_STRING
+        self._co2_file = LPJGUESS_CO2FILE
+
         prepare_input(
             self._dest,
             LPJGUESS_CO2FILE, 
@@ -232,7 +235,7 @@ class DynVeg_LpjGuess(Component):
 
     def run_one_step(self, step_counter, dt:int=100) -> None:
         '''Run one lpj simulation step (duration: dt)'''
-        self.prepare_runfiles(step_counter, self._templatepath,self._forcingsstring)
+        self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
         self.generate_landform_files()
         self.execute_lpjguess()
         self.move_state()

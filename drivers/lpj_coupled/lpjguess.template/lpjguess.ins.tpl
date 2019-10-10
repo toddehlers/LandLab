@@ -31,7 +31,7 @@ outputdirectory "./output/"
 !
 ! Atmospheric CO2 content (ppmv)
 ! (used only by guessio.cpp)
-param "file_co2"      (str "input/climdata/co2_TraCE_21ka_1990CE.txt")
+param "file_co2"      (str "input/climdata/$CO2FILE")
 
 ! N deposition (blank string to use constant pre-industrial level of 2 kgN/ha/year)
 param "file_temp"     (str "input/climdata/$CLIMTEMP")
