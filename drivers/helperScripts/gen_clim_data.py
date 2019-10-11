@@ -1,45 +1,45 @@
 import numpy as np
 import netCDF4
 
-def gen_data(file_name_base, lat, lon, var_name, var_value, var_description, var_long_name, var_units):
+def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_description, var_long_name, var_units):
     file_name = file_name_base + "_" + var_name + ".nc"
     f = netCDF4.Dataset(file_name, "w", format = "NETCDF4")
 
     num_of_elements = 365 * 1000
 
-    f.createDimension("dim_lat", 1)
-    f.createDimension("dim_lon", 1)
-    f.createDimension("dim_time", num_of_elements)
-    f.createDimension("dim_prec", num_of_elements)
+    f.createDimension("time", num_of_elements)
+    f.createDimension("land_id", 1)
 
-    num_type = "f4"
+    num_type = "f8"
 
-    lat = f.createVariable("lat", num_type, "dim_lat")
-    lon = f.createVariable("lon", num_type, "dim_lon")
-    time = f.createVariable("time", num_type, "dim_time")
-    var_instance = f.createVariable(var_name, num_type, "dim_prec")
+    time = f.createVariable("time", num_type, "time")
+    lat = f.createVariable("lat", num_type, "land_id")
+    lon = f.createVariable("lon", num_type, "land_id")
+    var_instance = f.createVariable(var_name, num_type, ("land_id", "time"))
+    land_id = f.createVariable("land_id", "i8", "land_id")
 
-    lat[:] = np.full(1, lat)
-    lon[:] = np.full(1, lon)
     time[:] = np.arange(0, num_of_elements, 1)
+    lat[:] = np.full(1, lat_val)
+    lon[:] = np.full(1, lon_val)
     var_instance[:] = np.full(num_of_elements, var_value)
+    land_id[:] = np.full(1, 0)
 
     time.axis = "T"
-    var_instance.coordinates = "lat lon"
+    time.standard_name = "time"
+    time.long_name = "time"
+    time.units = "day"
 
     lat.standard_name = "latitude"
-    lon.standard_name = "longitude"
-    time.standard_name = "time"
-    var_instance.standard_name = var_description
-
     lat.long_name = "latitude"
-    lon.long_name = "longitude"
-    time.long_name = "time"
-    var_instance.long_name = var_long_name
-
     lat.units = "degrees_north"
+
+    lon.standard_name = "longitude"
+    lon.long_name = "longitude"
     lon.units = "degrees_east"
-    time.units = "day"
+
+    var_instance.coordinates = "lon lat"
+    var_instance.standard_name = var_description
+    var_instance.long_name = var_long_name
     var_instance.units = var_units
 
     f.close()
