@@ -175,9 +175,9 @@ if os.path.isfile('initial_topography.npy'):
 else:
     topo_tilt = mg.node_y/100000000 + mg.node_x/100000000
     mg.at_node['topographic__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
-    mg.at_node['topographic__elevation'] += topo_tilt
+    mg.at_node['topographic__elevation'] += topo_tilt + baseElevation
     mg.at_node['bedrock__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
-    mg.at_node['bedrock__elevation'] += topo_tilt
+    mg.at_node['bedrock__elevation'] += topo_tilt + baseElevation
     mg.at_node['soil__depth'] += initialSoilDepth
     logger.info('No pre-existing topography. Creating own random noise topo.')
 
