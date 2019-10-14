@@ -119,6 +119,7 @@ LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
 LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
 lpj_output = config['LPJ']['lpj_output']
+lpj_coupled = bool(config('LPJ']['lpj_coupled'))
 
 outInt = int(config['Output']['outIntSpinUp'])
 
@@ -344,9 +345,10 @@ while elapsed_time < totalT:
         shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/climate.out', f"./debugging/climate.{str(counter).zfill(6)}.out" )
         #import lpj lai and precipitation data
-        lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out', var='lai',
+        if lpj_coupled:
+            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out', var='lai',
                 method =  LPJGUESS_VEGI_MAPPING)
-        lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
+            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
         #reinitialize the flow router
         fr = FlowRouter(mg,method = 'd8', runoff_rate = mg.at_node['precipitation'])
  
