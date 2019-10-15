@@ -50,9 +50,9 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     f.close()
 
 def gen_data_for_location(file_name_base, lat, lon, prec, temp, rad):
-    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation amount", "daily precipitation amount", "mm per day", "260")
-    gen_data(file_name_base, lat, lon, "temp", temp, "temperature", "temperature", "K", "167")
-    gen_data(file_name_base, lat, lon, "rad", rad, "radiation", "radiation", "W m-2", "176")
+    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation_amount", "Daily precipitation amount", "mm per day", "260")
+    gen_data(file_name_base, lat, lon, "temp", temp, "air_temperature", "Near surface air temperature at 2m", "K", "167")
+    gen_data(file_name_base, lat, lon, "rad", rad, "surface_downwelling_shortwave_flux", "Mean daily surface incident shortwave radiation", "W m-2", "176")
 
 gen_data_for_location("LaCampana_LGM", lat = -32.75, lon = -71.25, prec = 0.92, temp = 284.6, rad = 249.1)
 
