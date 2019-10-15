@@ -119,7 +119,7 @@ LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
 LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
 lpj_output = config['LPJ']['lpj_output']
-lpj_coupled = config('LPJ']['lpj_coupled').lower()
+lpj_coupled = config['LPJ']['lpj_coupled'].lower()
 
 outInt = int(config['Output']['outIntSpinUp'])
 
