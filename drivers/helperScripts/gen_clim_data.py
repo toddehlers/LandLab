@@ -1,11 +1,14 @@
 import numpy as np
 import netCDF4
 
-def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_description, var_long_name, var_units):
-    file_name = file_name_base + "_" + var_name + ".nc"
+NUM_OF_DAYS = 365 * 1000
+
+def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_description,
+             var_long_name, var_units, var_code):
+    file_name = "{}_{}.nc".format(file_name_base, var_name)
     f = netCDF4.Dataset(file_name, "w", format = "NETCDF4")
 
-    num_of_elements = 365 * 1000
+    num_of_elements = NUM_OF_DAYS
 
     f.createDimension("time", num_of_elements)
     f.createDimension("land_id", 1)
@@ -41,12 +44,18 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     var_instance.standard_name = var_description
     var_instance.long_name = var_long_name
     var_instance.units = var_units
+    var_instance.code = var_code
+    var_instance.table = "128"
 
     f.close()
 
 def gen_data_for_location(file_name_base, lat, lon, prec, temp, rad):
-    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation amount", "daily precipitation amount", "mm per day")
-    gen_data(file_name_base, lat, lon, "temp", temp, "temperature", "temperature", "K")
-    gen_data(file_name_base, lat, lon, "rad", rad, "radiation", "radiation", "W m-2")
+    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation amount", "daily precipitation amount", "mm per day", "260")
+    gen_data(file_name_base, lat, lon, "temp", temp, "temperature", "temperature", "K", "167")
+    gen_data(file_name_base, lat, lon, "rad", rad, "radiation", "radiation", "W m-2", "176")
 
 gen_data_for_location("LaCampana_LGM", lat = -32.75, lon = -71.25, prec = 0.92, temp = 284.6, rad = 249.1)
+
+with open("co2_LGM.txt", "w+") as f:
+    for i in range(1, NUM_OF_DAYS):
+        f.write("{} 186\n".format(i))
