@@ -12,6 +12,8 @@ Written by Greg Tucker, February 2015
 
 import time
 import matplotlib
+matplotlib.use('AGG')
+
 from numpy import where
 from landlab import RasterModelGrid
 from landlab.ca.celllab_cts import Transition, CAPlotter

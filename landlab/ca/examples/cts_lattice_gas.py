@@ -240,6 +240,8 @@ def main():
     
     # Set up a color map for plotting
     import matplotlib
+    matplotlib.use('AGG')
+
     clist = [ (1.0, 1.0, 1.0),   # empty = white
               (1.0, 0.0, 0.0),   # up = red
               (0.8, 0.8, 0.0),   # right-up = yellow

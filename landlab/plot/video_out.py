@@ -25,6 +25,8 @@ likely to resolve themselves in a future release of matplotlib.
 """
 import six
 import numpy as np
+import matplotlib
+matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from landlab.plot import imshow

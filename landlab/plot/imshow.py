@@ -18,6 +18,8 @@ import numpy as np
 import inspect
 from landlab.field.scalar_data_fields import FieldError
 try:
+    import matplotlib
+    matplotlib.use('AGG')
     import matplotlib.pyplot as plt
 except ImportError:
     import warnings

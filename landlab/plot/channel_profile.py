@@ -20,6 +20,8 @@ from six.moves import range
 
 import numpy
 try:
+    import matplotlib
+    matplotlib.use('AGG')
     import matplotlib.pyplot as plt
 except ImportError:
     import warnings

@@ -117,6 +117,8 @@ def main():
 
     # Set up the color map
     import matplotlib
+    matplotlib.use('AGG')
+
     susceptible_color = (0.5, 0.5, 0.5)  # gray
     infectious_color = (0.5, 0.0, 0.0)  # dark red
     recovered_color = (0.0, 0.0, 1.0)  # blue

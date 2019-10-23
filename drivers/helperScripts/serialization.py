@@ -14,6 +14,8 @@ import os
 import glob
 import time
 import pickle
+import matplotlib
+matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 
 print('module import finished.')

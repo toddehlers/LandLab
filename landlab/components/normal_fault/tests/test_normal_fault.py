@@ -8,6 +8,9 @@ from nose.tools import assert_true, assert_raises
 from landlab import RasterModelGrid, HexModelGrid
 from landlab.components import NormalFault
 
+import matplotlib
+matplotlib.use('AGG')
+
 
 def test_dx_equals_zero():
     """Test a vertical fault trace."""

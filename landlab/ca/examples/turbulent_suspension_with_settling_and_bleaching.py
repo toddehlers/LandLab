@@ -14,6 +14,7 @@ Written by Greg Tucker, July 2015
 from __future__ import print_function  # for both python 2 and 3 compability
 import time
 import matplotlib
+matplotlib.use('AGG')
 from pylab import figure, show, clf
 from numpy import where, exp, amin
 from landlab import RasterModelGrid, ModelParameterDictionary

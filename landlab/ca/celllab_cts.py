@@ -327,6 +327,7 @@ class CAPlotter(object):
             Colormap to be used in plotting
         """
         import matplotlib
+        matplotlib.use('AGG')
 
         # Set the colormap; default to matplotlib's "jet" colormap
         if cmap is None:

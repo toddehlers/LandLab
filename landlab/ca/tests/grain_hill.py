@@ -11,6 +11,8 @@ from .lattice_grain import (lattice_grain_node_states,
                             lattice_grain_transition_list)
 import time
 from numpy import zeros, count_nonzero, where, amax, logical_and
+import matplotlib
+matplotlib.use('AGG')
 from matplotlib.pyplot import axis
 from landlab.ca.celllab_cts import Transition
 from landlab.ca.boundaries.hex_lattice_tectonicizer import LatticeUplifter

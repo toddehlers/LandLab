@@ -5,11 +5,13 @@ loaded in the standart landlab script.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 from landlab import RasterModelGrid
 from landlab.io.netcdf import write_netcdf
 from landlab.io.netcdf import read_netcdf
 from landlab import imshow_grid
+import matplotlib
+matplotlib.use('AGG')
+import matplotlib.pyplot as plt
 
 
 fileNc = 'output19990000__1999.nc'

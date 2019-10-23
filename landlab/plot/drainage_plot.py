@@ -4,6 +4,8 @@
 # KRB, FEB 2017.
 import six
 from landlab import CORE_NODE, FIXED_VALUE_BOUNDARY, FIXED_GRADIENT_BOUNDARY, CLOSED_BOUNDARY
+import matplotlib
+matplotlib.use('AGG')
 import matplotlib.pylab as plt
 from landlab.plot.imshow import imshow_node_grid
 import numpy as np

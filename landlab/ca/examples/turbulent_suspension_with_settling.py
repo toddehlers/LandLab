@@ -12,6 +12,7 @@ Written by Greg Tucker, February 2015
 
 import time
 import matplotlib
+matplotlib.use('AGG')
 from pylab import figure, plot, show
 from numpy import where, zeros, mean
 from landlab import RasterModelGrid

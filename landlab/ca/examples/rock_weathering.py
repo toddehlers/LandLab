@@ -17,6 +17,7 @@ from landlab.ca.celllab_cts import Transition, CAPlotter
 from landlab.ca.raster_cts import RasterCTS
 from landlab.components.fracture_grid.fracture_grid import make_frac_grid
 import matplotlib
+matplotlib.use('AGG')
 from landlab.io.netcdf import write_netcdf
 
 

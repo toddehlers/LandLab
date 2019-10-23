@@ -455,6 +455,8 @@ def main():
     ca = OrientedHexCTS(hmg, ns_dict, xn_list, node_state_grid)
     
     import matplotlib
+    matplotlib.use('AGG')
+
     rock = (0.0, 0.0, 0.0) #'#5F594D'
     sed = (0.6, 0.6, 0.6) #'#A4874B'
     #sky = '#CBD5E1'

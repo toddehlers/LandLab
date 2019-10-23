@@ -24,7 +24,7 @@ if 'DISPLAY' not in os.environ:
         import warnings
         warnings.warn('matplotlib not found', ImportWarning)
     else:
-        matplotlib.use('Agg')
+        matplotlib.use('AGG')
 
 from .core.model_parameter_dictionary import ModelParameterDictionary
 from .core.model_parameter_dictionary import (MissingKeyError,

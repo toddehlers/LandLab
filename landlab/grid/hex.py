@@ -694,6 +694,7 @@ class HexModelGrid(VoronoiDelaunayGrid):
         """
         from numpy import array, sqrt, zeros
         import matplotlib
+        matplotlib.use('AGG')
         from matplotlib.patches import Polygon
         from matplotlib.collections import PatchCollection
 
