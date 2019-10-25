@@ -172,13 +172,11 @@ if os.path.isfile('initial_topography.npy'):
     else:
         mg.at_node['soil__depth'] += initialSoilDepth
         logger.info('Adding 1m of soil everywhere.')
-    logger.info('Using pre-existing topography from file topoSeed.npy')
+    logger.info('Using pre-existing topography from file initial_topography.npy')
 else:
-    topo_tilt = mg.node_y/100000000 + mg.node_x/100000000
-    mg.at_node['topographic__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
-    mg.at_node['topographic__elevation'] += topo_tilt + baseElevation
-    mg.at_node['bedrock__elevation'] += (np.random.rand(mg.at_node.size)/10000 + initialSoilDepth)
-    mg.at_node['bedrock__elevation'] += topo_tilt + baseElevation
+    topoSeed = np.random.rand(mg.at_node.size) / 100.0
+    mg.at_node['topographic__elevation'] += topoSeed + baseElevation
+    mg.at_node['bedrock__elevation'] += topoSeed + baseElevation
     mg.at_node['soil__depth'] += initialSoilDepth
     logger.info('No pre-existing topography. Creating own random noise topo.')
 
@@ -192,15 +190,19 @@ boundary = config['Grid']['boundary'].strip()
 for c in boundary:
     if c == 'E':
         mg.status_at_node[mg.nodes_at_right_edge] = CLOSED_BOUNDARY
+        logger.info("Using closed boundary for east side")
     elif c == 'S':
         mg.status_at_node[mg.nodes_at_bottom_edge] = CLOSED_BOUNDARY
+        logger.info("Using closed boundary for south side")
     elif c == 'W':
         mg.status_at_node[mg.nodes_at_left_edge] = CLOSED_BOUNDARY
+        logger.info("Using closed boundary for west side")
     elif c == 'N':
         mg.status_at_node[mg.nodes_at_top_edge] = CLOSED_BOUNDARY
+        logger.info("Using closed boundary for north side")
     elif c == 'P':
-        # Create one single outlet node
         mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
+        logger.info("Creating single outlet node")
     else:
         logger.error("Unknown boundary parameter: {}".format(c))
 
