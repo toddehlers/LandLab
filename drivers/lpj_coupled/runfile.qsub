@@ -1,0 +1,38 @@
+#!/bin/bash -l
+#
+###----------------------------------------------------------------------------#
+### Run script for ESD Cluster
+###----------------------------------------------------------------------------#
+#
+###
+### General job information (name, output file names)
+#PBS -N Landlab_Test
+#PBS -o ${PBS_JOBNAME}.out_${PBS_JOBID}
+#PBS -j oe
+#
+###Mailing information a(bort),b(egin),e(nd)
+#PBS -m abe
+#PBS -M some.user@uni-tuebingen.de
+#
+###
+### Job run time (hh:mm:ss)
+###
+#PBS -l walltime=96:00:00
+#
+###
+### Hardware request information (number of compute cores, nodes, memory, etc.)
+###
+#
+### Number of cores, nodes, etc.
+#PBS -l nodes=1:ppn=1:esd1
+#PBS -l pmem=8gb
+#PBS -q esd1
+#
+
+###
+### Script items for this run
+###
+
+module load devel/singularity/3.2
+singularity exec /beegfs/work/epibb01/container/ubuntu_18_04.sif landlab_tool.sh run lpj
+
