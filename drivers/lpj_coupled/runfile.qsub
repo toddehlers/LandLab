@@ -33,6 +33,12 @@
 ### Script items for this run
 ###
 
+pwd
+
+cd $PBS_O_WORKDIR
+
+pwd
+
 module load devel/singularity/3.2
 singularity exec /beegfs/work/epibb01/container/ubuntu_18_04.sif landlab_tool.sh run lpj
 
