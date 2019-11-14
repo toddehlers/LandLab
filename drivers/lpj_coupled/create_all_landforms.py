@@ -30,8 +30,8 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     _max_possible_elevation_gain = uplift * runtime #note: have to be same units
     _max_possible_elevation = _max_possible_elevation_gain + _min_initial_elevation
     
-    _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size)
-    _min_possible_ele_id = int(_min_initial_elevation / elevation_bin_size)
+    _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size) + 1
+    _min_possible_ele_id = int(_min_initial_elevation / elevation_bin_size) + 1
     
     #create a list with all possible elevation_ids within the grid
     for ele in range(_min_possible_ele_id, _max_possible_ele_id):
