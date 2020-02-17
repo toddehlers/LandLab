@@ -148,7 +148,7 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
 
 
 def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
-    input_path:str, input_name:str, time_step: str, dt: int) -> None:
+    input_name:str, time_step: str, dt: int) -> None:
     log.debug('Prepare input')
     log.debug('dest: %s' % dest)
     
