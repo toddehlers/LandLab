@@ -72,16 +72,17 @@ def split_climate(time_step,
             
             n_episodes_daily = len(ds.time) // (dt*365)
             n_rest_daily = len(ds.time) % (dt*365)
-            log.debug('Number of climate episodes: %d' % n_episodes_daily)
             
             if time_step == "monthly":
                 episode_int  = np.repeat(list(range(n_episodes_monthly)), dt*12)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_monthly)
                 episode = np.hstack([episode_int, episode_rest])
+                log.debug('Number of climate episodes (monthly): %d' % n_episodes_monthly)
             else:
                 episode_int  = np.repeat(list(range(n_episodes_daily)), dt*365)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_daily)
                 episode = np.hstack([episode_int, episode_rest])
+                log.debug('Number of climate episodes (daily): %d' % n_episodes_daily)
 
             ds['grouper'] = xr.DataArray(episode, coords=[('time', ds.time.values)])
             log.info('Splitting file %s' % ds_file)
@@ -146,7 +147,8 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
     os.makedirs(os.path.join(dest, 'output'), exist_ok=True)
 
 
-def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path, input_path:str, input_name:str, time_step) -> None:
+def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
+    input_path:str, input_name:str, time_step: str, dt: int) -> None:
     log.debug('Prepare input')
     log.debug('dest: %s' % dest)
     
@@ -157,8 +159,8 @@ def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path, inp
     #TODO: CHANGE HARDCODING OF file_name
     ds_files = [str(input_name) + '_%s.nc' % v for v in vars ]
     #ds_files = ['coupl_%s_35ka_lcy_landid.nc' % v for v in vars]
-    split_climate(time_step ,ds_files, co2_file=co2_file,  dt=100, ds_path=os.path.join(forcings_path, 'climdata'),
-                                    dest_path=os.path.join(input_path, 'input', 'climdata'))
+    split_climate(time_step ,ds_files, co2_file=co2_file,  dt, ds_path=os.path.join(forcings_path, 'climdata'),
+                                    dest_path=os.path.join(dest, 'input', 'climdata'))
 
 def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
     """Prepare files specific to this dt run"""
@@ -196,7 +198,8 @@ class DynVeg_LpjGuess(Component):
      LPJGUESS_INS_FILE_TPL:str,
      LPJGUESS_BIN:str,
      LPJGUESS_CO2FILE:str,
-     LPJGUESS_FORCINGS_STRING:str):
+     LPJGUESS_FORCINGS_STRING:str,
+     dt: int):
         self._spinup = True
         self._timesteps = [0]
         self._dest = LPJGUESS_INPUT_PATH
@@ -207,12 +210,12 @@ class DynVeg_LpjGuess(Component):
 
         prepare_input(
             self._dest,
-            LPJGUESS_CO2FILE, 
+            self._co2_file, 
             LPJGUESS_TEMPLATE_PATH, 
             LPJGUESS_FORCINGS_PATH, 
-            LPJGUESS_INPUT_PATH,
-            LPJGUESS_FORCINGS_STRING,
-            LPJGUESS_TIME_INTERVAL)
+            self._forcingsstring,
+            LPJGUESS_TIME_INTERVAL,
+            dt)
 
     #@property
     #def spinup(self):

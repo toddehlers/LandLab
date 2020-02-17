@@ -273,7 +273,8 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
                     LPJGUESS_INS_FILE_TPL,
                     LPJGUESS_BIN,
                     LPJGUESS_CO2FILE,
-                    LPJGUESS_FORCINGS_STRING)
+                    LPJGUESS_FORCINGS_STRING,
+                    dt)
 
 logger.info("finished with the initialization of the erosion components")   
 elapsed_time = 0
@@ -319,7 +320,7 @@ while elapsed_time < totalT:
                                                  'lgt.classification' : classificationType,
                                                  'lgt.elevation_step' : elevationStepBin})
 
-            lpj.run_one_step(counter, dt = dt)
+            lpj.run_one_step(counter, dt)
             #backup lpj results
             shutil.copy('./temp_lpj/output/sp_lai.out', f"./debugging/sp_lai.{str(counter).zfill(6)}.out" )
             shutil.copy('./temp_lpj/output/sp_mprec.out', f"./debugging/sp_mprec.{str(counter).zfill(6)}.out" )
@@ -341,7 +342,7 @@ while elapsed_time < totalT:
             counter = 1
         else:
             pass
-        lpj.run_one_step(counter, dt = dt)
+        lpj.run_one_step(counter, dt)
         shutil.copy('./temp_lpj/output/sp_lai.out', f"./debugging/sp_lai.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/sp_mprec.out', f"./debugging/sp_mprec.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
