@@ -159,8 +159,8 @@ def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
     #TODO: CHANGE HARDCODING OF file_name
     ds_files = [str(input_name) + '_%s.nc' % v for v in vars ]
     #ds_files = ['coupl_%s_35ka_lcy_landid.nc' % v for v in vars]
-    split_climate(time_step ,ds_files, co2_file=co2_file,  dt, ds_path=os.path.join(forcings_path, 'climdata'),
-                                    dest_path=os.path.join(dest, 'input', 'climdata'))
+    split_climate(time_step, ds_files, co2_file, dt,
+        os.path.join(forcings_path, 'climdata'), os.path.join(dest, 'input', 'climdata'))
 
 def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
     """Prepare files specific to this dt run"""
