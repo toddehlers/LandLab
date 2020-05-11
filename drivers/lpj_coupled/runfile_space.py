@@ -118,6 +118,7 @@ LPJGUESS_CO2FILE = config['LPJ']['LPJGUESS_CO2FILE']
 LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
 LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
+LPJGUESS_CALENDAR_YEAR = int(config['LPJ']['LPJGUESS_CALENDAR_YEAR'])
 lpj_output = config['LPJ']['lpj_output']
 lpj_coupled = config['LPJ']['lpj_coupled'].lower()
 
@@ -274,6 +275,7 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
                     LPJGUESS_BIN,
                     LPJGUESS_CO2FILE,
                     LPJGUESS_FORCINGS_STRING,
+                    LPJGUESS_CALENDAR_YEAR,
                     dt)
 
 logger.info("finished with the initialization of the erosion components")   

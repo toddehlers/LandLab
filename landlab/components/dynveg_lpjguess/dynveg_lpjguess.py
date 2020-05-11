@@ -53,7 +53,8 @@ def fill_template(template: str, data: Dict[str, str]) -> str:
 def split_climate(time_step,
                   ds_files:List[str],
                   co2_file:str, 
-                  dt:int, 
+                  dt:int,
+                  calendar_year:int,
                   ds_path:Optional[str]=None, 
                   dest_path:Optional[str]=None) -> None: 
     """Split climte files into dt-length chunks"""
@@ -99,7 +100,8 @@ def split_climate(time_step,
                         time_ = ds_grp['time'][:dt*365]
 
                 #add_time_attrs(ds_grp, calendar_year=22_000)
-                add_time_attrs(ds_grp, calendar_year=1_000)
+                #add_time_attrs(ds_grp, calendar_year=1_000)
+                add_time_attrs(ds_grp, calendar_year)
                 foutname = os.path.basename(fpath.replace('.nc',''))
                 foutname = os.path.join(dest_path, '%s_%s.nc' % (foutname, str(g_cnt).zfill(6)))
                 ds_grp.to_netcdf(foutname, format='NETCDF4_CLASSIC')
@@ -148,7 +150,7 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
 
 
 def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
-    input_name:str, time_step: str, dt: int) -> None:
+        input_name:str, time_step:str, calendar_year:int, dt:int) -> None:
     log.debug('Prepare input')
     log.debug('dest: %s' % dest)
     
@@ -159,7 +161,7 @@ def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
     #TODO: CHANGE HARDCODING OF file_name
     ds_files = [str(input_name) + '_%s.nc' % v for v in vars ]
     #ds_files = ['coupl_%s_35ka_lcy_landid.nc' % v for v in vars]
-    split_climate(time_step, ds_files, co2_file, dt,
+    split_climate(time_step, ds_files, co2_file, dt, calendar_year,
         os.path.join(forcings_path, 'climdata'), os.path.join(dest, 'input', 'climdata'))
 
 def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
@@ -199,6 +201,7 @@ class DynVeg_LpjGuess(Component):
      LPJGUESS_BIN:str,
      LPJGUESS_CO2FILE:str,
      LPJGUESS_FORCINGS_STRING:str,
+     LPJGUESS_CALENDAR_YEAR:int,
      dt: int):
         self._spinup = True
         self._timesteps = [0]
@@ -215,6 +218,7 @@ class DynVeg_LpjGuess(Component):
             LPJGUESS_FORCINGS_PATH, 
             self._forcingsstring,
             LPJGUESS_TIME_INTERVAL,
+            LPJGUESS_CALENDAR_YEAR,
             dt)
 
     #@property
