@@ -2,68 +2,113 @@
 
 import sys
 from timeit import default_timer as d_timer
-import glob
+from glob import glob
 import logging
 import argparse
+import xarray
 
-t_start = d_timer()
+def get_lat_lon(loc):
+    if loc == "pda":
+        return (-26.25, -70.75)
+    elif loc == "lc":
+        return (-32.75, -71.25)
+    elif loc == "na":
+        return (-37.75, -73.25)
+    elif loc == "sg":
+        return (-29.75, -71.25)
+    else:
+        logger.info("Unknown location: {}".format(loc))
+        sys.exit(1)
 
-logger = logging.getLogger('converter')
-logger.setLevel(logging.INFO)
-fh = logging.FileHandler('converter.log')
-fh.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+def get_file_list(time_p):
+    input_prefix = "/esd/esd02/data/climate_models/echam/echam_output/ESD"
+    file_list = []
 
-parser = argparse.ArgumentParser()
-parser.add_argument("location", help="The study area: pda, lc, na, sg")
-parser.add_argument("time", help="The time period: pd, pi, mh, lgm, pli, mi1, mi2")
-args = parser.parse_args()
+    if time_p == "pd":
+        input_folder = "e004"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    elif time_p == "pi":
+        input_folder = "e007"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    elif time_p == "mh":
+        input_folder = "e008"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    elif time_p == "lgm":
+        input_folder = "e009"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    elif time_p == "pli":
+        input_folder = "e010_hpc-bw_e5w2.3_PLIO_t159l31.1d/output_processed/monthly_mean"
+        # Files: e010_echam_mm_100401.nc, ..., e010_echam_mm_101812.nc
+        file_list = glob("{}/{}/e010_echam_mm_10*.nc".format(input_prefix, input_folder))
+    elif time_p == "mi1":
+        input_folder = "e011"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    elif time_p == "mi2":
+        input_folder = "e012"
+        file_list = glob("{}/{}/".format(input_prefix, input_folder))
+    else:
+        logger.info("Unknown time period: {}".format(time_p))
+        sys.exit(1)
 
-lat = 0.0
-lon = 0.0
+    file_list.sort()
+    return file_list
 
-if args.location == "pda":
-    lat = -26.25
-    lon = -70.75
-elif args.location == "lc":
-    lat = -32.75
-    lon = -71.25
-elif args.location == "na":
-    lat = -37.75
-    lon = -73.25
-elif args.location = "ag":
-    lat = -29.75
-    lon = -71.25
-else:
-    logger.info("Unknown location: {}".format(args.location))
-    sys.exit(1)
+def extract_data(ds, ds_lat, ds_lon):
+    result = ds.sel(lat = ds_lat, lon = ds_lon, method="nearest")
+    return result.values[0]
 
-logger.info("Location: {}, lat: {}, lon: {}".format(args.location, lat, lon))
+def process_files(file_list, p_lat, p_lon):
+    # xarray DataSet
+    # ds_disk = xr.open_dataset('saved_on_disk.nc')
+    # input variables: tsurf, aprl, srads
 
-input_prefix = "/esd/esd02/data/climate_models/echam/echam_output/ESD/"
+    ds_lat = p_lat
+    ds_lon = p_lon
 
-input_folder = ""
+    if ds_lon < 0.0:
+        ds_lon = ds_lon + 360.0
 
-if args.time == "pd":
-    input_folder = "e004"
-elif args.time == "pi":
-    input_folder = "e007"
-elif args.time == "mh":
-    input_folder = "e008"
-elif args.time == "lgm":
-    input_folder = "e009"
-elif args.time == "pli":
-    input_folder = "e010"
-elif args.time == "mi1":
-    input_folder = "e011"
-elif args.time == "mi2":
-    input_folder = "e012"
-else:
-    logger.info("Unknown time period: {}".format(args.location))
-    sys.exit(1)
+    surface_temperature = []
+    precipitation = []
+    surface_solar_radiation = []
+    days = []
 
-logger.info("Time: {}, folder: {}".format(args.time, input_folder))
+    for f in file_list:
+        ds = xarray.open_dataset(f)
+        surface_temperature.append(extract_data(ds.tsurf, ds_lat, ds_lon))
+        precipitation.append(extract_data(ds.aprl, ds_lat, ds_lon))
+        surface_solar_radiation.append(extract_data(ds.srads, ds_lat, ds_lon))
+
+    ds_out = xarray.Dataset()
+
+
+
+if __name__ == "__main__":
+    t_start = d_timer()
+
+    logger = logging.getLogger('converter')
+    logger.setLevel(logging.INFO)
+    fh = logging.FileHandler('converter.log')
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("location", help="The study area: pda, lc, na, sg")
+    parser.add_argument("time", help="The time period: pd, pi, mh, lgm, pli, mi1, mi2")
+    args = parser.parse_args()
+
+    lat_lon = get_lat_lon(args.location)
+
+    logger.info("Location: {}, lat_lon: {}".format(args.location, lat_lon))
+
+    file_list = get_file_list(args.time)
+
+    process_files(file_list, lat_lon[0], lat_lon[1])
+
+    t_end = d_timer()
+
+    logger.info("Time taken: {}".format(t_end - t_start))
 
 
