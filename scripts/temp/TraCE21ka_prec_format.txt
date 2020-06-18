@@ -1,0 +1,55 @@
+netcdf Azucar_TraCE21ka_prec {
+dimensions:
+        time = 264480 ;
+        land_id = 1 ;
+variables:
+        double time(time) ;
+                time:_FillValue = NaN ;
+                time:units = "days since 1-1-15 00:00:00" ;
+                time:axis = "T" ;
+                time:long_name = "time" ;
+                time:standard_name = "time" ;
+                time:calendar = "22000 yr B.P." ;
+        double lat(land_id) ;
+                lat:_FillValue = NaN ;
+                lat:standard_name = "latitude" ;
+                lat:long_name = "latitude" ;
+                lat:units = "degrees_north" ;
+        double lon(land_id) ;
+                lon:_FillValue = NaN ;
+                lon:standard_name = "longitude" ;
+                lon:long_name = "longitude" ;
+                lon:units = "degrees_east" ;
+        double prec(land_id, time) ;
+                prec:_FillValue = -9999. ;
+                prec:standard_name = "precipitation_amount" ;
+                prec:long_name = "Monthly precipitation amount" ;
+                prec:units = "kg m-2" ;
+                prec:coordinates = "lon lat" ;
+        double wet(land_id, time) ;
+                wet:_FillValue = -9999. ;
+                wet:standard_name = "number_of_days_with_lwe_thickness_of_precipitation_amount_above_threshold" ;
+                wet:long_name = "wet_days" ;
+                wet:units = "count" ;
+                wet:coordinates = "lon lat" ;
+        int64 land_id(land_id) ;
+data:
+
+ time = 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365, 396, 424,
+ ...
+
+
+ lat = -26.25 ;
+
+ lon = -70.75 ;
+
+ prec =
+  2.55919691789289, 1.945440098844, 1.4322041487764, 3.52699764311652,
+ ...
+
+ wet =
+  9, 7, 3, 9, 4, 4, 3, 10, 7, 10, 7, 14, 5, 5, 3, 3, 11, 8, 5, 25, 4, 5, 18,
+ ...
+
+ land_id = 0 ;
+}

@@ -1,0 +1,46 @@
+netcdf Azucar_TraCE21ka_rad {
+dimensions:
+        time = 264480 ;
+        land_id = 1 ;
+variables:
+        double time(time) ;
+                time:_FillValue = NaN ;
+                time:units = "days since 1-1-15 00:00:00" ;
+                time:axis = "T" ;
+                time:long_name = "time" ;
+                time:standard_name = "time" ;
+                time:calendar = "22000 yr B.P." ;
+        double lat(land_id) ;
+                lat:_FillValue = NaN ;
+                lat:standard_name = "latitude" ;
+                lat:long_name = "latitude" ;
+                lat:units = "degrees_north" ;
+        double lon(land_id) ;
+                lon:_FillValue = NaN ;
+                lon:standard_name = "longitude" ;
+                lon:long_name = "longitude" ;
+                lon:units = "degrees_east" ;
+        double rad(land_id, time) ;
+                rad:_FillValue = -9999. ;
+                rad:standard_name = "surface_downwelling_shortwave_flux" ;
+                rad:long_name = "Mean daily surface incident shortwave radiation" ;
+                rad:units = "W m-2" ;
+                rad:coordinates = "lon lat" ;
+        int64 land_id(land_id) ;
+data:
+
+ time = 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365, 396, 424,
+ ...
+
+
+ lat = -26.25 ;
+
+ lon = -70.75 ;
+
+ rad =
+  334.725262851473, 317.820006712476, 292.500302985788, 227.247909177648,
+ ...
+
+
+ land_id = 0 ;
+}
