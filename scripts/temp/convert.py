@@ -6,6 +6,8 @@ from glob import glob
 import logging
 import argparse
 import xarray
+import itertools
+
 
 def get_lat_lon(loc):
     if loc == "pda":
@@ -58,10 +60,6 @@ def extract_data(ds, ds_lat, ds_lon):
     return result.values[0]
 
 def process_files(file_list, p_lat, p_lon):
-    # xarray DataSet
-    # ds_disk = xr.open_dataset('saved_on_disk.nc')
-    # input variables: tsurf, aprl, srads
-
     ds_lat = p_lat
     ds_lon = p_lon
 
@@ -71,7 +69,8 @@ def process_files(file_list, p_lat, p_lon):
     surface_temperature = []
     precipitation = []
     surface_solar_radiation = []
-    days = []
+    num_of_days_per_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    days = itertools.accumulate(itertools.chain([0], itertools.cycle(num_of_days_per_month)))
 
     for f in file_list:
         ds = xarray.open_dataset(f)
@@ -79,7 +78,7 @@ def process_files(file_list, p_lat, p_lon):
         precipitation.append(extract_data(ds.aprl, ds_lat, ds_lon))
         surface_solar_radiation.append(extract_data(ds.srads, ds_lat, ds_lon))
 
-    ds_out = xarray.Dataset()
+    ds_out_temp = xarray.Dataset()
 
 
 
