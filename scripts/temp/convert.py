@@ -59,12 +59,20 @@ def extract_data(ds, ds_lat, ds_lon):
     result = ds.sel(lat = ds_lat, lon = ds_lon, method="nearest")
     return result.values[0]
 
-def process_files(file_list, p_lat, p_lon):
+def process_files(args):
+    (p_lat, p_lon) = get_lat_lon(args.location)
+
+    logger.info("Location: {}, lat: {}, lon: {}".format(args.location, p_lat, p_lon))
+
+    file_list = get_file_list(args.time)
+
     ds_lat = p_lat
     ds_lon = p_lon
 
     if ds_lon < 0.0:
         ds_lon = ds_lon + 360.0
+
+    num_of_entries = args.num_of_years * 12
 
     surface_temperature = []
     precipitation = []
@@ -78,8 +86,116 @@ def process_files(file_list, p_lat, p_lon):
         precipitation.append(extract_data(ds.aprl, ds_lat, ds_lon))
         surface_solar_radiation.append(extract_data(ds.srads, ds_lat, ds_lon))
 
-    ds_out_temp = xarray.Dataset()
+    da_time = xarray.DataArray(
+        data = itertools.islice(days, num_of_entries),
+        dims = ["time"],
+        attrs = {
+            "_FillValue": "NaN",
+            "units": "days since 1-1-15 00:00:00",
+            "axis": "T",
+            "long_name": "time",
+            "standard_name": "time",
+            "calendar": "0 yr B.P."
+        }
+    )
 
+    da_lat = xarray.DataArray(
+        data = [p_lat],
+        dims = ["land_id"],
+        attrs = {
+            "_FillValue": "Nan",
+            "standard_name": "latitude",
+            "long_name": "latitude",
+            "units": "degrees_north"
+        }
+    )
+
+    da_lon = xarray.DataArray(
+        data = [p_lon],
+        dims = ["land_id"],
+        attrs = {
+            "_FillValue": "Nan",
+            "standard_name": "longitude",
+            "long_name": "longitude",
+            "units": "degrees_east"
+        }
+    )
+
+    da_land_id = xarray.DataArray(
+        data = [1],
+        dims = ["land_id"],
+    )
+
+    da_temp = xarray.DataArray(
+        data = itertools.islice(itertools.cycle(surface_temperature), num_of_entries),
+        dims = ["land_id", "time"],
+        attrs = {
+            "_FillValue": "-9999.0",
+            "standard_name": "air_temperature",
+            "long_name": "Near surface air temperature at 2m",
+            "units": "K",
+            "coordinates": "lon lat"
+        }
+    )
+
+    da_prec = xarray.DataArray(
+        data = itertools.islice(itertools.cycle(precipitation), num_of_entries),
+        dims = ["land_id", "time"],
+        attrs = {
+            "_FillValue": "-9999.0",
+            "standard_name": "precipitation_amount",
+            "long_name": "Monthly precipitation amount",
+            "units": "kg m-2",
+            "coordinates": "lon lat"
+        }
+    )
+
+    da_rad = xarray.DataArray(
+        data = itertools.islice(itertools.cycle(surface_solar_radiation), num_of_entries),
+        dims = ["land_id", "time"],
+        attrs = {
+            "_FillValue": "-9999.0",
+            "standard_name": "surface_downwelling_shortwave_flux",
+            "long_name": "Mean daily surface incident shortwave radiation",
+            "units": "W m-2",
+            "coordinates": "lon lat"
+        }
+    )
+
+    ds_out_temp = xarray.Dataset({
+        "time": da_time,
+        "lat": da_lat,
+        "lon": da_lon,
+        "temp": da_temp,
+        "land_id": da_land_id
+    })
+
+    ds_out_prec = xarray.Dataset({
+        "time": da_time,
+        "lat": da_lat,
+        "lon": da_lon,
+        "prec": da_prec,
+        "land_id": da_land_id
+    })
+
+    ds_out_rad = xarray.Dataset({
+        "time": da_time,
+        "lat": da_lat,
+        "lon": da_lon,
+        "rad": da_rad,
+        "land_id": da_land_id
+    })
+
+    ds_out_temp.to_netcdf("temperature_{}_{}.nc".format(args.location, args.time))
+    ds_out_prec.to_netcdf("precipitation_{}_{}.nc".format(args.location, args.time))
+    ds_out_rad.to_netcdf("radiation_{}_{}.nc".format(args.location, args.time))
+
+    #ds_out_temp["lat"] = (("land_id", ), [p_lat])
+    #ds_out_temp["lon"] = (("land_id", ), [p_lon])
+    #ds_out_temp["temp"] = (("land_id", "time"), surface_temperature)
+
+    #ds_out_temp.coords["time"] = (("time",), itertools.islice(days, num_of_years * 12))
+    #ds_out_temp.coords["land_id"] = (("land_id",), [1])
 
 
 if __name__ == "__main__":
@@ -96,15 +212,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("location", help="The study area: pda, lc, na, sg")
     parser.add_argument("time", help="The time period: pd, pi, mh, lgm, pli, mi1, mi2")
+    parser.add_argument("years", help="The number of years the data should be generated")
     args = parser.parse_args()
 
-    lat_lon = get_lat_lon(args.location)
-
-    logger.info("Location: {}, lat_lon: {}".format(args.location, lat_lon))
-
-    file_list = get_file_list(args.time)
-
-    process_files(file_list, lat_lon[0], lat_lon[1])
+    process_files(args)
 
     t_end = d_timer()
 
