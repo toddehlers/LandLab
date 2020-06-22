@@ -54,6 +54,22 @@ def get_file_list(time_p):
     file_list.sort()
     return file_list
 
+def get_co2_value(time_p):
+    if time_p == "pd":
+        return 280.0
+    elif time_p == "pi":
+        return 280.0
+    elif time_p == "mh":
+        return 280.0
+    elif time_p == "lgm":
+        return 185.0
+    elif time_p == "pli":
+        return 405.0
+    elif time_p == "mi1":
+        return 450.0
+    elif time_p == "mi2":
+        return 278.0
+
 def extract_data(ds, ds_lat, ds_lon):
     result = ds.sel(lat = ds_lat, lon = ds_lon, method="nearest")
     return result.values[0]
@@ -192,6 +208,12 @@ def process_files(args):
     ds_out_temp.to_netcdf("temperature_{}_{}.nc".format(args.location, args.time))
     ds_out_prec.to_netcdf("precipitation_{}_{}.nc".format(args.location, args.time))
     ds_out_rad.to_netcdf("radiation_{}_{}.nc".format(args.location, args.time))
+
+    co2_value = get_co2_value(args.time)
+
+    with open("co2_{}.txt".format(args.time), "w") as f:
+        for i in range(args.years):
+            f.write("{} {}\n".format(i - args.years, co2_value))
 
 if __name__ == "__main__":
     t_start = d_timer()
