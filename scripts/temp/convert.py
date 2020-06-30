@@ -7,6 +7,7 @@ import logging
 import argparse
 import xarray
 import itertools
+import numpy
 
 def get_lat_lon(loc):
     if loc == "pda":
@@ -116,9 +117,15 @@ def process_files(args):
         }
     )
 
+    da_land_id = xarray.DataArray(
+        data = [0],
+        dims = ["land_id"]
+    )
+
     da_lat = xarray.DataArray(
         data = [p_lat],
         dims = ["land_id"],
+        coords = [da_land_id],
         attrs = {
             "_FillValue": float("Nan"),
             "standard_name": "latitude",
@@ -130,6 +137,7 @@ def process_files(args):
     da_lon = xarray.DataArray(
         data = [p_lon],
         dims = ["land_id"],
+        coords = [da_land_id],
         attrs = {
             "_FillValue": float("Nan"),
             "standard_name": "longitude",
@@ -138,14 +146,11 @@ def process_files(args):
         }
     )
 
-    da_land_id = xarray.DataArray(
-        data = [1],
-        dims = ["land_id"],
-    )
-
+    np_temp = numpy.array(list(itertools.islice(itertools.cycle(surface_temperature), num_of_entries)))
     da_temp = xarray.DataArray(
-        data = list(itertools.islice(itertools.cycle(surface_temperature), num_of_entries)),
-        dims = ["time"],
+        data = numpy.expand_dims(np_temp, axis=0),
+        dims = ["land_id", "time"],
+        coords = [da_land_id, da_time],
         attrs = {
             "_FillValue": "-9999.0",
             "standard_name": "air_temperature",
@@ -155,9 +160,11 @@ def process_files(args):
         }
     )
 
+    np_prec = numpy.array(list(itertools.islice(itertools.cycle(precipitation), num_of_entries)))
     da_prec = xarray.DataArray(
-        data = list(itertools.islice(itertools.cycle(precipitation), num_of_entries)),
-        dims = ["time"],
+        data = numpy.expand_dims(np_prec, axis=0) ,
+        dims = ["land_id", "time"],
+        coords = [da_land_id, da_time],
         attrs = {
             "_FillValue": "-9999.0",
             "standard_name": "precipitation_amount",
@@ -167,9 +174,11 @@ def process_files(args):
         }
     )
 
+    np_rad = numpy.array(list(itertools.islice(itertools.cycle(surface_solar_radiation), num_of_entries)))
     da_rad = xarray.DataArray(
-        data = list(itertools.islice(itertools.cycle(surface_solar_radiation), num_of_entries)),
-        dims = ["time"],
+        data = numpy.expand_dims(np_rad, axis=0),
+        dims = ["land_id", "time"],
+        coords = [da_land_id, da_time],
         attrs = {
             "_FillValue": "-9999.0",
             "standard_name": "surface_downwelling_shortwave_flux",
@@ -180,27 +189,21 @@ def process_files(args):
     )
 
     ds_out_temp = xarray.Dataset({
-        "time": da_time,
         "lat": da_lat,
         "lon": da_lon,
         "temp": da_temp,
-        "land_id": da_land_id
     })
 
     ds_out_prec = xarray.Dataset({
-        "time": da_time,
         "lat": da_lat,
         "lon": da_lon,
         "prec": da_prec,
-        "land_id": da_land_id
     })
 
     ds_out_rad = xarray.Dataset({
-        "time": da_time,
         "lat": da_lat,
         "lon": da_lon,
         "rad": da_rad,
-        "land_id": da_land_id
     })
 
     logger.info("Writing netCDF files...")
