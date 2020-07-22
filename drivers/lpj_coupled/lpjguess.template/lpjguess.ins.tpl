@@ -40,10 +40,10 @@ param "variable_temp" (str "temp")
 param "file_prec"     (str "input/climdata/$CLIMPREC")
 param "variable_prec" (str "prec")
 
-param "file_wetdays"  (str "") 
+param "file_wetdays"  (str "")
 param "variable_wetdays" (str "")
 
-param "file_insol"      (str "input/climdata/$CLIMRAD") 
+param "file_insol"      (str "input/climdata/$CLIMRAD")
 param "variable_insol"  (str "rad")
 
 param "file_min_temp"      (str "")
@@ -52,7 +52,7 @@ param "variable_min_temp"  (str "min_temp")
 param "file_max_temp"      (str "")
 param "variable_max_temp"  (str "max_temp")
 
-param "file_ndep"     (str "../forcings/climdata/ndepo_lamarque_cl_hist_landid.nc")
+param "file_ndep"     (str "/usr/local/landlab/common/ndepo_lamarque_cl_hist_landid.nc")
 param "variable_nhxdry" (str "NHxDry")
 param "variable_nhxwet" (str "NHxWet")
 param "variable_noydry" (str "NOyDry")
@@ -93,6 +93,6 @@ restart $RESTART				! whether to start from a state file
 ! save_state in run_landform always 0 as we auto-save into landform_state_path
 save_state 0			! whether to save a state file
 state_path "loaddir"	! directory to read state files from
- 
-landform_state_path "dumpdir_eor"	! directory to put state files in 
+
+landform_state_path "dumpdir_eor"	! directory to put state files in
 

@@ -76,6 +76,7 @@ case "$1" in
             ;;
             *)
                 echo "Unknown template"
+                echo "Use one of these: az, lc, na, sg"
             ;;
         esac
     ;;
@@ -87,6 +88,7 @@ case "$1" in
         echo -e "\t- run <sim_type>: runs the specified simulation in the current folder"
         echo -e "\t- reset_output: removes all of the output files"
         echo -e "\t- create_topo: create initial topography"
+        echo -e "\t- template <location>: copy the data for a diferent location into the current folder"
 
         echo -e "\n"
 
@@ -96,6 +98,15 @@ case "$1" in
         echo -e "\t- soil: the detachment-limited model with soil cover and weathering"
         echo -e "\t- space: he space-fluvial model with soil cover and weathering"
         echo -e "\t- lpj: the coupled lpj-landlab model\n"
+
+        echo -e "\n"
+
+        echo -e "The following locations (<location>) are available:\n"
+
+        echo -e "\t- az: Pan de Azucar"
+        echo -e "\t- lc: La Campana"
+        echo -e "\t- na: Nahuelbuta"
+        echo -e "\t- sg: Santa Gracia"
 
         echo -e "\n"
 
@@ -110,5 +121,10 @@ case "$1" in
 
         echo "Run the lpj coupled simulation:"
         echo "$SCRIPT_NAME run lpj"
+
+        echo -e "\n"
+
+        echo "Copy data from La Campana into current folder:"
+        echo "$SCRIPT_NAME template lc"
     ;;
 esac
