@@ -99,7 +99,7 @@ def process_files(args):
     days = itertools.accumulate(itertools.chain([0], itertools.cycle(num_of_days_per_month)))
 
     for f in file_list:
-        ds = xarray.open_dataset(f)
+        ds = xarray.open_dataset(f, decode_times=False)
         surface_temperature.append(extract_data(ds.tsurf, ds_lat, ds_lon))
         precipitation.append(extract_data(ds.aprl, ds_lat, ds_lon) * 1.0e5)
         surface_solar_radiation.append(extract_data(ds.srads, ds_lat, ds_lon))
