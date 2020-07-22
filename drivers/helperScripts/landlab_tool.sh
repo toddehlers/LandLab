@@ -6,6 +6,7 @@ if [[ -z "${LANDLABDRIVER}" ]]; then
     echo "Environment variable LANDLABDRIVER is not set"
     echo "You should load the module first:"
     echo "module load landlab"
+    echo "(This is only relevant when not using the singularity container)"
     exit 1
 fi
 
@@ -58,6 +59,25 @@ case "$1" in
     ;;
     create_topo)
         $PYTHON_BIN $LANDLABDRIVER/helperScripts/createStandartTopo.py
+    ;;
+    template)
+        case "$2" in
+            az)
+                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateAZ .
+            ;;
+            lc)
+                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateLC .
+            ;;
+            na)
+                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateNA .
+            ;;
+            sg)
+                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateSG .
+            ;;
+            *)
+                echo "Unknown template"
+            ;;
+        esac
     ;;
     *)
         echo "This script initializes and runs the apropriate landlab model."
