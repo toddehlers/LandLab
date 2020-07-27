@@ -5,6 +5,8 @@ import sys
 import glob
 import xarray as xr
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import netCDF4

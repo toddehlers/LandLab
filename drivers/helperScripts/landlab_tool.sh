@@ -92,6 +92,7 @@ case "$1" in
         echo -e "\t- reset_output: removes all of the output files"
         echo -e "\t- create_topo: create initial topography"
         echo -e "\t- template <location>: copy the data for a diferent location into the current folder"
+        echo -e "\t- plot: creates an overview plot in the simulation folder"
 
         echo -e "\n"
 
