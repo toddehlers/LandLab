@@ -80,6 +80,9 @@ case "$1" in
             ;;
         esac
     ;;
+    plot)
+        $PYTHON_BIN $LANDLABDRIVER/helperScripts/plot_script.py
+    ;;
     *)
         echo "This script initializes and runs the apropriate landlab model."
         echo -e "The following sub-commands are available:\n"

@@ -41,4 +41,5 @@ pwd
 
 module load devel/singularity/3.2
 singularity exec /beegfs/work/epibb01/container/ubuntu_18_04.sif landlab_tool.sh run lpj
+singularity exec /beegfs/work/epibb01/container/ubuntu_18_04.sif landlab_tool.sh plot
 
