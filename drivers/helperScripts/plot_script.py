@@ -28,7 +28,7 @@ if __name__ == "__main__":
     shrub_mean = []
     grass_mean = []
 
-    for nc_file in Bar("Processing netCDF output files").iter(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[:-3].split("__")[1]))):
+    for nc_file in Bar("Processing netCDF output files").iter(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[19:].split("__")[0]))):
         nc_data = netCDF4.Dataset(nc_file)
 
         parameters = [
@@ -76,15 +76,7 @@ if __name__ == "__main__":
                 print("Unknown parameter: {}".format(p))
                 sys.exit(1)
 
-    #topo_mean = [np.mean(v) for v in topo_mean]
-    #eros_mean = [np.mean(v) for v in eros_mean]
-    #sedi_mean = [np.mean(v) for v in sedi_mean]
-    #prec_mean = [np.mean(v) for v in prec_mean]
-    #soil_mean = [np.mean(v) for v in soil_mean]
-    #vegi_mean = [np.mean(v) for v in vegi_mean]
-    #tree_mean = [np.mean(v) for v in tree_mean]
-    #shrub_mean = [np.mean(v) for v in shrub_mean]
-    #grass_mean = [np.mean(v) for v in grass_mean]
+        # break
 
     fig, ax = plt.subplots(4,2, figsize = [15,15], sharex = True)
 
@@ -97,22 +89,25 @@ if __name__ == "__main__":
     ax[3,0].plot(grass_mean)
     ax[3,1].plot(shrub_mean)
 
-    ax[0,0].set_ylabel("topo mean [m]", fontsize = 20, color = "red")
-    ax[1,0].set_ylabel("eros mean [m/yr]", fontsize = 20, color = "red")
-    ax[1,1].set_ylabel("sedi mean []", fontsize = 20, color = "red")
-    ax[0,1].set_ylabel("prec mean [cm]", fontsize = 20, color = "red")
-    ax[2,0].set_ylabel("soil mean [m]", fontsize = 20, color = "red")
-    ax[2,1].set_ylabel("tree mean []", fontsize = 20, color = "red")
-    ax[3,0].set_ylabel("grass mean [m]", fontsize = 20, color = "red")
-    ax[3,1].set_ylabel("shrub mean [m]", fontsize = 20, color = "red")
+    fontsize = 20
+    color = "red"
 
-    plt.tight_layout()
+    ax[0,0].set_ylabel("topo mean [m]", fontsize = fontsize, color = color)
+    ax[1,0].set_ylabel("eros mean [m/yr]", fontsize = fontsize, color = color)
+    ax[1,1].set_ylabel("sedi mean []", fontsize = fontsize, color = color)
+    ax[0,1].set_ylabel("prec mean [cm]", fontsize = fontsize, color = color)
+    ax[2,0].set_ylabel("soil mean [m]", fontsize = fontsize, color = color)
+    ax[2,1].set_ylabel("tree mean []", fontsize = fontsize, color = color)
+    ax[3,0].set_ylabel("grass mean [m]", fontsize = fontsize, color = color)
+    ax[3,1].set_ylabel("shrub mean [m]", fontsize = fontsize, color = color)
+
+    ax[3,0].set_xlabel("time steps", fontsize = fontsize, color = color)
+    ax[3,1].set_xlabel("time steps", fontsize = fontsize, color = color)
+
+    cwd = os.getcwd()
+    title = os.path.basename(cwd)
+    fig.suptitle(title, fontsize = fontsize)
+
+    plt.tight_layout(rect=[0, 0.001, 1, 0.95])
 
     plt.savefig("overview.png", dpi = 420)
-
-    topo_min = min(topo_mean)
-    topo_max = max(topo_mean)
-
-    print(f"Topo min: {topo_min}m")
-    print(f"Topo max: {topo_max}m")
-    print(f"Total relief: {topo_max - topo_min}m")
