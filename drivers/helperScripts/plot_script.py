@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import netCDF4
-from progress.bar import Bar
+from tqdm import tqdm
 
 if __name__ == "__main__":
     output_files = "ll_output/NC/"
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     shrub_mean = []
     grass_mean = []
 
-    for nc_file in Bar("Processing netCDF output files").iter(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[19:].split("__")[0]))):
+    for nc_file in tqdm(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[19:].split("__")[0]))):
         nc_data = netCDF4.Dataset(nc_file)
 
         parameters = [
