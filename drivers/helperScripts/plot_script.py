@@ -12,6 +12,75 @@ import pandas as pd
 import netCDF4
 from tqdm import tqdm
 
+class SimData:
+    def __init__(self):
+        self.topo_mean = []
+        self.eros_mean = []
+        self.sedi_mean = []
+        self.prec_mean = []
+        self.soil_mean = []
+        self.vegi_mean = []
+        self.tree_mean = []
+        self.shrub_mean = []
+        self.grass_mean = []
+        self.fontsize = 20
+        self.color = "red"
+
+
+    def append(self, p, data):
+        if p == "topographic__elevation":
+            self.topo_mean.append(data)
+        elif p == "erosion__rate":
+            self.eros_mean.append(data)
+        elif p == "sediment__flux":
+            self.sedi_mean.append(data)
+        elif p == "precipitation":
+            self.prec_mean.append(data)
+        elif p == "soil__depth":
+            self.soil_mean.append(data)
+        elif p == "vegetation__density":
+            self.vegi_mean.append(data)
+        elif p == "tree_fpc":
+            self.tree_mean.append(data)
+        elif p == "shrub_fpc":
+            self.shrub_mean.append(data)
+        elif p == "grass_fpc":
+            self.grass_mean.append(data)
+        else:
+            print("Unknown parameter: {}".format(p))
+            sys.exit(1)
+
+    def plot(self, ax, data, ylabel):
+        ax.plot(data)
+        ax.set_ylabel(ylabel, fontsize = self.fontsize, color = self.color)
+
+    def plot1(self, filename):
+        fig, ax = plt.subplots(4,2, figsize = [15,15], sharex = True)
+
+        self.plot(ax[0,0], self.topo_mean, "topo mean [m]")
+        self.plot(ax[1,0], self.eros_mean, "eros mean [m/yr]")
+        self.plot(ax[1,1], self.sedi_mean, "sedi mean [m3/s]")
+        self.plot(ax[0,1], self.prec_mean, "prec mean [cm/yr]")
+        self.plot(ax[2,0], self.soil_mean, "soil mean [m]")
+        self.plot(ax[2,1], self.tree_mean, "tree mean [%]")
+        self.plot(ax[3,0], self.grass_mean, "grass mean [%]")
+        self.plot(ax[3,1], self.shrub_mean, "shrub mean [%]")
+
+        ax[3,0].set_xlabel("time steps", fontsize = self.fontsize, color = self.color)
+        ax[3,1].set_xlabel("time steps", fontsize = self.fontsize, color = self.color)
+
+        cwd = os.getcwd()
+        title = os.path.basename(cwd)
+        fig.suptitle(title, fontsize = self.fontsize)
+
+        plt.tight_layout(rect=[0, 0.001, 1, 0.95])
+
+        plt.savefig(filename, dpi = 420)
+
+    def plot2(self, filename):
+        pass
+
+
 if __name__ == "__main__":
     output_files = "ll_output/NC/"
 
@@ -20,15 +89,7 @@ if __name__ == "__main__":
         print("This script should be run from inside the simulation folder")
         sys.exit(1)
 
-    topo_mean = []
-    eros_mean = []
-    sedi_mean = []
-    prec_mean = []
-    soil_mean = []
-    vegi_mean = []
-    tree_mean = []
-    shrub_mean = []
-    grass_mean = []
+    sim_data = SimData()
 
     for nc_file in tqdm(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[19:].split("__")[0]))):
         nc_data = netCDF4.Dataset(nc_file)
@@ -56,60 +117,10 @@ if __name__ == "__main__":
             parameter_data = np.delete(parameter_data, 0 , axis = 1)
             parameter_data = np.delete(parameter_data, -1 , axis = 1)
 
-            if p == "topographic__elevation":
-                topo_mean.append(np.mean(parameter_data))
-            elif p == "erosion__rate":
-                eros_mean.append(np.mean(parameter_data))
-            elif p == "sediment__flux":
-                sedi_mean.append(np.mean(parameter_data))
-            elif p == "precipitation":
-                prec_mean.append(np.mean(parameter_data))
-            elif p == "soil__depth":
-                soil_mean.append(np.mean(parameter_data))
-            elif p == "vegetation__density":
-                vegi_mean.append(np.mean(parameter_data))
-            elif p == "tree_fpc":
-                tree_mean.append(np.mean(parameter_data))
-            elif p == "shrub_fpc":
-                shrub_mean.append(np.mean(parameter_data))
-            elif p == "grass_fpc":
-                grass_mean.append(np.mean(parameter_data))
-            else:
-                print("Unknown parameter: {}".format(p))
-                sys.exit(1)
+            sim_data.append(p, np.mean(parameter_data))
 
         # break
 
-    fig, ax = plt.subplots(4,2, figsize = [15,15], sharex = True)
+    sim_data.plot1("overview1.png")
+    sim_data.plot2("overview1.png")
 
-    ax[0,0].plot(topo_mean)
-    ax[1,0].plot(eros_mean)
-    ax[1,1].plot(sedi_mean)
-    ax[0,1].plot(prec_mean)
-    ax[2,0].plot(soil_mean)
-    ax[2,1].plot(tree_mean)
-    ax[3,0].plot(grass_mean)
-    ax[3,1].plot(shrub_mean)
-
-    fontsize = 20
-    color = "red"
-
-    ax[0,0].set_ylabel("topo mean [m]", fontsize = fontsize, color = color)
-    ax[1,0].set_ylabel("eros mean [m/yr]", fontsize = fontsize, color = color)
-    ax[1,1].set_ylabel("sedi mean []", fontsize = fontsize, color = color)
-    ax[0,1].set_ylabel("prec mean [cm]", fontsize = fontsize, color = color)
-    ax[2,0].set_ylabel("soil mean [m]", fontsize = fontsize, color = color)
-    ax[2,1].set_ylabel("tree mean []", fontsize = fontsize, color = color)
-    ax[3,0].set_ylabel("grass mean [m]", fontsize = fontsize, color = color)
-    ax[3,1].set_ylabel("shrub mean [m]", fontsize = fontsize, color = color)
-
-    ax[3,0].set_xlabel("time steps", fontsize = fontsize, color = color)
-    ax[3,1].set_xlabel("time steps", fontsize = fontsize, color = color)
-
-    cwd = os.getcwd()
-    title = os.path.basename(cwd)
-    fig.suptitle(title, fontsize = fontsize)
-
-    plt.tight_layout(rect=[0, 0.001, 1, 0.95])
-
-    plt.savefig("overview.png", dpi = 420)
