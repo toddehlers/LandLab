@@ -308,19 +308,17 @@ while elapsed_time < totalT:
 
     #run lpjguess once at the beginning and then each timestep after the spinup.
     if elapsed_time < spin_up:
-        outInt = int(config['Output']['outIntSpinUp'])
         if elapsed_time == 0:
-            
             #create all possible landform__ID's in here ONCE before lpjguess is called
             create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
-            write_netcdf('./temp_output/current_output.nc',
-                   mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
-                                                 'lgt.lon' : longitude,
-                                                 'lgt.dx'  : dx,
-                                                 'lgt.dy'  : dx,
-                                                 'lgt.timestep' : elapsed_time,
-                                                 'lgt.classification' : classificationType,
-                                                 'lgt.elevation_step' : elevationStepBin})
+            #write_netcdf('./temp_output/current_output.nc',
+            #       mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
+            #                                     'lgt.lon' : longitude,
+            #                                     'lgt.dx'  : dx,
+            #                                     'lgt.dy'  : dx,
+            #                                     'lgt.timestep' : elapsed_time,
+            #                                     'lgt.classification' : classificationType,
+            #                                     'lgt.elevation_step' : elevationStepBin})
 
             lpj.run_one_step(counter, dt)
             #backup lpj results
@@ -329,34 +327,35 @@ while elapsed_time < totalT:
             shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
             shutil.copy('./temp_lpj/output/climate.out', f"./debugging/climate.{str(counter).zfill(6)}.out" )
             #import lpj lai and precipitation data
-            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out',
-                    var='lai', method = LPJGUESS_VEGI_MAPPING)
-            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
-            #reinitialize the flow router
-            fr = FlowRouter(mg,method = 'd8', runoff_rate = mg.at_node['precipitation'])
+            lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out',
+            #        var='lai', method = LPJGUESS_VEGI_MAPPING)
+            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
 
-        elif elapsed_time > 0:
-            pass
+            #reinitialize the flow router
+            fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
+
     elif elapsed_time >= spin_up:
-        outInt = int(config['Output']['outIntTransient'])
         #reset counter to 1, to get right position in climate file
         if elapsed_time == spin_up:
             counter = 1
-        else:
-            pass
+            outInt = int(config['Output']['outIntTransient'])
+
         lpj.run_one_step(counter, dt)
         shutil.copy('./temp_lpj/output/sp_lai.out', f"./debugging/sp_lai.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/sp_mprec.out', f"./debugging/sp_mprec.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
         shutil.copy('./temp_lpj/output/climate.out', f"./debugging/climate.{str(counter).zfill(6)}.out" )
-        #import lpj lai and precipitation data
+
         if lpj_coupled in ["yes", "on", "true"]:
-            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out', var='lai',
-                method =  LPJGUESS_VEGI_MAPPING)
-            lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
-        #reinitialize the flow router
-        fr = FlowRouter(mg,method = 'd8', runoff_rate = mg.at_node['precipitation'])
+            #import lpj lai and precipitation data
+            lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out', var='lai',
+            #    method =  LPJGUESS_VEGI_MAPPING)
+            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
  
+            #reinitialize the flow router
+            fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
     
     #apply uplift
     mg.at_node['bedrock__elevation'][mg.core_nodes] += uplift_per_step
@@ -418,18 +417,19 @@ while elapsed_time < totalT:
 
     #Run the output loop every outInt-times
     if elapsed_time % outInt  == 0:
+        out_int_suffix = str(int(elapsed_time/outInt)).zfill(zp)
 
         logger.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
         ##Create DEM
         plt.figure()
         #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
         imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [yrs]'.format(elapsed_time))
-        plt.savefig('./ll_output/DEM/DEM_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/DEM/DEM_{}.png'.format(out_int_suffix))
         plt.close()
         ##Create Bedrock Elevation Map
         plt.figure()
         imshow_grid(mg,'bedrock__elevation', grid_units=['m','m'], var_name = 'bedrock', cmap='jet')
-        plt.savefig('./ll_output/BED/BED_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/BED/BED_{}.png'.format(out_int_suffix))
         plt.close()
         ##Create Slope - Area Map
         plt.figure()
@@ -438,51 +438,53 @@ while elapsed_time < totalT:
            marker='.',linestyle='None')
         plt.xlabel('Area')
         plt.ylabel('Slope')
-        plt.savefig('./ll_output/SA/SA_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/SA/SA_{}.png'.format(out_int_suffix))
         plt.close()
         ##Create NetCDF Output
-        write_netcdf('./ll_output/NC/output{}'.format(elapsed_time)+'__'+str(int(elapsed_time/outInt)).zfill(zp)+'.nc',
+        write_netcdf('./ll_output/NC/output{}__{}.nc'.format(elapsed_time, out_int_suffix),
                 mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
                                               'lgt.lon' : longitude,
                                               'lgt.dx'  : dx,
                                               'lgt.dy'  : dx,
                                               'lgt.timestep' : elapsed_time,
+                                              'lgt.spinup' : elapsed_time < spin_up,
                                               'lgt.classification' : classificationType,
-                                              'lgt.elevation_step' : elevationStepBin})
+                                              'lgt.elevation_step' : elevationStepBin,
+                                              })
         ##Create NetCDF Output for LPJ
-        os.rename('./temp_output/current_output.nc',
-                './temp_output/current_backup'+str(counter)+ '.nc')
-        os.remove('./temp_output/current_backup'+str(counter)+'.nc')
-        write_netcdf('./temp_output/current_output.nc',
-                mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
-                                              'lgt.lon' : longitude,
-                                              'lgt.dx'  : dx,
-                                              'lgt.dy'  : dx,
-                                              'lgt.timestep' : elapsed_time,
-                                              'lgt.classification' : classificationType,
-                                              'lgt.elevation_step' : elevationStepBin})
+        #os.rename('./temp_output/current_output.nc',
+        #        './temp_output/current_backup'+str(counter)+ '.nc')
+        #os.remove('./temp_output/current_backup'+str(counter)+'.nc')
+        #write_netcdf('./temp_output/current_output.nc',
+        #        mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
+        #                                      'lgt.lon' : longitude,
+        #                                      'lgt.dx'  : dx,
+        #                                      'lgt.dy'  : dx,
+        #                                      'lgt.timestep' : elapsed_time,
+        #                                      'lgt.classification' : classificationType,
+        #                                      'lgt.elevation_step' : elevationStepBin})
                 
         ##Create erosion_diffmaps
         plt.figure()
         imshow_grid(mg,erosionMatrix,grid_units=['m','m'],var_name='Erosion m/yr',cmap='jet',limits=[DHDTLowLim,DHDTHighLim])
-        plt.savefig('./ll_output/DHDT/eMap_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/DHDT/eMap_{}.png'.format(out_int_suffix))
         plt.close()
         
         ##Create Soil Depth Maps
         plt.figure()
         imshow_grid(mg,'soil__depth',grid_units=['m','m'],var_name=
                 'Elevation',cmap='terrain', limits = [0, 1.5])
-        plt.savefig('./ll_output/SoilDepth/SD_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/SoilDepth/SD_{}.png'.format(out_int_suffix))
         plt.close()
         #Create SoilProd Maps
         plt.figure()
         imshow_grid(mg,'soil_production__rate')
-        plt.savefig('./ll_output/SoilP/SoilP_'+str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/SoilP/SoilP_{}.png'.format(out_int_suffix))
         plt.close()
         #create Vegi_Density maps
         plt.figure()
         imshow_grid(mg, 'vegetation__density', limits = [0,1])
-        plt.savefig('./ll_output/Veg/vegidensity_'+ str(int(elapsed_time/outInt)).zfill(zp)+'.png')
+        plt.savefig('./ll_output/Veg/vegidensity_{}.png'.format(out_int_suffix))
         plt.close()
 
 

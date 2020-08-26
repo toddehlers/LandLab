@@ -22,7 +22,8 @@ def _calc_fpc(lai):
     """
     return (1.0 - np.exp(-0.5 * lai)) * 100
 
-def read_csv_files(filename, ftype='lai', pft_class='total'):
+
+def _read_csv_files(filename, ftype='lai', pft_class='total'):
     """
     reads in the out files from lpj and convertes to aggregated values
     
@@ -33,13 +34,11 @@ def read_csv_files(filename, ftype='lai', pft_class='total'):
         tree_fpc[0] = landform__ID
         tree_fpc[1] = according vegetation cover
     """
-    monthly = False
     month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')
 
     if ftype == 'lai':
         index_cols = ['Lat', 'Lon', 'Year', 'Stand', 'Patch'] 
     elif ftype == 'mprec':
-        monthly = True
         index_cols = ['Lat', 'Lon', 'Year', 'Stand'] 
     else:
         raise NotImplementedError
@@ -147,12 +146,51 @@ def calc_cumulative_fpc(tree_fpc, grass_fpc, shrub_fpc):
 
     return cumulative_fpc
 
-#@timed(logger) 
-def lpj_import_run_one_step(grid, inputFile, var='lai', method = 'cumulative'):
+def import_vegetation(grid, vegi_mapping_method, filename):
+    csv_data = pd.read_table(filename, delim_whitespace=True)
+    filtered_data = csv_data[csv_data.Stand > 0]
+
+    if vegi_mapping_method == 'cumulative':
+        pass
+    elif vegi_mapping_method == 'individual':
+        tree_cols = ['TeBE_tm','TeBE_itm','TeBE_itscl','TeBS_itm','TeNE','BBS_itm','BBE_itm']
+        shrub_cols = ['BE_s','TeR_s','TeE_s']
+        grass_cols = ['C3G']
+
+
+
+def import_precipitation(grid, filename):
+    csv_data = pd.read_table(filename, delim_whitespace=True)
+
+    month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')
+    index_cols = ["Year","Stand"]
+
+    filtered_data = csv_data[index_cols + month_cols][csv_data.Stand > 0]
+    filtered_data["Annual"] = filtered_data[month_cols].sum(axis = 1)
+
+    cleared_data = filtered_data.drop(columns=month_cols).set_index(index_cols)
+
+    final_data = cleared_data.mean(level=1).T / 10.0
+
+    if 'precipitation' not in grid.keys('node'):
+        grid.add_zeros('node', 'precipitation')
     
+    grid.at_node['precipitation'] = map_precip_per_landform_on_grid(grid, final_data.to_records() )
+
+def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
     main function for input_conversion to be called from landlab driver file
     """
+
+    import_vegetation(grid, vegi_mapping_method, "./temp_lpj/output/sp_lai.out")
+    import_precipitation(grid, "./temp_lpj/output/sp_mprec.out")
+
+
+
+
+
+
+def _lpj_import_run_one_step(grid, vegi_mapping_method):
     
     if var == 'lai':
         if method == 'cumulative':

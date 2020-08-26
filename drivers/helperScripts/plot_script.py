@@ -92,7 +92,9 @@ if __name__ == "__main__":
     sim_data = SimData()
 
     for nc_file in tqdm(sorted(glob.glob(os.path.join(output_files, "*.nc")), key = lambda s: int(s[19:].split("__")[0]))):
-        nc_data = netCDF4.Dataset(nc_file)
+        nc_data = netCDF4.Dataset(nc_file) # pylint: disable=no-member
+
+        elapsed_time = nc_data.getncattr("lgt.timestep")
 
         parameters = [
             "topographic__elevation",
@@ -122,5 +124,5 @@ if __name__ == "__main__":
         # break
 
     sim_data.plot1("overview1.png")
-    sim_data.plot2("overview1.png")
+    sim_data.plot2("overview2.png")
 
