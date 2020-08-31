@@ -19,10 +19,14 @@ class SimData:
         self.sedi_mean = []
         self.prec_mean = []
         self.soil_mean = []
-        self.vegi_mean = []
-        self.tree_mean = []
-        self.shrub_mean = []
-        self.grass_mean = []
+        self.vegi_mean_fpc = []
+        self.vegi_mean_lai = []
+        self.tree_mean_fpc = []
+        self.tree_mean_lai = []
+        self.shrub_mean_fpc = []
+        self.shrub_mean_lai = []
+        self.grass_mean_fpc = []
+        self.grass_mean_lai = []
         self.fontsize = 20
         self.color = "red"
 
@@ -39,13 +43,21 @@ class SimData:
         elif p == "soil__depth":
             self.soil_mean.append(data)
         elif p == "vegetation__density":
-            self.vegi_mean.append(data)
+            self.vegi_mean_fpc.append(data)
+        elif p == "vegetation__density_lai":
+            self.vegi_mean_lai.append(data)
         elif p == "tree_fpc":
-            self.tree_mean.append(data)
+            self.tree_mean_fpc.append(data)
+        elif p == "tree_lai":
+            self.tree_mean_lai.append(data)
         elif p == "shrub_fpc":
-            self.shrub_mean.append(data)
+            self.shrub_mean_fpc.append(data)
+        elif p == "shrub_lai":
+            self.shrub_mean_lai.append(data)
         elif p == "grass_fpc":
-            self.grass_mean.append(data)
+            self.grass_mean_fpc.append(data)
+        elif p == "grass_lai":
+            self.grass_mean_lai.append(data)
         else:
             print("Unknown parameter: {}".format(p))
             sys.exit(1)
@@ -62,9 +74,9 @@ class SimData:
         self.plot(ax[1,1], self.sedi_mean, "sedi mean [m3/s]")
         self.plot(ax[0,1], self.prec_mean, "prec mean [cm/yr]")
         self.plot(ax[2,0], self.soil_mean, "soil mean [m]")
-        self.plot(ax[2,1], self.tree_mean, "tree mean [%]")
-        self.plot(ax[3,0], self.grass_mean, "grass mean [%]")
-        self.plot(ax[3,1], self.shrub_mean, "shrub mean [%]")
+        self.plot(ax[2,1], self.tree_mean_fpc, "tree mean [%]")
+        self.plot(ax[3,0], self.grass_mean_fpc, "grass mean [%]")
+        self.plot(ax[3,1], self.shrub_mean_fpc, "shrub mean [%]")
 
         ax[3,0].set_xlabel("time steps", fontsize = self.fontsize, color = self.color)
         ax[3,1].set_xlabel("time steps", fontsize = self.fontsize, color = self.color)
@@ -108,6 +120,12 @@ if __name__ == "__main__":
             parameters.append("tree_fpc")
             parameters.append("shrub_fpc")
             parameters.append("grass_fpc")
+        elif "tree_lai" and "shrub_lai" and "grass_lai" in nc_data.variables:
+            parameters.append("tree_lai")
+            parameters.append("shrub_lai")
+            parameters.append("grass_lai")
+        elif "vegetation__density_lai" in nc_data.variables:
+            parameters.append("vegetation__density_lai")
         else:
             parameters.append("vegetation__density")
 
