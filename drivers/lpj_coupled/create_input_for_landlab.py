@@ -61,8 +61,7 @@ def map_precip_per_landform_on_grid(grid, precip_array):
     return precip_grid
 
 def process_vegetation_data(data, index_cols, other_cols):
-    data = data[index_cols + other_cols]
-    data = data.groupby(index_cols, sort = False).mean()
+    data = data[index_cols + other_cols].groupby(index_cols, sort = False).mean()
     fpc_data = data.apply(_calc_fpc, 1).sum(axis=1)
     fpc_data = fpc_data.reset_index().set_index(index_cols)
     fpc_data = fpc_data.mean(level=1).T / 100
