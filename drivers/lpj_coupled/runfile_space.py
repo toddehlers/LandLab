@@ -20,11 +20,11 @@ from landlab.components import DynVeg_LpjGuess
 #input/output
 from landlab import imshow_grid
 from landlab.components import landformClassifier
-from landlab.io.netcdf import write_netcdf
 from landlab.io.netcdf import read_netcdf
 #coupling-specific
 from create_input_for_landlab import lpj_import_run_one_step 
 from create_all_landforms import create_all_landforms
+from netcdf_exporter import NetCDFExporter
 #external modules
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
@@ -35,8 +35,6 @@ import logging
 import numpy as np
 import os.path
 import shutil
-#import the .py-inputfile
-#from inputFile import *
 
 import configparser
 
@@ -112,7 +110,6 @@ LPJGUESS_INPUT_PATH = config['LPJ']['LPJGUESS_INPUT_PATH']
 LPJGUESS_TEMPLATE_PATH = config['LPJ']['LPJGUESS_TEMPLATE_PATH']
 LPJGUESS_FORCINGS_PATH = config['LPJ']['LPJGUESS_FORCINGS_PATH']
 LPJGUESS_INS_FILE_TPL = config['LPJ']['LPJGUESS_INS_FILE_TPL']
-# LPJGUESS_BIN = os.environ["LANDLABDRIVER"] + ""
 LPJGUESS_BIN = "guess" # Should be in PATH
 LPJGUESS_CO2FILE = config['LPJ']['LPJGUESS_CO2FILE']
 LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
@@ -175,7 +172,7 @@ if os.path.isfile('initial_topography.npy'):
         logger.info('Adding 1m of soil everywhere.')
     logger.info('Using pre-existing topography from file initial_topography.npy')
 else:
-    topoSeed = np.random.rand(mg.at_node.size) / 100.0
+    topoSeed = np.random.rand(mg.at_node.size) / 100.0 # pylint: disable=no-member
     mg.at_node['topographic__elevation'] += topoSeed + baseElevation
     mg.at_node['bedrock__elevation'] += topoSeed + baseElevation
     mg.at_node['soil__depth'] += initialSoilDepth
@@ -220,7 +217,7 @@ vegiTimeseries  = np.zeros(int(totalT / dt)) + vp
 #this incorporates a vegi step-function at timestep sfT with amplitude sfA
 mg.at_node['vegetation__density'][:] = vp
 #This maps the vegetation density on the nodes to the links between the nodes
-vegiLinks = mg.map_mean_of_link_nodes_to_link('vegetation__density')
+vegiLinks = mg.map_mean_of_link_nodes_to_link('vegetation__density') # pylint: disable=no-member
 
 ##These are the necesseray calculations for implementing the vegetation__density
 ##in the fluvial routines
@@ -278,6 +275,8 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
                     LPJGUESS_CALENDAR_YEAR,
                     dt)
 
+netcdf_export = NetCDFExporter(latitude, longitude, dx, spin_up, classificationType, elevationStepBin)
+
 logger.info("finished with the initialization of the erosion components")   
 elapsed_time = 0
 counter = 0
@@ -311,26 +310,11 @@ while elapsed_time < totalT:
         if elapsed_time == 0:
             #create all possible landform__ID's in here ONCE before lpjguess is called
             create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
-            #write_netcdf('./temp_output/current_output.nc',
-            #       mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
-            #                                     'lgt.lon' : longitude,
-            #                                     'lgt.dx'  : dx,
-            #                                     'lgt.dy'  : dx,
-            #                                     'lgt.timestep' : elapsed_time,
-            #                                     'lgt.classification' : classificationType,
-            #                                     'lgt.elevation_step' : elevationStepBin})
+            netcdf_export.write(mg, elapsed_time)
 
             lpj.run_one_step(counter, dt)
-            #backup lpj results
-            shutil.copy('./temp_lpj/output/sp_lai.out', f"./debugging/sp_lai.{str(counter).zfill(6)}.out" )
-            shutil.copy('./temp_lpj/output/sp_mprec.out', f"./debugging/sp_mprec.{str(counter).zfill(6)}.out" )
-            shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
-            shutil.copy('./temp_lpj/output/climate.out', f"./debugging/climate.{str(counter).zfill(6)}.out" )
             #import lpj lai and precipitation data
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
-            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out',
-            #        var='lai', method = LPJGUESS_VEGI_MAPPING)
-            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
@@ -342,17 +326,10 @@ while elapsed_time < totalT:
             outInt = int(config['Output']['outIntTransient'])
 
         lpj.run_one_step(counter, dt)
-        shutil.copy('./temp_lpj/output/sp_lai.out', f"./debugging/sp_lai.{str(counter).zfill(6)}.out" )
-        shutil.copy('./temp_lpj/output/sp_mprec.out', f"./debugging/sp_mprec.{str(counter).zfill(6)}.out" )
-        shutil.copy('./temp_lpj/output/sp_tot_runoff.out', f"./debugging/sp_tot_runoff.{str(counter).zfill(6)}.out" )
-        shutil.copy('./temp_lpj/output/climate.out', f"./debugging/climate.{str(counter).zfill(6)}.out" )
 
         if lpj_coupled in ["yes", "on", "true"]:
             #import lpj lai and precipitation data
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
-            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_lai.out', var='lai',
-            #    method =  LPJGUESS_VEGI_MAPPING)
-            #lpj_import_run_one_step(mg,'./temp_lpj/output/sp_mprec.out', var='mprec')
  
             #reinitialize the flow router
             fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
@@ -380,7 +357,7 @@ while elapsed_time < totalT:
     mg.at_node['erosion__rate'] = erosionMatrix
 
     #update vegetation_density on links
-    vegiLinks = mg.map_mean_of_link_nodes_to_link('vegetation__density')
+    vegiLinks = mg.map_mean_of_link_nodes_to_link('vegetation__density') # pylint: disable=no-member
     #update LinearDiffuser
     linDiff = linDiffBase*np.exp(-alphaDiff * vegiLinks)
     #reinitalize Diffuser
@@ -441,28 +418,7 @@ while elapsed_time < totalT:
         plt.savefig('./ll_output/SA/SA_{}.png'.format(out_int_suffix))
         plt.close()
         ##Create NetCDF Output
-        write_netcdf('./ll_output/NC/output{}__{}.nc'.format(elapsed_time, out_int_suffix),
-                mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
-                                              'lgt.lon' : longitude,
-                                              'lgt.dx'  : dx,
-                                              'lgt.dy'  : dx,
-                                              'lgt.timestep' : elapsed_time,
-                                              'lgt.spinup' : elapsed_time < spin_up,
-                                              'lgt.classification' : classificationType,
-                                              'lgt.elevation_step' : elevationStepBin,
-                                              })
-        ##Create NetCDF Output for LPJ
-        #os.rename('./temp_output/current_output.nc',
-        #        './temp_output/current_backup'+str(counter)+ '.nc')
-        #os.remove('./temp_output/current_backup'+str(counter)+'.nc')
-        #write_netcdf('./temp_output/current_output.nc',
-        #        mg,format='NETCDF4', attrs = {'lgt.lat' : latitude,
-        #                                      'lgt.lon' : longitude,
-        #                                      'lgt.dx'  : dx,
-        #                                      'lgt.dy'  : dx,
-        #                                      'lgt.timestep' : elapsed_time,
-        #                                      'lgt.classification' : classificationType,
-        #                                      'lgt.elevation_step' : elevationStepBin})
+        netcdf_export.write_permanent(mg, elapsed_time, out_int_suffix)
                 
         ##Create erosion_diffmaps
         plt.figure()

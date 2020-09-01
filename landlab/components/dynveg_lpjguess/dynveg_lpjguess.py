@@ -1,4 +1,3 @@
-import coloredlogs
 from enum import Enum
 import glob
 from landlab import Component
@@ -33,7 +32,6 @@ logging.basicConfig(
     ])
 
 log = logging.getLogger(__name__)
-coloredlogs.install(level='CRITICAL', fmt=FORMAT, datefmt="%H:%M:%S")
 
 def add_time_attrs(ds, calendar_year=0):
     ds['time'].attrs['units'] = "days since 1-1-15 00:00:00" 
@@ -249,6 +247,13 @@ class DynVeg_LpjGuess(Component):
         #if self.timestep == 0:
         #    self._spinup = False
         self._timesteps.append( dt )
+
+        #backup lpj results
+        shutil.copy('temp_lpj/output/sp_lai.out', f"debugging/sp_lai.{str(step_counter).zfill(6)}.out")
+        shutil.copy('temp_lpj/output/sp_mprec.out', f"debugging/sp_mprec.{str(step_counter).zfill(6)}.out")
+        shutil.copy('temp_lpj/output/sp_tot_runoff.out', f"debugging/sp_tot_runoff.{str(step_counter).zfill(6)}.out")
+        shutil.copy('temp_lpj/output/climate.out', f"debugging/climate.{str(step_counter).zfill(6)}.out")
+
 
 DynVeg_LpjGuess.prepare_runfiles = prepare_runfiles
 DynVeg_LpjGuess.generate_landform_files = generate_landform_files
