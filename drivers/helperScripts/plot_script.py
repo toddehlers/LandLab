@@ -114,6 +114,7 @@ if __name__ == "__main__":
             "sediment__flux",
             "precipitation",
             "erosion__rate",
+            "temperature",
         ]
 
         if "tree_fpc" and "shrub_fpc" and "grass_fpc" in nc_data.variables:
