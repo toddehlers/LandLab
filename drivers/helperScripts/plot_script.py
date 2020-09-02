@@ -105,12 +105,12 @@ class SimData:
 
         self.plot(ax[0,0], self.topo_mean, "TODO")
         self.plot(ax[1,0], self.eros_mean, "TODO")
-        self.plot(ax[1,1], self.vegi_mean_fpc, "vegi_mean_fpc")
-        self.plot(ax[0,1], self.vegi_mean_lai, "vegi_mean_lai")
+        self.plot(ax[1,1], self.vegi_mean_fpc, "vegi_mean_fpc [?]")
+        self.plot(ax[0,1], self.vegi_mean_lai, "vegi_mean_lai [?]")
         self.plot(ax[2,0], self.temperature_mean, "temperature mean [°C]")
-        self.plot(ax[2,1], self.tree_mean_lai, "tree lai mean [%]")
-        self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean [%]")
-        self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean [%]")
+        self.plot(ax[2,1], self.tree_mean_lai, "tree lai mean [?]")
+        self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean [?]")
+        self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean [?]")
 
         ax[3,0].set_xlabel("elapsed time", fontsize = self.fontsize, color = self.color)
         ax[3,1].set_xlabel("elapsed time", fontsize = self.fontsize, color = self.color)
