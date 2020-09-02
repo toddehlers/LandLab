@@ -41,7 +41,7 @@ def map_vegi_per_landform_on_grid(grid, vegi_array):
     data
     """
 
-    map_data_per_landform_on_grid(grid, vegi_array, "landform__ID")
+    return map_data_per_landform_on_grid(grid, vegi_array, "landform__ID")
 
 # For precipitation:
 # Extract the precipipation values per landform and maps it in the 'precipitation'
