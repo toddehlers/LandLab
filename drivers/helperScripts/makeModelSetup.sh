@@ -21,7 +21,7 @@ function setup_folders {
 
 	echo "Greetings User. Setting up $2"
 	cp ${LANDLABDRIVER}/$1/inputFile.ini .
-	cp ${LANDLABDRIVER}/$1/Slurm_runfile.sbatch .
+	cp ${LANDLABDRIVER}/$1/runfile.qsub .
 	cp ${LANDLABDRIVER}/README.txt .
 
 	# Set up correct folder structure
