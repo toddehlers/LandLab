@@ -134,10 +134,6 @@ uplift_per_step = upliftRate * dt
 #Create Limits for DHDT plot.
 DHDTLowLim = upliftRate - (upliftRate * 1)
 DHDTHighLim = upliftRate + (upliftRate * 1)
-#Number of total produced outputs
-no = totalT / outInt
-#number of zeros for file_naming. Don't meddle with this.
-zp = len(str(int(no)))
 
 logger.info("finished with parameter-initiation")
 
@@ -394,19 +390,17 @@ while elapsed_time < totalT:
 
     #Run the output loop every outInt-times
     if elapsed_time % outInt  == 0:
-        out_int_suffix = str(int(elapsed_time/outInt)).zfill(zp)
-
         logger.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
         ##Create DEM
         plt.figure()
         #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
         imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [yrs]'.format(elapsed_time))
-        plt.savefig('./ll_output/DEM/DEM_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/DEM/DEM__{}.png'.format(elapsed_time))
         plt.close()
         ##Create Bedrock Elevation Map
         plt.figure()
         imshow_grid(mg,'bedrock__elevation', grid_units=['m','m'], var_name = 'bedrock', cmap='jet')
-        plt.savefig('./ll_output/BED/BED_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/BED/BED__{}.png'.format(elapsed_time))
         plt.close()
         ##Create Slope - Area Map
         plt.figure()
@@ -415,32 +409,32 @@ while elapsed_time < totalT:
            marker='.',linestyle='None')
         plt.xlabel('Area')
         plt.ylabel('Slope')
-        plt.savefig('./ll_output/SA/SA_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/SA/SA__{}.png'.format(elapsed_time))
         plt.close()
         ##Create NetCDF Output
-        netcdf_export.write_permanent(mg, elapsed_time, out_int_suffix)
+        netcdf_export.write_permanent(mg, elapsed_time)
                 
         ##Create erosion_diffmaps
         plt.figure()
         imshow_grid(mg,erosionMatrix,grid_units=['m','m'],var_name='Erosion m/yr',cmap='jet',limits=[DHDTLowLim,DHDTHighLim])
-        plt.savefig('./ll_output/DHDT/eMap_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/DHDT/eMap__{}.png'.format(elapsed_time))
         plt.close()
         
         ##Create Soil Depth Maps
         plt.figure()
         imshow_grid(mg,'soil__depth',grid_units=['m','m'],var_name=
                 'Elevation',cmap='terrain', limits = [0, 1.5])
-        plt.savefig('./ll_output/SoilDepth/SD_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/SoilDepth/SD__{}.png'.format(elapsed_time))
         plt.close()
         #Create SoilProd Maps
         plt.figure()
         imshow_grid(mg,'soil_production__rate')
-        plt.savefig('./ll_output/SoilP/SoilP_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/SoilP/SoilP__{}.png'.format(elapsed_time))
         plt.close()
         #create Vegi_Density maps
         plt.figure()
         imshow_grid(mg, 'vegetation__density', limits = [0,1])
-        plt.savefig('./ll_output/Veg/vegidensity_{}.png'.format(out_int_suffix))
+        plt.savefig('./ll_output/Veg/vegidensity__{}.png'.format(elapsed_time))
         plt.close()
 
 

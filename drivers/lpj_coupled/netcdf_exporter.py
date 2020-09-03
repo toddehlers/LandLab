@@ -27,6 +27,6 @@ class NetCDFExporter:
                  "lgt.classification" : self.classificationType,
                  "lgt.elevation_step" : self.elevationStepBin})
 
-    def write_permanent(self, mg, elapsed_time, out_int_suffix):
+    def write_permanent(self, mg, elapsed_time):
         self.write(mg, elapsed_time)
-        shutil.copy(self.tmp_output_file, "{}__{}__{}.nc".format(self.permanent_output_prefix, elapsed_time, out_int_suffix))
+        shutil.copy(self.tmp_output_file, "{}__{}.nc".format(self.permanent_output_prefix, elapsed_time))
