@@ -23,7 +23,7 @@ class NetCDFExporter:
                  "lgt.dx"  : self.dx,
                  "lgt.dy"  : self.dx,
                  "lgt.timestep" : elapsed_time,
-                 "lgt.spinup" : elapsed_time < self.spin_up,
+                 "lgt.spinup" : int(elapsed_time < self.spin_up),
                  "lgt.classification" : self.classificationType,
                  "lgt.elevation_step" : self.elevationStepBin})
 
