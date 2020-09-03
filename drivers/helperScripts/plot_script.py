@@ -157,8 +157,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read('inputFile.ini')
 
-    plot_start = int(config['Runtime']['plot_start'])
-    plot_end = int(config['Runtime']['plot_start'])
+    plot_start = int(float(config['Runtime']['plot_start']))
+    plot_end = int(float(config['Runtime']['plot_start']))
 
     if plot_start >= plot_end:
         print("Error in input file 'inputFile.ini': plot_start must be smaller than plot_end!")
