@@ -1,20 +1,10 @@
 import numpy as np
-import xarray as xr
+# import xarray as xr
 import pandas as pd
 
 """
 set of scripts which makes post-processed lpj-output landlab compatible
 """
-
-import logging, time
-from timer import timed
-
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 
 def _calc_fpc(lai):
     """Calculate FPC using the LPJ-GUESS method
@@ -27,7 +17,7 @@ def map_data_per_landform_on_grid(grid, data_array, data_name):
 
     if data_array is not None:
         for landform in data_array.dtype.names[1:]:
-            data_grid[grid.at_node['landform__ID'] == int(landform)] = data_array[str(landform)]
+            data_grid[grid.at_node['landform__ID'] == int(landform)] = data_array[landform]
 
     return data_grid
 
@@ -52,12 +42,13 @@ def map_vegi_per_landform_on_grid(grid, vegi_array):
 # bigger grids, this would be important.
 
 def process_vegetation_data(data, index_cols, other_cols):
-    data = data[index_cols + other_cols].groupby(index_cols, sort = False).mean()
-    fpc_data = data.apply(_calc_fpc, 1).sum(axis=1)
+    data_filtered = data[index_cols + other_cols].groupby(index_cols, sort = False).mean()
+    fpc_data = data_filtered.apply(_calc_fpc, 1).sum(axis=1)
     fpc_data = fpc_data.reset_index().set_index(index_cols)
     fpc_data = fpc_data.mean(level=1).T / 100
 
-    lai_data = data.reset_index().set_index(index_cols)
+    lai_data = data_filtered.sum(axis=1)
+    lai_data = lai_data.reset_index().set_index(index_cols)
     lai_data = lai_data.mean(level=1).T / 100
 
     return (fpc_data.to_records(), lai_data.to_records())
@@ -65,7 +56,7 @@ def process_vegetation_data(data, index_cols, other_cols):
 def import_vegetation(grid, vegi_mapping_method, filename):
     csv_data = pd.read_table(filename, delim_whitespace=True)
     csv_data = csv_data[csv_data.Stand > 0]
-    index_cols = ['Year', 'Stand'] 
+    index_cols = ['Year', 'Stand']
 
     total_col = ['Total']
 
