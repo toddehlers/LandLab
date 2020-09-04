@@ -158,7 +158,7 @@ if __name__ == "__main__":
     config.read('inputFile.ini')
 
     plot_start = int(float(config['Runtime']['plot_start']))
-    plot_end = int(float(config['Runtime']['plot_start']))
+    plot_end = int(float(config['Runtime']['plot_end']))
 
     if plot_start >= plot_end:
         print("Error in input file 'inputFile.ini': plot_start must be smaller than plot_end!")
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     sim_data = SimData()
     sim_data.set_plot_range(plot_start, plot_end)
 
-    all_files = glob.glob("ll_output/NC/*.nc") 
+    all_files = glob.glob("ll_output/NC/*.nc")
     time_and_names = ((int(name.split("__")[1][:-3]), name) for name in all_files)
 
     for (elapsed_time, nc_file) in tqdm(sorted(time_and_names)):
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     img_name1 = ""
     img_name2 = ""
 
-    all_files = glob.glob("ll_output/DEM/*.png") 
+    all_files = glob.glob("ll_output/DEM/*.png")
     time_and_names = ((int(name.split("__")[1][:-3]), name) for name in all_files)
 
     # Find both DEM images which are closest to plot_start and plot_end
