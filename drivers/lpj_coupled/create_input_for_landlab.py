@@ -49,7 +49,7 @@ def process_vegetation_data(data, index_cols, other_cols):
 
     lai_data = data_filtered.sum(axis=1)
     lai_data = lai_data.reset_index().set_index(index_cols)
-    lai_data = lai_data.mean(level=1).T / 100
+    lai_data = lai_data.mean(level=1).T
 
     return (fpc_data.to_records(), lai_data.to_records())
 
