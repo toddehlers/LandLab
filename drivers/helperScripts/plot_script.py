@@ -222,7 +222,7 @@ if __name__ == "__main__":
     img_name2 = ""
 
     all_files = glob.glob("ll_output/DEM/*.png")
-    time_and_names = ((int(name.split("__")[1][:-3]), name) for name in all_files)
+    time_and_names = ((int(name.split("__")[1][:-4]), name) for name in all_files)
 
     # Find both DEM images which are closest to plot_start and plot_end
     for (elapsed_time, img_name) in tqdm(sorted(time_and_names)):
