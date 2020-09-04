@@ -50,7 +50,7 @@ class SimData:
 
     def append(self, p, data):
         if p == "elapsed_time":
-            self.elapsed_time = data
+            self.elapsed_time.append(data)
         elif p == "topographic__elevation":
             self.topo_mean.append(data)
         elif p == "erosion__rate":
@@ -92,6 +92,7 @@ class SimData:
         self.img_file2 = img_file2
 
     def plot(self, ax, data, ylabel):
+        #print("elapsed_time: {}, data: {}".format(type(self.elapsed_time), type(data)))
         ax.plot(self.elapsed_time, data)
         ax.set_ylabel(ylabel, fontsize = self.fontsize, color = self.color)
 
@@ -113,19 +114,19 @@ class SimData:
         fig.suptitle(self.title, fontsize = self.fontsize)
 
         plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, self.dpi)
+        plt.savefig(filename, dpi = self.dpi)
 
     def plot2(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
         self.plot(ax[0,0], self.topo_mean, "TODO")
         self.plot(ax[0,1], self.eros_mean, "TODO")
-        self.plot(ax[1,0], self.vegi_mean_fpc, "vegi_mean_fpc [?]")
-        self.plot(ax[1,1], self.vegi_mean_lai, "vegi_mean_lai [?]")
+        self.plot(ax[1,0], self.vegi_mean_fpc, "vegi_mean_fpc [%]")
+        self.plot(ax[1,1], self.vegi_mean_lai, "vegi_mean_lai")
         self.plot(ax[2,0], self.temperature_mean, "temperature mean [°C]")
-        self.plot(ax[2,1], self.tree_mean_lai, "tree lai mean [?]")
-        self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean [?]")
-        self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean [?]")
+        self.plot(ax[2,1], self.tree_mean_lai, "tree lai mean")
+        self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean")
+        self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean")
 
         ax[3,0].set_xlabel("elapsed time [yrs]", fontsize = self.fontsize, color = self.color)
         ax[3,1].set_xlabel("elapsed time [yrs]", fontsize = self.fontsize, color = self.color)
@@ -133,7 +134,7 @@ class SimData:
         fig.suptitle(self.title, fontsize = self.fontsize)
 
         plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, self.dpi)
+        plt.savefig(filename, dpi = self.dpi)
 
     def plot3(self, filename):
         img1 = mpimg.imread(self.img_file1)
@@ -141,16 +142,25 @@ class SimData:
 
         fig, ax = plt.subplots(1,2, figsize = self.figsize, sharex = True)
 
-        ax[0,0].imshow(img1)
-        ax[0,1].imshow(img2)
+        ax[0].imshow(img1)
+        ax[1].imshow(img2)
 
-        ax[0,0].set_xlabel("DEM at {} yrs".format(self.plot_start), fontsize = self.fontsize, color = self.color)
-        ax[0,1].set_xlabel("DEM at {} yrs".format(self.plot_end), fontsize = self.fontsize, color = self.color)
+        ax[0].get_xaxis().set_ticks([])
+        ax[0].get_yaxis().set_ticks([])
+        ax[1].get_xaxis().set_ticks([])
+        ax[1].get_yaxis().set_ticks([])
 
         fig.suptitle(self.title, fontsize = self.fontsize)
 
         plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, self.dpi)
+        plt.savefig(filename, dpi = self.dpi)
+
+    def debug_output(self):
+        print("elapsed_time: {}".format(len(self.elapsed_time)))
+        #print("self.vegi_mean_fpc: {}".format(len(self.vegi_mean_fpc)))
+        #print("self.vegi_mean_lai: {}".format(len(self.vegi_mean_lai)))
+        #print("img_file1: {}".format(self.img_file1))
+        #print("img_file2: {}".format(self.img_file2))
 
 
 if __name__ == "__main__":
@@ -188,20 +198,18 @@ if __name__ == "__main__":
             "precipitation",
             "soil__depth",
             "temperature",
+            "vegetation__density_lai",
+            "vegetation__density",
         ]
 
         if "tree_fpc" and "shrub_fpc" and "grass_fpc" in nc_data.variables:
             parameters.append("tree_fpc")
             parameters.append("shrub_fpc")
             parameters.append("grass_fpc")
-        elif "tree_lai" and "shrub_lai" and "grass_lai" in nc_data.variables:
+        if "tree_lai" and "shrub_lai" and "grass_lai" in nc_data.variables:
             parameters.append("tree_lai")
             parameters.append("shrub_lai")
             parameters.append("grass_lai")
-        elif "vegetation__density_lai" in nc_data.variables:
-            parameters.append("vegetation__density_lai")
-        else:
-            parameters.append("vegetation__density")
 
         for p in parameters:
             parameter_data = nc_data.variables[p][:][0]
@@ -237,6 +245,8 @@ if __name__ == "__main__":
             img_name2 = img_name
 
     sim_data.set_dem_files(img_name1, img_name2)
+
+    sim_data.debug_output()
 
     sim_data.plot1("overview1.png")
     sim_data.plot2("overview2.png")
