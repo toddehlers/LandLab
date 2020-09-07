@@ -32,6 +32,7 @@ class SimData:
         self.shrub_mean_lai = []
         self.grass_mean_fpc = []
         self.grass_mean_lai = []
+        self.uplift_rate = 0.0
 
         # DEM files
         self.img_file1 = ""
@@ -54,7 +55,7 @@ class SimData:
         elif p == "topographic__elevation":
             self.topo_mean.append(data)
         elif p == "erosion__rate":
-            self.eros_mean.append(data)
+            self.eros_mean.append(data * 1000)
         elif p == "sediment__flux":
             self.sedi_mean.append(data)
         elif p == "precipitation":
@@ -84,29 +85,34 @@ class SimData:
             sys.exit(1)
 
     def set_plot_range(self, plot_start, plot_end):
-        self.plot_start = plot_start
-        self.plot_end = plot_end
+        self.plot_start = plot_start / 1000
+        self.plot_end = plot_end / 1000
+
+    def set_uplift_rate(self, uplift_rate):
+        self.uplift_rate = uplift_rate * 1000
 
     def set_dem_files(self, img_file1, img_file2):
         self.img_file1 = img_file1
         self.img_file2 = img_file2
 
     def plot(self, ax, data, ylabel):
-        #print("elapsed_time: {}, data: {}".format(type(self.elapsed_time), type(data)))
         ax.plot(self.elapsed_time, data)
         ax.set_ylabel(ylabel, fontsize = self.fontsize, color = self.color)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
-        self.plot(ax[0,0], self.topo_mean, "topo mean [m]")
-        self.plot(ax[0,1], self.eros_mean, "eros mean [m/yr]")
+        self.plot(ax[0,0], self.topo_mean, "mean elevation [m]")
+        self.plot(ax[0,1], self.eros_mean, "erosion rate [mm/yr]")
         self.plot(ax[1,0], self.sedi_mean, "sedi mean [m3/s]")
         self.plot(ax[1,1], self.prec_mean, "prec mean [cm/yr]")
         self.plot(ax[2,0], self.soil_mean, "soil mean [m]")
         self.plot(ax[2,1], self.tree_mean_fpc, "tree fpc mean [%]")
         self.plot(ax[3,0], self.grass_mean_fpc, "grass fpc mean [%]")
         self.plot(ax[3,1], self.shrub_mean_fpc, "shrub fpc mean [%]")
+
+        uplift_rate = [self.uplift_rate for i in self.elapsed_time]
+        ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle="--")
 
         ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
         ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
@@ -177,6 +183,9 @@ if __name__ == "__main__":
 
     sim_data = SimData()
     sim_data.set_plot_range(plot_start, plot_end)
+
+    uplift_rate = float(config['Uplift']['upliftRate'])
+    sim_data.set_uplift_rate(uplift_rate)
 
     all_files = glob.glob("ll_output/NC/*.nc")
     time_and_names = ((int(name.split("__")[1][:-3]), name) for name in all_files)
