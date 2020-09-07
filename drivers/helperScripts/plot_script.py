@@ -40,7 +40,8 @@ class SimData:
 
         # Plot settings
         self.figsize = [15, 15]
-        self.fontsize = 20
+        self.fontsize_label = 20
+        self.fontsize_ticks = 14
         self.color = "red"
         self.dpi = 420
         self.rect = [0, 0.001, 1, 0.95]
@@ -97,7 +98,9 @@ class SimData:
 
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
-        ax.set_ylabel(ylabel, fontsize = self.fontsize, color = self.color)
+        ax.set_ylabel(ylabel, fontsize = self.fontsize_label, color = self.color)
+        ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
@@ -106,18 +109,18 @@ class SimData:
         self.plot(ax[0,1], self.eros_mean, "erosion rate [mm/yr]")
         self.plot(ax[1,0], self.sedi_mean, "sedi mean [m3/s]")
         self.plot(ax[1,1], self.prec_mean, "prec mean [cm/yr]")
-        self.plot(ax[2,0], self.soil_mean, "soil mean [m]")
-        self.plot(ax[2,1], self.tree_mean_fpc, "tree fpc mean [%]")
-        self.plot(ax[3,0], self.grass_mean_fpc, "grass fpc mean [%]")
-        self.plot(ax[3,1], self.shrub_mean_fpc, "shrub fpc mean [%]")
+        self.plot(ax[2,0], self.soil_mean, "soil thickness [m]")
+        self.plot(ax[2,1], self.tree_mean_fpc, "tree FPC mean [%]")
+        self.plot(ax[3,0], self.grass_mean_fpc, "grass FPC mean [%]")
+        self.plot(ax[3,1], self.shrub_mean_fpc, "shrub FPC mean [%]")
 
         uplift_rate = [self.uplift_rate for i in self.elapsed_time]
         ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle="--")
 
-        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
 
-        fig.suptitle(self.title, fontsize = self.fontsize)
+        fig.suptitle(self.title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
@@ -127,17 +130,17 @@ class SimData:
 
         self.plot(ax[0,0], self.topo_mean, "TODO")
         self.plot(ax[0,1], self.eros_mean, "TODO")
-        self.plot(ax[1,0], self.vegi_mean_fpc, "vegi_mean_fpc [%]")
-        self.plot(ax[1,1], self.vegi_mean_lai, "vegi_mean_lai")
+        self.plot(ax[1,0], self.vegi_mean_fpc, "vegi FPC mean [%]")
+        self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
         self.plot(ax[2,0], self.temperature_mean, "temperature mean [°C]")
-        self.plot(ax[2,1], self.tree_mean_lai, "tree lai mean")
-        self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean")
-        self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean")
+        self.plot(ax[2,1], self.tree_mean_lai, "tree LAI mean")
+        self.plot(ax[3,0], self.grass_mean_lai, "grass LAI mean")
+        self.plot(ax[3,1], self.shrub_mean_lai, "shrub LAI mean")
 
-        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
 
-        fig.suptitle(self.title, fontsize = self.fontsize)
+        fig.suptitle(self.title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
@@ -156,7 +159,7 @@ class SimData:
         ax[1].get_xaxis().set_ticks([])
         ax[1].get_yaxis().set_ticks([])
 
-        fig.suptitle(self.title, fontsize = self.fontsize)
+        fig.suptitle(self.title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
