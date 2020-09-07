@@ -105,10 +105,18 @@ class SimData:
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
-        self.plot(ax[0,0], self.topo_mean, "mean elevation [m]")
+        ax[0,0].plot(self.elapsed_time, self.prec_mean)
+        ax[0,0].plot(self.elapsed_time, self.temperature_mean, color = "red")
+        ax[0,0].text(-0.15, 0.5, "prec. [cm/yr]", color = "tab:blue", fontsize = self.fontsize_label,
+            rotation="vertical", transform=ax[0,0].transAxes, verticalalignment = "center")
+        ax[0,0].text(-0.1, 0.5, "temp. [°C]", color = "red", fontsize = self.fontsize_label,
+            rotation="vertical", transform=ax[0,0].transAxes, verticalalignment = "center")
+        ax[0,0].xaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax[0,0].yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+
         self.plot(ax[0,1], self.eros_mean, "erosion rate [mm/yr]")
-        self.plot(ax[1,0], self.sedi_mean, "sedi mean [m3/s]")
-        self.plot(ax[1,1], self.prec_mean, "prec mean [cm/yr]")
+        self.plot(ax[1,0], self.sedi_mean, "CO2, TODO")
+        self.plot(ax[1,1], self.sedi_mean, "sedi mean [$m^3$/s]")
         self.plot(ax[2,0], self.soil_mean, "soil thickness [m]")
         self.plot(ax[2,1], self.tree_mean_fpc, "tree FPC mean [%]")
         self.plot(ax[3,0], self.grass_mean_fpc, "grass FPC mean [%]")
@@ -132,7 +140,7 @@ class SimData:
         self.plot(ax[0,1], self.eros_mean, "TODO")
         self.plot(ax[1,0], self.vegi_mean_fpc, "vegi FPC mean [%]")
         self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
-        self.plot(ax[2,0], self.temperature_mean, "temperature mean [°C]")
+        self.plot(ax[2,0], self.topo_mean, "mean elevation [m]")
         self.plot(ax[2,1], self.tree_mean_lai, "tree LAI mean")
         self.plot(ax[3,0], self.grass_mean_lai, "grass LAI mean")
         self.plot(ax[3,1], self.shrub_mean_lai, "shrub LAI mean")
@@ -174,10 +182,10 @@ class SimData:
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
-    config.read('inputFile.ini')
+    config.read("inputFile.ini")
 
-    plot_start = int(float(config['Runtime']['plot_start']))
-    plot_end = int(float(config['Runtime']['plot_end']))
+    plot_start = int(float(config["Runtime"]["plot_start"]))
+    plot_end = int(float(config["Runtime"]["plot_end"]))
 
     if plot_start >= plot_end:
         print("Error in input file 'inputFile.ini': plot_start must be smaller than plot_end!")
@@ -187,7 +195,7 @@ if __name__ == "__main__":
     sim_data = SimData()
     sim_data.set_plot_range(plot_start, plot_end)
 
-    uplift_rate = float(config['Uplift']['upliftRate'])
+    uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
 
     all_files = glob.glob("ll_output/NC/*.nc")
