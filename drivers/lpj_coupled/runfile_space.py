@@ -394,7 +394,7 @@ while elapsed_time < totalT:
         ##Create DEM
         plt.figure()
         #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
-        imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [yrs]'.format(elapsed_time))
+        imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [kyrs]'.format(elapsed_time / 1000))
         plt.savefig('./ll_output/DEM/DEM__{}.png'.format(elapsed_time))
         plt.close()
         ##Create Bedrock Elevation Map

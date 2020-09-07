@@ -50,7 +50,7 @@ class SimData:
 
     def append(self, p, data):
         if p == "elapsed_time":
-            self.elapsed_time.append(data)
+            self.elapsed_time.append(data / 1000)
         elif p == "topographic__elevation":
             self.topo_mean.append(data)
         elif p == "erosion__rate":
@@ -108,8 +108,8 @@ class SimData:
         self.plot(ax[3,0], self.grass_mean_fpc, "grass fpc mean [%]")
         self.plot(ax[3,1], self.shrub_mean_fpc, "shrub fpc mean [%]")
 
-        ax[3,0].set_xlabel("elapsed time", fontsize = self.fontsize, color = self.color)
-        ax[3,1].set_xlabel("elapsed time", fontsize = self.fontsize, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize)
 
@@ -128,8 +128,8 @@ class SimData:
         self.plot(ax[3,0], self.grass_mean_lai, "grass lai mean")
         self.plot(ax[3,1], self.shrub_mean_lai, "shrub lai mean")
 
-        ax[3,0].set_xlabel("elapsed time [yrs]", fontsize = self.fontsize, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [yrs]", fontsize = self.fontsize, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize)
 
