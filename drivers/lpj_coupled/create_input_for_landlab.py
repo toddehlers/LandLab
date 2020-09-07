@@ -45,7 +45,7 @@ def process_vegetation_data(data, index_cols, other_cols):
     data_filtered = data[index_cols + other_cols].groupby(index_cols, sort = False).mean()
     fpc_data = data_filtered.apply(_calc_fpc, 1).sum(axis=1)
     fpc_data = fpc_data.reset_index().set_index(index_cols)
-    fpc_data = fpc_data.mean(level=1).T / 100
+    fpc_data = fpc_data.mean(level=1).T
 
     lai_data = data_filtered.sum(axis=1)
     lai_data = lai_data.reset_index().set_index(index_cols)
