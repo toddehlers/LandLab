@@ -4,13 +4,11 @@ import os
 import sys
 import glob
 import configparser
-import xarray as xr
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import pandas as pd
 import netCDF4
 from tqdm import tqdm
 
@@ -32,11 +30,11 @@ class SimData:
         self.shrub_mean_lai = []
         self.grass_mean_fpc = []
         self.grass_mean_lai = []
+        self.map_elevation1 = []
+        self.map_elevation2 = []
+        self.map_erosion_rate1 = []
+        self.map_erosion_rate2 = []
         self.uplift_rate = 0.0
-
-        # DEM files
-        self.img_file1 = ""
-        self.img_file2 = ""
 
         # Plot settings
         self.figsize = [15, 15]
@@ -49,6 +47,10 @@ class SimData:
         self.title = os.path.basename(cwd)
         self.plot_start = 0
         self.plot_end = 0
+
+    def set_plot_range(self, plot_start, plot_end):
+        self.plot_start = plot_start
+        self.plot_end = plot_end
 
     def append(self, p, data):
         if p == "elapsed_time":
@@ -88,15 +90,37 @@ class SimData:
     def set_uplift_rate(self, uplift_rate):
         self.uplift_rate = uplift_rate * 1000
 
-    def set_dem_files(self, img_file1, img_file2):
-        self.img_file1 = img_file1
-        self.img_file2 = img_file2
+    def set_map_elevation1(self, map_elevation):
+        self.map_elevation1 = map_elevation
+
+    def set_map_elevation2(self, map_elevation):
+        self.map_elevation2 = map_elevation
+
+    def set_map_erosion1(self, map_erosion):
+        self.map_erosion_rate1 = map_erosion * 1000
+
+    def set_map_erosion2(self, map_erosion):
+        self.map_erosion_rate2 = map_erosion * 1000
+
 
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
         ax.set_ylabel(ylabel, fontsize = self.fontsize_label, color = self.color)
         ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
         ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+
+    def plot_image(self, ax, image_data, color_map, cbar_label, vmin, vmax):
+        img = ax.imshow(image_data, cmap = color_map, vmin = vmin, vmax = vmax)
+
+        cbar = ax.figure.colorbar(img, ax=ax)
+        cbar.ax.set_ylabel(cbar_label, fontsize = self.fontsize_label, color = self.color)
+        cbar.ax.tick_params(labelsize = self.fontsize_ticks)
+
+        ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+
+        ax.invert_yaxis()
+        ax.axis("tight")
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
@@ -150,18 +174,27 @@ class SimData:
         plt.savefig(filename, dpi = self.dpi)
 
     def plot3(self, filename):
-        img1 = mpimg.imread(self.img_file1)
-        img2 = mpimg.imread(self.img_file2)
+        fig, ax = plt.subplots(2,2, figsize = self.figsize, sharex = True, sharey = True)
 
-        fig, ax = plt.subplots(1,2, figsize = self.figsize, sharex = True)
+        min_elevation = 0.0
+        max_elevation = max(np.max(self.map_elevation1), np.max(self.map_elevation2))
 
-        ax[0].imshow(img1)
-        ax[1].imshow(img2)
+        min_erosion = 0.0
+        max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
 
-        ax[0].get_xaxis().set_ticks([])
-        ax[0].get_yaxis().set_ticks([])
-        ax[1].get_xaxis().set_ticks([])
-        ax[1].get_yaxis().set_ticks([])
+        self.plot_image(ax[0,0], self.map_elevation1, "terrain", "elevation [m]", min_elevation, max_elevation)
+        self.plot_image(ax[0,1], self.map_erosion_rate1, "hot", "erosion rate [mm/yr]", min_erosion, max_erosion)
+        self.plot_image(ax[1,0], self.map_elevation2, "terrain", "elevation [m]", min_elevation, max_elevation)
+        self.plot_image(ax[1,1], self.map_erosion_rate2, "hot", "erosion rate [mm/yr]", min_erosion, max_erosion)
+
+        ax[0,0].set_title("time: {} [kyr]".format(self.plot_start), fontsize = self.fontsize_label)
+        ax[1,0].set_title("time: {} [kyr]".format(self.plot_end), fontsize = self.fontsize_label)
+
+        ax[1,0].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
+        ax[1,1].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
+
+        ax[0,0].set_ylabel("Y(km)", fontsize = self.fontsize_label, color = self.color)
+        ax[1,0].set_ylabel("Y(km)", fontsize = self.fontsize_label, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
@@ -170,11 +203,6 @@ class SimData:
 
     def debug_output(self):
         print("elapsed_time: {}".format(len(self.elapsed_time)))
-        #print("self.vegi_mean_fpc: {}".format(len(self.vegi_mean_fpc)))
-        #print("self.vegi_mean_lai: {}".format(len(self.vegi_mean_lai)))
-        #print("img_file1: {}".format(self.img_file1))
-        #print("img_file2: {}".format(self.img_file2))
-
 
 def extract_time(name):
     (name, ext) = os.path.splitext(name)
@@ -186,7 +214,21 @@ if __name__ == "__main__":
 
     plot_start = float(config["Runtime"]["plot_start"])
     plot_end = float(config["Runtime"]["plot_end"])
-    step_size_dt = float(config["Runtime"]["dt"])
+    spin_up = float(config["Runtime"]["spin_up"])
+
+    if plot_start < spin_up:
+        step_size = float(config["Output"]["outIntSpinUp"])
+        plot_start = int(round(plot_start / step_size) * step_size)
+    else:
+        step_size = float(config["Output"]["outIntTransient"])
+        plot_start = int(round(plot_start / step_size) * step_size)
+
+    if plot_end < spin_up:    
+        step_size = float(config["Output"]["outIntSpinUp"])
+        plot_end = int(round(plot_end / step_size) * step_size)
+    else:
+        step_size = float(config["Output"]["outIntTransient"])
+        plot_end = int(round(plot_end / step_size) * step_size)
 
     if plot_start >= plot_end:
         print("Error in input file 'inputFile.ini': plot_start must be smaller than plot_end!")
@@ -194,6 +236,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     sim_data = SimData()
+    sim_data.set_plot_range(plot_start, plot_end)
 
     uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
@@ -207,7 +250,12 @@ if __name__ == "__main__":
 
         nc_data = netCDF4.Dataset(nc_file) # pylint: disable=no-member
 
-        elapsed_time = nc_data.getncattr("lgt.timestep")
+        if plot_start == elapsed_time:
+            sim_data.set_map_elevation1(nc_data.variables["topographic__elevation"][:][0])
+            sim_data.set_map_erosion1(nc_data.variables["erosion__rate"][:][0])
+        elif plot_end == elapsed_time:
+            sim_data.set_map_elevation2(nc_data.variables["topographic__elevation"][:][0])
+            sim_data.set_map_erosion2(nc_data.variables["erosion__rate"][:][0])
 
         sim_data.append("elapsed_time", elapsed_time)
 
@@ -241,34 +289,11 @@ if __name__ == "__main__":
 
             sim_data.append(p, np.mean(parameter_data))
 
+
         # break
 
-    distance1 = sys.maxsize
-    distance2 = sys.maxsize
-
-    img_name1 = ""
-    img_name2 = ""
-
-    all_files = glob.glob("ll_output/DEM/*.png")
-    time_and_names = ((extract_time(name), name) for name in all_files)
-
-    # Find both DEM images which are closest to plot_start and plot_end
-    for (elapsed_time, img_name) in tqdm(sorted(time_and_names)):
-        dist = abs(elapsed_time - plot_start)
-        if dist < distance1:
-            distance1 = dist
-            img_name1 = img_name
-
-        dist = abs(elapsed_time - plot_end)
-        if dist < distance2:
-            distance2 = dist
-            img_name2 = img_name
-
-    sim_data.set_dem_files(img_name1, img_name2)
-
-    sim_data.debug_output()
+    #sim_data.debug_output()
 
     sim_data.plot1("overview1.png")
     sim_data.plot2("overview2.png")
     sim_data.plot3("overview3.png")
-
