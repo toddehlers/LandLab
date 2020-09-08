@@ -108,9 +108,9 @@ class SimData:
         ax[0,0].plot(self.elapsed_time, self.prec_mean)
         ax[0,0].plot(self.elapsed_time, self.temperature_mean, color = "red")
         ax[0,0].text(-0.15, 0.5, "prec. [cm/yr]", color = "tab:blue", fontsize = self.fontsize_label,
-            rotation="vertical", transform=ax[0,0].transAxes, verticalalignment = "center")
+            rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
         ax[0,0].text(-0.1, 0.5, "temp. [°C]", color = "red", fontsize = self.fontsize_label,
-            rotation="vertical", transform=ax[0,0].transAxes, verticalalignment = "center")
+            rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
         ax[0,0].xaxis.set_tick_params(labelsize = self.fontsize_ticks)
         ax[0,0].yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
@@ -123,7 +123,7 @@ class SimData:
         self.plot(ax[3,1], self.shrub_mean_fpc, "shrub FPC mean [%]")
 
         uplift_rate = [self.uplift_rate for i in self.elapsed_time]
-        ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle="--")
+        ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle = "--")
 
         ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
         ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
