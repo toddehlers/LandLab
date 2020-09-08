@@ -85,10 +85,6 @@ class SimData:
             print("Unknown parameter: {}".format(p))
             sys.exit(1)
 
-    def set_plot_range(self, plot_start, plot_end):
-        self.plot_start = plot_start / 1000
-        self.plot_end = plot_end / 1000
-
     def set_uplift_rate(self, uplift_rate):
         self.uplift_rate = uplift_rate * 1000
 
@@ -180,12 +176,17 @@ class SimData:
         #print("img_file2: {}".format(self.img_file2))
 
 
+def extract_time(name):
+    (name, ext) = os.path.splitext(name)
+    return int(name.split("__")[1])
+
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("inputFile.ini")
 
-    plot_start = int(float(config["Runtime"]["plot_start"]))
-    plot_end = int(float(config["Runtime"]["plot_end"]))
+    plot_start = float(config["Runtime"]["plot_start"])
+    plot_end = float(config["Runtime"]["plot_end"])
+    step_size_dt = float(config["Runtime"]["dt"])
 
     if plot_start >= plot_end:
         print("Error in input file 'inputFile.ini': plot_start must be smaller than plot_end!")
@@ -193,13 +194,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     sim_data = SimData()
-    sim_data.set_plot_range(plot_start, plot_end)
 
     uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
 
     all_files = glob.glob("ll_output/NC/*.nc")
-    time_and_names = ((int(name.split("__")[1][:-3]), name) for name in all_files)
+    time_and_names = ((extract_time(name), name) for name in all_files)
 
     for (elapsed_time, nc_file) in tqdm(sorted(time_and_names)):
         if elapsed_time < plot_start or elapsed_time > plot_end:
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     img_name2 = ""
 
     all_files = glob.glob("ll_output/DEM/*.png")
-    time_and_names = ((int(name.split("__")[1][:-4]), name) for name in all_files)
+    time_and_names = ((extract_time(name), name) for name in all_files)
 
     # Find both DEM images which are closest to plot_start and plot_end
     for (elapsed_time, img_name) in tqdm(sorted(time_and_names)):
