@@ -1,5 +1,4 @@
 import numpy as np
-# import xarray as xr
 import pandas as pd
 
 """
@@ -34,7 +33,7 @@ def map_vegi_per_landform_on_grid(grid, vegi_array):
     return map_data_per_landform_on_grid(grid, vegi_array, "landform__ID")
 
 # For precipitation:
-# Extract the precipipation values per landform and maps it in the 'precipitation'
+# Extract the precipitation values per landform and maps it in the 'precipitation'
 # datafield of the landlab grid object
 #
 # Right now (15.11.2018) this method is a little bit overkill because we don't have
