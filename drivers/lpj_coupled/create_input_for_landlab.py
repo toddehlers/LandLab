@@ -128,6 +128,15 @@ def import_precipitation(grid, filename):
 def import_temperature(grid, filename):
     import_csv_data(grid, filename, "temperature")
 
+def import_co2(grid, filename):
+    csv_data = pd.read_table(filename, delim_whitespace=True)
+    co2_values = csv_data["co2"]
+    co2_value = co2_values.mean()
+
+    if 'co2' not in grid.keys('node'):
+        grid.add_zeros('node', 'co2')
+    grid.at_node["co2"] = co2_value
+
 def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
     main function for input_conversion to be called from landlab driver file
@@ -136,3 +145,4 @@ def lpj_import_run_one_step(grid, vegi_mapping_method):
     import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
     import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
     import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
+    import_co2(grid, "temp_lpj/output/climate.out")
