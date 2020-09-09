@@ -133,9 +133,11 @@ def import_co2(grid, filename):
     co2_values = csv_data["co2"]
     co2_value = co2_values.mean()
 
-    if 'co2' not in grid.keys('node'):
-        grid.add_zeros('node', 'co2')
-    grid.at_node["co2"] = co2_value
+    if "co2" not in grid.keys("node"):
+        grid.add_zeros("node", "co2")
+
+    shape = np.shape(grid.at_node["co2"])
+    grid.at_node["co2"] = np.full(shape, co2_value)
 
 def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
