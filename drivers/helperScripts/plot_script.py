@@ -95,13 +95,14 @@ class SimData:
 
     def set_map_elevation2(self, map_elevation):
         self.map_elevation2 = map_elevation
+        self.max_elevation = max(np.max(self.map_elevation1), np.max(self.map_elevation2))
 
     def set_map_erosion1(self, map_erosion):
         self.map_erosion_rate1 = map_erosion * 1000
 
     def set_map_erosion2(self, map_erosion):
         self.map_erosion_rate2 = map_erosion * 1000
-
+        self.max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
 
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
@@ -121,6 +122,14 @@ class SimData:
 
         ax.invert_yaxis()
         ax.axis("tight")
+
+    def plot_elevation(self, ax, data):
+        min_elevation = 0.0
+        self.plot_image(ax, data, "terrain", "elevation [m]", min_elevation, self.max_elevation)
+
+    def plot_erosion_rate(self, ax, data):
+        min_erosion = 0.0
+        self.plot_image(ax, data, "hot", "erosion rate [mm/yr]", min_erosion, self.max_erosion)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
@@ -176,19 +185,13 @@ class SimData:
     def plot3(self, filename):
         fig, ax = plt.subplots(2,2, figsize = self.figsize, sharex = True, sharey = True)
 
-        min_elevation = 0.0
-        max_elevation = max(np.max(self.map_elevation1), np.max(self.map_elevation2))
+        self.plot_elevation(ax[0,0], self.map_elevation1)
+        self.plot_elevation(ax[1,0], self.map_elevation2)
+        self.plot_erosion_rate(ax[0,1], self.map_erosion_rate1)
+        self.plot_erosion_rate(ax[1,1], self.map_erosion_rate2)
 
-        min_erosion = 0.0
-        max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
-
-        self.plot_image(ax[0,0], self.map_elevation1, "terrain", "elevation [m]", min_elevation, max_elevation)
-        self.plot_image(ax[0,1], self.map_erosion_rate1, "hot", "erosion rate [mm/yr]", min_erosion, max_erosion)
-        self.plot_image(ax[1,0], self.map_elevation2, "terrain", "elevation [m]", min_elevation, max_elevation)
-        self.plot_image(ax[1,1], self.map_erosion_rate2, "hot", "erosion rate [mm/yr]", min_erosion, max_erosion)
-
-        ax[0,0].set_title("time: {} [kyr]".format(self.plot_start), fontsize = self.fontsize_label)
-        ax[1,0].set_title("time: {} [kyr]".format(self.plot_end), fontsize = self.fontsize_label)
+        ax[0,0].set_title("time: {} [kyr]".format(self.plot_start / 1000), fontsize = self.fontsize_label)
+        ax[1,0].set_title("time: {} [kyr]".format(self.plot_end / 1000), fontsize = self.fontsize_label)
 
         ax[1,0].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
         ax[1,1].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
