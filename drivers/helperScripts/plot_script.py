@@ -18,6 +18,7 @@ class SimData:
         self.elapsed_time = []
         self.topo_mean = []
         self.eros_mean = []
+        self.co2_mean = []
         self.sedi_mean = []
         self.prec_mean = []
         self.soil_mean = []
@@ -42,7 +43,7 @@ class SimData:
         self.fontsize_ticks = 14
         self.color = "red"
         self.dpi = 420
-        self.rect = [0, 0.001, 1, 0.95]
+        self.rect = [0.01, 0.001, 1, 0.95]
         cwd = os.getcwd()
         self.title = os.path.basename(cwd)
         self.plot_start = 0
@@ -59,6 +60,8 @@ class SimData:
             self.topo_mean.append(data)
         elif p == "erosion__rate":
             self.eros_mean.append(data * 1000)
+        elif p == "co2":
+            self.co2_mean.append(data)
         elif p == "sediment__flux":
             self.sedi_mean.append(data)
         elif p == "precipitation":
@@ -144,7 +147,7 @@ class SimData:
         ax[0,0].yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
         self.plot(ax[0,1], self.eros_mean, "erosion rate [mm/yr]")
-        self.plot(ax[1,0], self.sedi_mean, "CO2, TODO")
+        self.plot(ax[1,0], self.co2_mean, "CO2 [ppm]")
         self.plot(ax[1,1], self.sedi_mean, "sedi mean [$m^3$/s]")
         self.plot(ax[2,0], self.soil_mean, "soil thickness [m]")
         self.plot(ax[2,1], self.tree_mean_fpc, "tree FPC mean [%]")
@@ -265,6 +268,7 @@ if __name__ == "__main__":
         parameters = [
             "topographic__elevation",
             "erosion__rate",
+            "co2",
             "sediment__flux",
             "precipitation",
             "soil__depth",
