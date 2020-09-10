@@ -370,7 +370,7 @@ while elapsed_time < totalT:
         n_total  = (nSoil + n_tree_fpc + n_shrub_fpc + n_grass_fpc)
         n_v_frac = n_total
     elif LPJGUESS_VEGI_MAPPING == "cumulative":
-        n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / vRef)) #self.vd = VARIABLE!
+        n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / (vRef * 100.0))) #self.vd = VARIABLE!
     else:
         logger.info('Unsupported Argument for Vegetation Mapping')
     
