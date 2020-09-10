@@ -124,7 +124,7 @@ class SimData:
         ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
         ax.invert_yaxis()
-        ax.axis("tight")
+        #ax.axis("tight")
 
     def plot_elevation(self, ax, data):
         min_elevation = 0.0
