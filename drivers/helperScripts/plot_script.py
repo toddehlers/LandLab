@@ -168,9 +168,9 @@ class SimData:
     def plot2(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
-        self.plot(ax[0,0], self.topo_mean, "TODO")
-        self.plot(ax[0,1], self.eros_mean, "TODO")
-        self.plot(ax[1,0], self.vegi_mean_fpc, "vegi FPC mean [%]")
+        self.plot(ax[0,0], self.topo_mean, "burned area [$?$]")
+        self.plot(ax[0,1], self.vegi_mean_fpc, "vegi FPC mean [%]")
+        self.plot(ax[1,0], self.eros_mean, "erosion rate [$mm/yr$]")
         self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
         self.plot(ax[2,0], self.topo_mean, "mean elevation [$m$]")
         self.plot(ax[2,1], self.tree_mean_lai, "tree LAI mean")
