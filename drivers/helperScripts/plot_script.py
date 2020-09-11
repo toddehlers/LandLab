@@ -99,6 +99,7 @@ class SimData:
     def set_map_elevation2(self, map_elevation):
         self.map_elevation2 = map_elevation
         self.max_elevation = max(np.max(self.map_elevation1), np.max(self.map_elevation2))
+        self.min_elevation = max(np.min(self.map_elevation1), np.min(self.map_elevation2))
 
     def set_map_erosion1(self, map_erosion):
         self.map_erosion_rate1 = map_erosion * 1000
@@ -106,6 +107,7 @@ class SimData:
     def set_map_erosion2(self, map_erosion):
         self.map_erosion_rate2 = map_erosion * 1000
         self.max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
+        self.min_erosion = max(np.min(self.map_erosion_rate1), np.min(self.map_erosion_rate2))
 
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
@@ -127,12 +129,10 @@ class SimData:
         #ax.axis("tight")
 
     def plot_elevation(self, ax, data):
-        min_elevation = 0.0
-        self.plot_image(ax, data, "terrain", "elevation [$m$]", min_elevation, self.max_elevation)
+        self.plot_image(ax, data, "terrain", "elevation [$m$]", self.min_elevation, self.max_elevation)
 
     def plot_erosion_rate(self, ax, data):
-        min_erosion = 0.0
-        self.plot_image(ax, data, "hot", "erosion rate [$mm/yr$]", min_erosion, self.max_erosion)
+        self.plot_image(ax, data, "hot", "erosion rate [$mm/yr$]", self.min_erosion, self.max_erosion)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
