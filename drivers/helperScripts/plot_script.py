@@ -71,19 +71,19 @@ class SimData:
         elif p == "temperature":
             self.temperature_mean.append(data)
         elif p == "vegetation__density":
-            self.vegi_mean_fpc.append(data)
+            self.vegi_mean_fpc.append(data * 100)
         elif p == "vegetation__density_lai":
             self.vegi_mean_lai.append(data)
         elif p == "tree_fpc":
-            self.tree_mean_fpc.append(data)
+            self.tree_mean_fpc.append(data * 100)
         elif p == "tree_lai":
             self.tree_mean_lai.append(data)
         elif p == "shrub_fpc":
-            self.shrub_mean_fpc.append(data)
+            self.shrub_mean_fpc.append(data * 100)
         elif p == "shrub_lai":
             self.shrub_mean_lai.append(data)
         elif p == "grass_fpc":
-            self.grass_mean_fpc.append(data)
+            self.grass_mean_fpc.append(data * 100)
         elif p == "grass_lai":
             self.grass_mean_lai.append(data)
         else:

@@ -364,13 +364,13 @@ while elapsed_time < totalT:
     #update K_sp
     #after the first-timestep there is LPJ information about phenologic groups so now use them instead of total vegetation-cover
     if LPJGUESS_VEGI_MAPPING == "individual":
-        n_grass_fpc = nGrass * (mg.at_node['grass_fpc'] / (vRef * 100.0))**w
-        n_tree_fpc  = nTree  * (mg.at_node['tree_fpc']  / (vRef * 100.0))**w
-        n_shrub_fpc = nShrub * (mg.at_node['shrub_fpc'] / (vRef * 100.0))**w
+        n_grass_fpc = nGrass * (mg.at_node['grass_fpc'] / vRef)**w
+        n_tree_fpc  = nTree  * (mg.at_node['tree_fpc']  / vRef)**w
+        n_shrub_fpc = nShrub * (mg.at_node['shrub_fpc'] / vRef)**w
         n_total  = (nSoil + n_tree_fpc + n_shrub_fpc + n_grass_fpc)
         n_v_frac = n_total
     elif LPJGUESS_VEGI_MAPPING == "cumulative":
-        n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / (vRef * 100.0))) #self.vd = VARIABLE!
+        n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / vRef)) #self.vd = VARIABLE!
     else:
         logger.info('Unsupported Argument for Vegetation Mapping')
     

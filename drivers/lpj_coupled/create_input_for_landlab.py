@@ -9,7 +9,7 @@ def _calc_fpc(lai):
     """Calculate FPC using the LPJ-GUESS method
 
     """
-    return (1.0 - np.exp(-0.5 * lai)) * 100
+    return (1.0 - np.exp(-0.5 * lai))
 
 def map_data_per_landform_on_grid(grid, data_array, data_name):
     data_grid = np.zeros(np.shape(grid.at_node[data_name]))
