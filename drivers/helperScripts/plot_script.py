@@ -128,28 +128,28 @@ class SimData:
 
     def plot_elevation(self, ax, data):
         min_elevation = 0.0
-        self.plot_image(ax, data, "terrain", "elevation [m]", min_elevation, self.max_elevation)
+        self.plot_image(ax, data, "terrain", "elevation [$m$]", min_elevation, self.max_elevation)
 
     def plot_erosion_rate(self, ax, data):
         min_erosion = 0.0
-        self.plot_image(ax, data, "hot", "erosion rate [mm/yr]", min_erosion, self.max_erosion)
+        self.plot_image(ax, data, "hot", "erosion rate [$mm/yr$]", min_erosion, self.max_erosion)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
         ax[0,0].plot(self.elapsed_time, self.prec_mean)
         ax[0,0].plot(self.elapsed_time, self.temperature_mean, color = "red")
-        ax[0,0].text(-0.15, 0.5, "prec. [cm/yr]", color = "tab:blue", fontsize = self.fontsize_label,
+        ax[0,0].text(-0.15, 0.5, "prec. [$cm/yr$]", color = "tab:blue", fontsize = self.fontsize_label,
             rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
-        ax[0,0].text(-0.1, 0.5, "temp. [°C]", color = "red", fontsize = self.fontsize_label,
+        ax[0,0].text(-0.1, 0.5, "temp. [$°C$]", color = "red", fontsize = self.fontsize_label,
             rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
         ax[0,0].xaxis.set_tick_params(labelsize = self.fontsize_ticks)
         ax[0,0].yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
-        self.plot(ax[0,1], self.eros_mean, "erosion rate [mm/yr]")
-        self.plot(ax[1,0], self.co2_mean, "CO2 [ppm]")
-        self.plot(ax[1,1], self.sedi_mean, "sedi mean [$m^3$/s]")
-        self.plot(ax[2,0], self.soil_mean, "soil thickness [m]")
+        self.plot(ax[0,1], self.eros_mean, "erosion rate [$mm/yr$]")
+        self.plot(ax[1,0], self.co2_mean, "CO2 [$ppm$]")
+        self.plot(ax[1,1], self.sedi_mean, "sedi mean [$m^3/s$]")
+        self.plot(ax[2,0], self.soil_mean, "soil thickness [$m$]")
         self.plot(ax[2,1], self.tree_mean_fpc, "tree FPC mean [%]")
         self.plot(ax[3,0], self.grass_mean_fpc, "grass FPC mean [%]")
         self.plot(ax[3,1], self.shrub_mean_fpc, "shrub FPC mean [%]")
@@ -157,8 +157,8 @@ class SimData:
         uplift_rate = [self.uplift_rate for i in self.elapsed_time]
         ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle = "--")
 
-        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
@@ -172,13 +172,13 @@ class SimData:
         self.plot(ax[0,1], self.eros_mean, "TODO")
         self.plot(ax[1,0], self.vegi_mean_fpc, "vegi FPC mean [%]")
         self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
-        self.plot(ax[2,0], self.topo_mean, "mean elevation [m]")
+        self.plot(ax[2,0], self.topo_mean, "mean elevation [$m$]")
         self.plot(ax[2,1], self.tree_mean_lai, "tree LAI mean")
         self.plot(ax[3,0], self.grass_mean_lai, "grass LAI mean")
         self.plot(ax[3,1], self.shrub_mean_lai, "shrub LAI mean")
 
-        ax[3,0].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [kyr]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,0].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
@@ -193,14 +193,14 @@ class SimData:
         self.plot_erosion_rate(ax[0,1], self.map_erosion_rate1)
         self.plot_erosion_rate(ax[1,1], self.map_erosion_rate2)
 
-        ax[0,0].set_title("time: {} [kyr]".format(self.plot_start / 1000), fontsize = self.fontsize_label)
-        ax[1,0].set_title("time: {} [kyr]".format(self.plot_end / 1000), fontsize = self.fontsize_label)
+        ax[0,0].set_title("time: {} [$kyr$]".format(self.plot_start / 1000), fontsize = self.fontsize_label)
+        ax[1,0].set_title("time: {} [$kyr$]".format(self.plot_end / 1000), fontsize = self.fontsize_label)
 
-        ax[1,0].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
-        ax[1,1].set_xlabel("X(km)", fontsize = self.fontsize_label, color = self.color)
+        ax[1,0].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
+        ax[1,1].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
 
-        ax[0,0].set_ylabel("Y(km)", fontsize = self.fontsize_label, color = self.color)
-        ax[1,0].set_ylabel("Y(km)", fontsize = self.fontsize_label, color = self.color)
+        ax[0,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
+        ax[1,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
