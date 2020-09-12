@@ -48,10 +48,7 @@ class SimData:
         self.title = os.path.basename(cwd)
         self.plot_start = 0
         self.plot_end = 0
-
-    def set_plot_range(self, plot_start, plot_end):
-        self.plot_start = plot_start
-        self.plot_end = plot_end
+        self.plot_time_type = "Normal"
 
     def append(self, p, data):
         if p == "elapsed_time":
@@ -109,6 +106,18 @@ class SimData:
         self.max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
         self.min_erosion = max(np.min(self.map_erosion_rate1), np.min(self.map_erosion_rate2))
 
+    def set_plot_time_type(self, plot_time_type):
+        self.plot_time_type = plot_time_type
+
+        if plot_time_type == "Normal":
+            self.time_label = "elapsed time"
+        elif plot_time_type == "LGM":
+            self.time_label = "time before present"
+            right_end = self.elapsed_time[-1]
+            self.elapsed_time = [abs(t - right_end) for t in self.elapsed_time]
+        else:
+            self.time_tabel = "Unknown"
+
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
         ax.set_ylabel(ylabel, fontsize = self.fontsize_label, color = self.color)
@@ -118,7 +127,7 @@ class SimData:
     def plot_image(self, ax, image_data, color_map, cbar_label, vmin, vmax):
         img = ax.imshow(image_data, cmap = color_map, vmin = vmin, vmax = vmax)
 
-        cbar = ax.figure.colorbar(img, ax=ax)
+        cbar = ax.figure.colorbar(img, ax=ax, fraction=0.045)
         cbar.ax.set_ylabel(cbar_label, fontsize = self.fontsize_label, color = self.color)
         cbar.ax.tick_params(labelsize = self.fontsize_ticks)
 
@@ -157,8 +166,11 @@ class SimData:
         uplift_rate = [self.uplift_rate for i in self.elapsed_time]
         ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle = "--")
 
-        ax[3,0].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+
+        if self.plot_time_type == "LGM":
+            ax[0,0].invert_xaxis()
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
@@ -177,8 +189,11 @@ class SimData:
         self.plot(ax[3,0], self.grass_mean_lai, "grass LAI mean")
         self.plot(ax[3,1], self.shrub_mean_lai, "shrub LAI mean")
 
-        ax[3,0].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("elapsed time [$kyr$]", fontsize = self.fontsize_label, color = self.color)
+        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+
+        if self.plot_time_type == "LGM":
+            ax[0,0].invert_xaxis()
 
         fig.suptitle(self.title, fontsize = self.fontsize_label)
 
@@ -193,8 +208,8 @@ class SimData:
         self.plot_erosion_rate(ax[0,1], self.map_erosion_rate1)
         self.plot_erosion_rate(ax[1,1], self.map_erosion_rate2)
 
-        ax[0,0].set_title("time: {} [$kyr$]".format(self.plot_start / 1000), fontsize = self.fontsize_label)
-        ax[1,0].set_title("time: {} [$kyr$]".format(self.plot_end / 1000), fontsize = self.fontsize_label)
+        ax[0,0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[0]), fontsize = self.fontsize_label)
+        ax[1,0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[-1]), fontsize = self.fontsize_label)
 
         ax[1,0].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
         ax[1,1].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
@@ -218,8 +233,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("inputFile.ini")
 
-    plot_start = float(config["Runtime"]["plot_start"])
-    plot_end = float(config["Runtime"]["plot_end"])
+    plot_start = float(config["Plot"]["plot_start"])
+    plot_end = float(config["Plot"]["plot_end"])
     spin_up = float(config["Runtime"]["spin_up"])
 
     if plot_start < spin_up:
@@ -242,7 +257,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     sim_data = SimData()
-    sim_data.set_plot_range(plot_start, plot_end)
 
     uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
@@ -301,6 +315,10 @@ if __name__ == "__main__":
 
     #sim_data.debug_output()
 
+    plot_time_type = config["Plot"]["plot_time_type"]
+    sim_data.set_plot_time_type(plot_time_type)
+
     sim_data.plot1("overview1.png")
     sim_data.plot2("overview2.png")
     sim_data.plot3("overview3.png")
+
