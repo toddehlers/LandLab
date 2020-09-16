@@ -139,6 +139,30 @@ def import_co2(grid, filename):
     shape = np.shape(grid.at_node["co2"])
     grid.at_node["co2"] = np.full(shape, co2_value)
 
+def import_fire(grid, filename):
+    """
+    Read LPJ-GUESS fire related output.
+
+    LPJ-GUESS outputs a fire return interval in years
+    (which is the reciprocal of the fractional burned area)
+    for every year, Stand (containing the landform__ID), and Patch.
+    These intervals are converted back into fractional area burned
+    and averaged per landform__ID.
+    """
+    data = pd.read_table(filename, delim_whitespace = True)
+    data = data[data.Stand > 0]
+    data = data.rename(columns = {"Stand": "landform__ID"}) # 'Stand' column in LPJ-GUESS corresponds to landform id
+    
+    assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, f"Data must not contain more than one (Lat, Lon) combination: {filename}"
+
+    data["burned_area_frac"] = 1.0 / data.FireRT # convert return time back into burned area fraction
+    data_mean = data[["landform__ID", "burned_area_frac"]].groupby("landform__ID", sort = False).mean() # average burned area over years and patches
+
+    if "burned_area_frac" not in grid.keys("node"):
+        grid.add_zeros("node", "burned_area_frac")
+
+    grid.at_node["burned_area_frac"] = map_data_per_landform_on_grid(grid, data_mean.to_records().T, "burned_area_frac")
+
 def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
     main function for input_conversion to be called from landlab driver file
@@ -147,4 +171,6 @@ def lpj_import_run_one_step(grid, vegi_mapping_method):
     import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
     import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
     import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
+    import_fire(grid, "temp_lpj/output/sp_firert.out")
     import_co2(grid, "temp_lpj/output/climate.out")
+

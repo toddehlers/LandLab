@@ -249,6 +249,7 @@ class DynVeg_LpjGuess(Component):
         self._timesteps.append( dt )
 
         #backup lpj results
+        shutil.copy('temp_lpj/output/sp_firert.out', f"debugging/sp_firert.{str(step_counter).zfill(6)}.out")
         shutil.copy('temp_lpj/output/sp_lai.out', f"debugging/sp_lai.{str(step_counter).zfill(6)}.out")
         shutil.copy('temp_lpj/output/sp_mprec.out', f"debugging/sp_mprec.{str(step_counter).zfill(6)}.out")
         shutil.copy('temp_lpj/output/sp_tot_runoff.out', f"debugging/sp_tot_runoff.{str(step_counter).zfill(6)}.out")

@@ -35,6 +35,7 @@ class SimData:
         self.map_elevation2 = []
         self.map_erosion_rate1 = []
         self.map_erosion_rate2 = []
+        self.burned_area_frac = []
         self.uplift_rate = 0.0
 
         # Plot settings
@@ -83,6 +84,8 @@ class SimData:
             self.grass_mean_fpc.append(data * 100)
         elif p == "grass_lai":
             self.grass_mean_lai.append(data)
+        elif p == "burned_area_frac":
+            self.burned_area_frac.append(data * 100) # convert to %
         else:
             print("Unknown parameter: {}".format(p))
             sys.exit(1)
@@ -180,7 +183,7 @@ class SimData:
     def plot2(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
-        self.plot(ax[0,0], self.topo_mean, "burned area [$?$]")
+        self.plot(ax[0,0], self.burned_area_frac, "burned area [%]")
         self.plot(ax[0,1], self.vegi_mean_fpc, "vegi FPC mean [%]")
         self.plot(ax[1,0], self.eros_mean, "erosion rate [$mm/yr$]")
         self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
@@ -289,6 +292,7 @@ if __name__ == "__main__":
             "temperature",
             "vegetation__density_lai",
             "vegetation__density",
+            "burned_area_frac",
         ]
 
         if "tree_fpc" and "shrub_fpc" and "grass_fpc" in nc_data.variables:
