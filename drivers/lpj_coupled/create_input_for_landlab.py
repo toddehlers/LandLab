@@ -151,12 +151,11 @@ def import_fire(grid, filename):
     """
     data = pd.read_table(filename, delim_whitespace = True)
     data = data[data.Stand > 0]
-    data = data.rename(columns = {"Stand": "landform__ID"}) # 'Stand' column in LPJ-GUESS corresponds to landform id
     
     assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, f"Data must not contain more than one (Lat, Lon) combination: {filename}"
 
     data["burned_area_frac"] = 1.0 / data.FireRT # convert return time back into burned area fraction
-    data_mean = data[["landform__ID", "burned_area_frac"]].groupby("landform__ID", sort = False).mean() # average burned area over years and patches
+    data_mean = data[["Stand", "burned_area_frac"]].groupby("Stand", sort = False).mean() # average burned area over years and patches
 
     if "burned_area_frac" not in grid.keys("node"):
         grid.add_zeros("node", "burned_area_frac")
