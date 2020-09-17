@@ -152,7 +152,7 @@ def import_fire(grid, filename):
     data = pd.read_table(filename, delim_whitespace = True)
     data = data[data.Stand > 0]
     
-    assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, f"Data must not contain more than one (Lat, Lon) combination: {filename}"
+    assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, "Data must not contain more than one (Lat, Lon) combination: {}".format(filename)
 
     data["burned_area_frac"] = 1.0 / data.FireRT # convert return time back into burned area fraction
     data_mean = data[["Stand", "burned_area_frac"]].groupby("Stand", sort = False).mean() # average burned area over years and patches
