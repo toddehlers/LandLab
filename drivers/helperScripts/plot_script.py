@@ -314,14 +314,13 @@ if __name__ == "__main__":
             sim_data.append(p, np.mean(parameter_data))
 
 
-        # break
+    sim_data.set_plot_time_type("Normal")
+    sim_data.plot1("overview1_elapsed_time.png")
+    sim_data.plot2("overview2_elapsed_time.png")
+    sim_data.plot3("overview3_elapsed_time.png")
 
-    #sim_data.debug_output()
-
-    plot_time_type = config["Plot"]["plot_time_type"]
-    sim_data.set_plot_time_type(plot_time_type)
-
-    sim_data.plot1("overview1.png")
-    sim_data.plot2("overview2.png")
-    sim_data.plot3("overview3.png")
+    sim_data.set_plot_time_type("LGM")
+    sim_data.plot1("overview1_time_before_pd.png")
+    sim_data.plot2("overview2_time_before_pd.png")
+    sim_data.plot3("overview3_time_before_pd.png")
 
