@@ -160,7 +160,7 @@ def import_fire(grid, filename):
     if "burned_area_frac" not in grid.keys("node"):
         grid.add_zeros("node", "burned_area_frac")
 
-    grid.at_node["burned_area_frac"] = map_data_per_landform_on_grid(grid, data_mean.to_records().T, "burned_area_frac")
+    grid.at_node["burned_area_frac"] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), "burned_area_frac")
 
 def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
