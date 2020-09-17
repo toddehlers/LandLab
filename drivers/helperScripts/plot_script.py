@@ -36,6 +36,8 @@ class SimData:
         self.map_erosion_rate2 = []
         self.burned_area_frac = []
         self.uplift_rate = 0.0
+        self.node_spacing = 0.0
+        self.num_of_nodes = 0.0
 
         # Plot settings
         self.figsize = [15, 15]
@@ -92,6 +94,13 @@ class SimData:
     def set_uplift_rate(self, uplift_rate):
         self.uplift_rate = uplift_rate * 1000
 
+    def set_node_spacing(self, node_spacing):
+        # Convert from [m] to [km]
+        self.node_spacing = node_spacing / 1000.0
+
+    def set_num_of_nodes(self, num_of_nodes):
+        self.num_of_nodes = num_of_nodes - 1.0
+
     def set_map_elevation1(self, map_elevation):
         self.map_elevation1 = map_elevation
 
@@ -135,6 +144,13 @@ class SimData:
 
         ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
         ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+
+        start = 0
+        end = self.num_of_nodes * self.node_spacing
+        step_size = end / 10.0
+        ticks = np.arange(start, end, step_size)
+        ax.set_xticks(ticks)
+        ax.set_yticks(ticks)
 
         ax.invert_yaxis()
         #ax.axis("tight")
@@ -228,7 +244,7 @@ class SimData:
         print("elapsed_time: {}".format(len(self.elapsed_time)))
 
 def extract_time(name):
-    (name, ext) = os.path.splitext(name)
+    (name, _) = os.path.splitext(name)
     return int(name.split("__")[1])
 
 if __name__ == "__main__":
@@ -262,6 +278,12 @@ if __name__ == "__main__":
 
     uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
+
+    node_spacing = float(config["grid"]["dx"])
+    sim_data.set_node_spacing(node_spacing)
+
+    num_of_nodes = float(config["grid"]["ncols"])
+    sim_data.set_num_of_nodes(num_of_nodes)
 
     all_files = glob.glob("ll_output/NC/*.nc")
     time_and_names = ((extract_time(name), name) for name in all_files)
