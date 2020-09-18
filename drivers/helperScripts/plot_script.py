@@ -136,7 +136,10 @@ class SimData:
         ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
     def plot_image(self, ax, image_data, color_map, cbar_label, vmin, vmax):
-        img = ax.imshow(image_data, cmap = color_map, vmin = vmin, vmax = vmax)
+        end = self.num_of_nodes * self.node_spacing
+        extent = (0, end, 0, end)
+
+        img = ax.imshow(image_data, cmap = color_map, vmin = vmin, vmax = vmax, extent = extent, origin = "lower")
 
         cbar = ax.figure.colorbar(img, ax=ax, fraction=0.045)
         cbar.ax.set_ylabel(cbar_label, fontsize = self.fontsize_label, color = self.color)
@@ -145,14 +148,7 @@ class SimData:
         ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
         ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
 
-        start = 0
-        end = self.num_of_nodes * self.node_spacing
-        step_size = end / 10.0
-        ticks = np.arange(start, end, step_size)
-        ax.set_xticks(ticks)
-        ax.set_yticks(ticks)
-
-        ax.invert_yaxis()
+        #ax.invert_yaxis()
         #ax.axis("tight")
 
     def plot_elevation(self, ax, data):
