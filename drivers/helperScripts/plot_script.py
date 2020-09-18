@@ -279,10 +279,10 @@ if __name__ == "__main__":
     uplift_rate = float(config["Uplift"]["upliftRate"])
     sim_data.set_uplift_rate(uplift_rate)
 
-    node_spacing = float(config["grid"]["dx"])
+    node_spacing = float(config["Grid"]["dx"])
     sim_data.set_node_spacing(node_spacing)
 
-    num_of_nodes = float(config["grid"]["ncols"])
+    num_of_nodes = float(config["Grid"]["ncols"])
     sim_data.set_num_of_nodes(num_of_nodes)
 
     all_files = glob.glob("ll_output/NC/*.nc")
