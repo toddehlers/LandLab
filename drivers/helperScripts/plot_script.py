@@ -46,8 +46,6 @@ class SimData:
         self.color = "red"
         self.dpi = 420
         self.rect = [0.01, 0.001, 1, 0.95]
-        cwd = os.getcwd()
-        self.title = os.path.basename(cwd)
         self.plot_start = 0
         self.plot_end = 0
         self.plot_time_type = "Normal"
@@ -129,6 +127,15 @@ class SimData:
         else:
             self.time_tabel = "Unknown"
 
+    def set_title(self, title, sup_title):
+        self.title = title
+
+        if len(sup_title) > 0:
+            self.sup_title = sup_title
+        else:
+            cwd = os.getcwd()
+            self.sup_title = os.path.basename(cwd)
+
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
         ax.set_ylabel(ylabel, fontsize = self.fontsize_label, color = self.color)
@@ -186,7 +193,7 @@ class SimData:
         if self.plot_time_type == "LGM":
             ax[0,0].invert_xaxis()
 
-        fig.suptitle(self.title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
@@ -209,7 +216,7 @@ class SimData:
         if self.plot_time_type == "LGM":
             ax[0,0].invert_xaxis()
 
-        fig.suptitle(self.title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
@@ -231,7 +238,7 @@ class SimData:
         ax[0,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
         ax[1,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
 
-        fig.suptitle(self.title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
 
         plt.tight_layout(rect = self.rect)
         plt.savefig(filename, dpi = self.dpi)
@@ -331,14 +338,20 @@ if __name__ == "__main__":
 
             sim_data.append(p, np.mean(parameter_data))
 
+    plot_title = config["Plot"].get("plot_title", "")
+    plot_sup_title = config["Plot"].get("plot_sup_title", "")
+    sim_data.set_title(plot_title, plot_sup_title)
+
+    file_type = config["Plot"].get("plot_file_type", "png")
+
 
     sim_data.set_plot_time_type("Normal")
-    sim_data.plot1("overview1_elapsed_time.png")
-    sim_data.plot2("overview2_elapsed_time.png")
-    sim_data.plot3("overview3_elapsed_time.png")
+    sim_data.plot1("overview1_elapsed_time.{}".format(file_type))
+    sim_data.plot2("overview2_elapsed_time.{}".format(file_type))
+    sim_data.plot3("overview3_elapsed_time.{}".format(file_type))
 
     sim_data.set_plot_time_type("LGM")
-    sim_data.plot1("overview1_time_before_pd.png")
-    sim_data.plot2("overview2_time_before_pd.png")
-    sim_data.plot3("overview3_time_before_pd.png")
+    sim_data.plot1("overview1_time_before_pd.{}".format(file_type))
+    sim_data.plot2("overview2_time_before_pd.{}".format(file_type))
+    sim_data.plot3("overview3_time_before_pd.{}".format(file_type))
 
