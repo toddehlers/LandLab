@@ -35,8 +35,8 @@ import logging
 import numpy as np
 import os.path
 import shutil
-
 import configparser
+import random
 
 t0 = time.time()
 
@@ -60,6 +60,7 @@ ssT = float(config['Runtime']['ssT'])
 sfT = float(config['Runtime']['sfT'])
 spin_up = float(config['Runtime']['spin_up'])
 dt = int(config['Runtime']['dt'])
+random_seed = config['Runtime']['random_seed']
 
 upliftRate = float(config['Uplift']['upliftRate'])
 baseElevation = float(config['Uplift']['baseElevation'])
@@ -135,7 +136,16 @@ uplift_per_step = upliftRate * dt
 DHDTLowLim = upliftRate - (upliftRate * 1)
 DHDTHighLim = upliftRate + (upliftRate * 1)
 
+if random_seed != "None":
+    random_seed = int(random_seed)
+    np.random.seed(random_seed)
+    random.seed(random_seed)
+
 logger.info("finished with parameter-initiation")
+
+logger.info("Random seed numpy: {}".format(np.random.get_state()))
+logger.info("Random seed python lib: {}".format(random.getstate()))
+
 
 ##----------------------Grid Setup---------------------------------------------
 #This initiates a Modelgrid with dimensions nrows x ncols and spatial scaling of dx
