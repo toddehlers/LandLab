@@ -104,7 +104,7 @@ def import_vegetation(grid, vegi_mapping_method, filename):
         grid.at_node['grass_lai'] = map_vegi_per_landform_on_grid(grid, grass_lai)
 
 
-def import_csv_data(grid, filename, data_name):
+def import_csv_data(grid, filename, data_name, factor = None):
     csv_data = pd.read_table(filename, delim_whitespace=True)
 
     month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')
@@ -115,7 +115,10 @@ def import_csv_data(grid, filename, data_name):
 
     cleared_data = filtered_data.drop(columns=month_cols).set_index(index_cols)
 
-    final_data = cleared_data.mean(level=1).T / 10.0
+    if factor:
+        final_data = cleared_data.mean(level=1).T / factor
+    else:
+        final_data = cleared_data.mean(level=1).T
 
     if data_name not in grid.keys('node'):
         grid.add_zeros('node', data_name)
@@ -123,10 +126,13 @@ def import_csv_data(grid, filename, data_name):
     grid.at_node[data_name] = map_data_per_landform_on_grid(grid, final_data.to_records(), data_name)
 
 def import_precipitation(grid, filename):
-    import_csv_data(grid, filename, "precipitation")
+    import_csv_data(grid, filename, "precipitation", 10.0)
 
 def import_temperature(grid, filename):
-    import_csv_data(grid, filename, "temperature")
+    import_csv_data(grid, filename, "temperature", 10.0)
+
+def import_radiation(grid, filename):
+    import_csv_data(grid, filename, "radiation")
 
 def import_co2(grid, filename):
     csv_data = pd.read_table(filename, delim_whitespace=True)
@@ -170,6 +176,7 @@ def lpj_import_run_one_step(grid, vegi_mapping_method):
     import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
     import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
     import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
+    import_radiation(grid, "temp_lpj/output/sp_mrad.out")
     import_fire(grid, "temp_lpj/output/sp_firert.out")
     import_co2(grid, "temp_lpj/output/climate.out")
 
