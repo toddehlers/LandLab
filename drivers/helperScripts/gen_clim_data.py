@@ -31,6 +31,7 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     time.standard_name = "time"
     time.long_name = "time"
     time.units = "day"
+    time.calendar = "22000 yr B.P."
 
     lat.standard_name = "latitude"
     lat.long_name = "latitude"
@@ -40,7 +41,7 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     lon.long_name = "longitude"
     lon.units = "degrees_east"
 
-    var_instance.coordinates = "lon lat"
+    var_instance.coordinates = "lat lon"
     var_instance.standard_name = var_description
     var_instance.long_name = var_long_name
     var_instance.units = var_units
@@ -50,12 +51,12 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     f.close()
 
 def gen_data_for_location(file_name_base, lat, lon, prec, temp, rad):
-    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation_amount", "Daily precipitation amount", "mm per day", "260")
+    gen_data(file_name_base, lat, lon, "prec", prec, "precipitation_amount", "daily precipitation amount", "kg m-2", "260")
     gen_data(file_name_base, lat, lon, "temp", temp, "air_temperature", "Near surface air temperature at 2m", "K", "167")
     gen_data(file_name_base, lat, lon, "rad", rad, "surface_downwelling_shortwave_flux", "Mean daily surface incident shortwave radiation", "W m-2", "176")
 
 gen_data_for_location("LaCampana_LGM", lat = -32.75, lon = -71.25, prec = 0.92, temp = 284.6, rad = 249.1)
 
-with open("co2_LGM.txt", "w+") as f:
+with open("co2_data.txt", "w+") as f:
     for i in range(1, NUM_OF_DAYS):
-        f.write("{} 186\n".format(i))
+        f.write("{} 200\n".format(i))
