@@ -105,7 +105,7 @@ class SimData:
     def set_map_elevation2(self, map_elevation):
         self.map_elevation2 = map_elevation
         self.max_elevation = max(np.max(self.map_elevation1), np.max(self.map_elevation2))
-        self.min_elevation = max(np.min(self.map_elevation1), np.min(self.map_elevation2))
+        self.min_elevation = min(np.min(self.map_elevation1), np.min(self.map_elevation2))
 
     def set_map_erosion1(self, map_erosion):
         self.map_erosion_rate1 = map_erosion * 1000
@@ -113,7 +113,7 @@ class SimData:
     def set_map_erosion2(self, map_erosion):
         self.map_erosion_rate2 = map_erosion * 1000
         self.max_erosion = max(np.max(self.map_erosion_rate1), np.max(self.map_erosion_rate2))
-        self.min_erosion = max(np.min(self.map_erosion_rate1), np.min(self.map_erosion_rate2))
+        self.min_erosion = min(np.min(self.map_erosion_rate1), np.min(self.map_erosion_rate2))
 
     def set_plot_time_type(self, plot_time_type):
         self.plot_time_type = plot_time_type
