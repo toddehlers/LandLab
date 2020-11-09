@@ -168,6 +168,18 @@ def import_fire(grid, filename):
 
     grid.at_node["burned_area_frac"] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), "burned_area_frac")
 
+def import_runoff(grid, filename):
+    import_csv_data(grid, filename, "runoff")
+
+def import_evapo_trans_soil(grid, filename):
+    import_csv_data(grid, filename, "evapo_trans_soil")
+
+def import_evapo_trans_area(grid, filename):
+    import_csv_data(grid, filename, "evapo_trans_area")
+
+def import_npp(grid, filename):
+    import_csv_data(grid, filename, "net_primary_productivity")
+
 def lpj_import_run_one_step(grid, vegi_mapping_method):
     """
     main function for input_conversion to be called from landlab driver file
@@ -177,6 +189,10 @@ def lpj_import_run_one_step(grid, vegi_mapping_method):
     import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
     import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
     import_radiation(grid, "temp_lpj/output/sp_mrad.out")
-    import_fire(grid, "temp_lpj/output/sp_firert.out")
     import_co2(grid, "temp_lpj/output/climate.out")
+    import_fire(grid, "temp_lpj/output/sp_firert.out")
 
+    import_runoff(grid, "temp_lpj/output/sp_mrunoff.out")
+    import_evapo_trans_soil(grid, "temp_lpj/output/sp_mevap.out")
+    import_evapo_trans_area(grid, "temp_lpj/output/sp_aaet.out")
+    import_npp(grid, "temp_lpj/output/sp_mnpp.out")
