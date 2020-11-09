@@ -35,6 +35,11 @@ class SimData:
         self.map_erosion_rate1 = []
         self.map_erosion_rate2 = []
         self.burned_area_frac = []
+        self.runoff_mean = []
+        self.evapo_trans_soil = []
+        self.evapo_trans_area = []
+        self.net_primary_productivity = []
+
         self.uplift_rate = 0.0
         self.node_spacing = 0.0
         self.num_of_nodes = 0.0
@@ -85,6 +90,14 @@ class SimData:
             self.grass_mean_lai.append(data)
         elif p == "burned_area_frac":
             self.burned_area_frac.append(data * 100) # convert to %
+        elif p == "runoff":
+            self.runoff_mean.append(data)
+        elif p == "evapo_trans_soil":
+            self.evapo_trans_soil.append(data)
+        elif p == "evapo_trans_area":
+            self.evapo_trans_area.append(data)
+        elif p == "net_primary_productivity":
+            self.net_primary_productivity.append(data)
         else:
             print("Unknown parameter: {}".format(p))
             sys.exit(1)
@@ -222,6 +235,28 @@ class SimData:
         plt.savefig(filename, dpi = self.dpi)
 
     def plot3(self, filename):
+        fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
+
+        # TODO: plot runoff, evapo_trans_soil, evapo_trans_area, net_primary_productivity
+        # self.plot(ax[0,0], self.burned_area_frac, "burned area [%]")
+
+        self.plot(ax[0,0], self.runoff_mean, "runoff [?]")
+        self.plot(ax[0,1], self.net_primary_productivity, "net primary productivity [?]")
+        self.plot(ax[1,0], self.evapo_trans_soil, "evapo_trans_soil [?]")
+        self.plot(ax[1,1], self.evapo_trans_area, "evapo_trans_mean [?]")
+
+        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+
+        if self.plot_time_type == "LGM":
+            ax[0,0].invert_xaxis()
+
+        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
+
+        plt.tight_layout(rect = self.rect)
+        plt.savefig(filename, dpi = self.dpi)
+
+    def plot4(self, filename):
         fig, ax = plt.subplots(2,2, figsize = self.figsize, sharex = True, sharey = True)
 
         self.plot_elevation(ax[0,0], self.map_elevation1)
@@ -317,6 +352,10 @@ if __name__ == "__main__":
             "vegetation__density_lai",
             "vegetation__density",
             "burned_area_frac",
+            "runoff",
+            "evapo_trans_soil",
+            "evapo_trans_area",
+            "net_primary_productivity",
         ]
 
         if "tree_fpc" and "shrub_fpc" and "grass_fpc" in nc_data.variables:
@@ -349,9 +388,11 @@ if __name__ == "__main__":
     sim_data.plot1("overview1_elapsed_time.{}".format(file_type))
     sim_data.plot2("overview2_elapsed_time.{}".format(file_type))
     sim_data.plot3("overview3_elapsed_time.{}".format(file_type))
+    sim_data.plot4("overview4_elapsed_time.{}".format(file_type))
 
     sim_data.set_plot_time_type("LGM")
     sim_data.plot1("overview1_time_before_pd.{}".format(file_type))
     sim_data.plot2("overview2_time_before_pd.{}".format(file_type))
     sim_data.plot3("overview3_time_before_pd.{}".format(file_type))
+    sim_data.plot4("overview4_time_before_pd.{}".format(file_type))
 
