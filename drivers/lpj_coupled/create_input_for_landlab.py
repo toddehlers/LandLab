@@ -5,6 +5,12 @@ import pandas as pd
 set of scripts which makes post-processed lpj-output landlab compatible
 """
 
+NODE_STR = "node"
+YEAR_STR = "Year"
+STAND_STR = "Stand"
+TOTAL_STR = "Total"
+LANDFORM_ID_STR = "landform__ID"
+
 def _calc_fpc(lai):
     """Calculate FPC using the LPJ-GUESS method
 
@@ -16,28 +22,28 @@ def map_data_per_landform_on_grid(grid, data_array, data_name):
 
     if data_array is not None:
         for landform in data_array.dtype.names[1:]:
-            data_grid[grid.at_node['landform__ID'] == int(landform)] = data_array[landform]
+            data_grid[grid.at_node[LANDFORM_ID_STR] == int(landform)] = data_array[landform]
 
     return data_grid
 
 def map_vegi_per_landform_on_grid(grid, vegi_array):
     """
     extract the tree fractional cover per landform
-    
+
     assumes that the landlab grid object which is passed already
-    has a data field 'landform__id' which is used to create
+    has a data field "landform__id" which is used to create
     numpy arrays with correct dimensions for mapping vegetation
     data
     """
 
-    return map_data_per_landform_on_grid(grid, vegi_array, "landform__ID")
+    return map_data_per_landform_on_grid(grid, vegi_array, LANDFORM_ID_STR)
 
 # For precipitation:
-# Extract the precipitation values per landform and maps it in the 'precipitation'
+# Extract the precipitation values per landform and maps it in the "precipitation"
 # datafield of the landlab grid object
 #
-# Right now (15.11.2018) this method is a little bit overkill because we don't have
-# spatial variable rainfall. But for future uses with a more precise downscaling or 
+# Right now (15.11.2018) this method is a little bit overkill because we don"t have
+# spatial variable rainfall. But for future uses with a more precise downscaling or
 # bigger grids, this would be important.
 
 def process_vegetation_data(data, index_cols, other_cols):
@@ -55,60 +61,60 @@ def process_vegetation_data(data, index_cols, other_cols):
 def import_vegetation(grid, vegi_mapping_method, filename):
     csv_data = pd.read_table(filename, delim_whitespace=True)
     csv_data = csv_data[csv_data.Stand > 0]
-    index_cols = ['Year', 'Stand']
+    index_cols = [YEAR_STR, STAND_STR]
 
-    total_col = ['Total']
+    total_col = [TOTAL_STR]
 
     (total_fpc, total_lai) = process_vegetation_data(csv_data, index_cols, total_col)
 
-    if 'vegetation__density' not in grid.keys('node'):
-        grid.add_zeros('node', 'vegetation__density')
-    if 'vegetation__density_lai' not in grid.keys('node'):
-        grid.add_zeros('node', 'vegetation__density_lai')
+    if "vegetation__density" not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, "vegetation__density")
+    if "vegetation__density_lai" not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, "vegetation__density_lai")
 
-    grid.at_node['vegetation__density'] = map_vegi_per_landform_on_grid(grid, total_fpc)
-    grid.at_node['vegetation__density_lai'] = map_vegi_per_landform_on_grid(grid, total_lai)
+    grid.at_node["vegetation__density"] = map_vegi_per_landform_on_grid(grid, total_fpc)
+    grid.at_node["vegetation__density_lai"] = map_vegi_per_landform_on_grid(grid, total_lai)
 
 
-    if vegi_mapping_method == 'individual':
-        tree_cols = ['TeBE_tm','TeBE_itm','TeBE_itscl','TeBS_itm','TeNE','BBS_itm','BBE_itm']
-        shrub_cols = ['BE_s','TeR_s','TeE_s']
-        grass_cols = ['C3G']
+    if vegi_mapping_method == "individual":
+        tree_cols = ["TeBE_tm","TeBE_itm","TeBE_itscl","TeBS_itm","TeNE","BBS_itm","BBE_itm"]
+        shrub_cols = ["BE_s","TeR_s","TeE_s"]
+        grass_cols = ["C3G"]
 
         (tree_fpc, tree_lai) = process_vegetation_data(csv_data, index_cols, tree_cols)
         (shrub_fpc, shrub_lai) = process_vegetation_data(csv_data, index_cols, shrub_cols)
         (grass_fpc, grass_lai) = process_vegetation_data(csv_data, index_cols, grass_cols)
 
-        if 'tree_fpc' not in grid.keys('node'):
-            grid.add_zeros('node', 'tree_fpc')
-        if 'tree_lai' not in grid.keys('node'):
-            grid.add_zeros('node', 'tree_lai')
+        if "tree_fpc" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "tree_fpc")
+        if "tree_lai" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "tree_lai")
 
-        grid.at_node['tree_fpc'] = map_vegi_per_landform_on_grid(grid, tree_fpc)
-        grid.at_node['tree_lai'] = map_vegi_per_landform_on_grid(grid, tree_lai)
+        grid.at_node["tree_fpc"] = map_vegi_per_landform_on_grid(grid, tree_fpc)
+        grid.at_node["tree_lai"] = map_vegi_per_landform_on_grid(grid, tree_lai)
 
-        if 'shrub_fpc' not in grid.keys('node'):
-            grid.add_zeros('node', 'shrub_fpc')
-        if 'shrub_lai' not in grid.keys('node'):
-            grid.add_zeros('node', 'shrub_lai')
+        if "shrub_fpc" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "shrub_fpc")
+        if "shrub_lai" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "shrub_lai")
 
-        grid.at_node['shrub_fpc']  = map_vegi_per_landform_on_grid(grid, shrub_fpc)
-        grid.at_node['shrub_lai']  = map_vegi_per_landform_on_grid(grid, shrub_lai)
+        grid.at_node["shrub_fpc"]  = map_vegi_per_landform_on_grid(grid, shrub_fpc)
+        grid.at_node["shrub_lai"]  = map_vegi_per_landform_on_grid(grid, shrub_lai)
 
-        if 'grass_fpc' not in grid.keys('node'):
-            grid.add_zeros('node', 'grass_fpc')
-        if 'grass_lai' not in grid.keys('node'):
-            grid.add_zeros('node', 'grass_lai')
+        if "grass_fpc" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "grass_fpc")
+        if "grass_lai" not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, "grass_lai")
 
-        grid.at_node['grass_fpc'] = map_vegi_per_landform_on_grid(grid, grass_fpc)
-        grid.at_node['grass_lai'] = map_vegi_per_landform_on_grid(grid, grass_lai)
+        grid.at_node["grass_fpc"] = map_vegi_per_landform_on_grid(grid, grass_fpc)
+        grid.at_node["grass_lai"] = map_vegi_per_landform_on_grid(grid, grass_lai)
 
 
 def import_csv_data(grid, filename, data_name, factor = None):
     csv_data = pd.read_table(filename, delim_whitespace = True)
 
-    month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(',')
-    index_cols = ["Year", "Stand"]
+    month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(",")
+    index_cols = [YEAR_STR, STAND_STR]
 
     filtered_data = csv_data[index_cols + month_cols][csv_data.Stand > 0]
     filtered_data["Annual"] = filtered_data[month_cols].sum(axis = 1)
@@ -120,9 +126,9 @@ def import_csv_data(grid, filename, data_name, factor = None):
     else:
         final_data = cleared_data.mean(level = 1).T
 
-    if data_name not in grid.keys('node'):
-        grid.add_zeros('node', data_name)
-    
+    if data_name not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, data_name)
+
     grid.at_node[data_name] = map_data_per_landform_on_grid(grid, final_data.to_records(), data_name)
 
 def import_precipitation(grid, filename):
@@ -135,15 +141,17 @@ def import_radiation(grid, filename):
     import_csv_data(grid, filename, "radiation")
 
 def import_co2(grid, filename):
+    co2_name = "co2"
     csv_data = pd.read_table(filename, delim_whitespace = True)
-    co2_values = csv_data["co2"]
+    co2_values = csv_data[co2_name]
     co2_value = co2_values.mean()
 
-    if "co2" not in grid.keys("node"):
-        grid.add_zeros("node", "co2")
 
-    shape = np.shape(grid.at_node["co2"])
-    grid.at_node["co2"] = np.full(shape, co2_value)
+    if co2_name not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, co2_name)
+
+    shape = np.shape(grid.at_node[co2_name])
+    grid.at_node[co2_name] = np.full(shape, co2_value)
 
 def import_fire(grid, filename):
     """
@@ -157,16 +165,18 @@ def import_fire(grid, filename):
     """
     data = pd.read_table(filename, delim_whitespace = True)
     data = data[data.Stand > 0]
-    
+
     assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, "Data must not contain more than one (Lat, Lon) combination: {}".format(filename)
 
-    data["burned_area_frac"] = 1.0 / data.FireRT # convert return time back into burned area fraction
-    data_mean = data[["Stand", "burned_area_frac"]].groupby("Stand", sort = False).mean() # average burned area over years and patches
+    baf_name = "burned_area_frac"
 
-    if "burned_area_frac" not in grid.keys("node"):
-        grid.add_zeros("node", "burned_area_frac")
+    data[baf_name] = 1.0 / data.FireRT # convert return time back into burned area fraction
+    data_mean = data[[STAND_STR, baf_name]].groupby(STAND_STR, sort = False).mean() # average burned area over years and patches
 
-    grid.at_node["burned_area_frac"] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), "burned_area_frac")
+    if baf_name not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, baf_name)
+
+    grid.at_node[baf_name] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), baf_name)
 
 def import_runoff(grid, filename):
     import_csv_data(grid, filename, "runoff")
@@ -175,7 +185,24 @@ def import_evapo_trans_soil(grid, filename):
     import_csv_data(grid, filename, "evapo_trans_soil")
 
 def import_evapo_trans_area(grid, filename):
-    import_csv_data(grid, filename, "evapo_trans_area")
+    csv_data = pd.read_table(filename, delim_whitespace=True)
+    csv_data = csv_data[csv_data.Stand > 0]
+    index_cols = [YEAR_STR, STAND_STR]
+
+    total_col = [TOTAL_STR]
+
+    data_filtered = csv_data[index_cols + total_col].groupby(index_cols, sort = False).mean()
+
+    et_area = data_filtered.sum(axis = 1)
+    et_area = et_area.reset_index().set_index(index_cols)
+    et_area = et_area.mean(level = 1).T
+
+    et_name = "evapo_trans_area"
+
+    if et_name not in grid.keys(NODE_STR):
+        grid.add_zeros(NODE_STR, et_name)
+
+    grid.at_node[et_name] = map_data_per_landform_on_grid(grid, et_area.to_records(), et_name)
 
 def import_npp(grid, filename):
     import_csv_data(grid, filename, "net_primary_productivity")
