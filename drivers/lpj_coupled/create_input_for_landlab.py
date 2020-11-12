@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import logging
 
 """
 set of scripts which makes post-processed lpj-output landlab compatible
@@ -163,20 +164,23 @@ def import_fire(grid, filename):
     These intervals are converted back into fractional area burned
     and averaged per landform__ID.
     """
-    data = pd.read_table(filename, delim_whitespace = True)
-    data = data[data.Stand > 0]
+    try:
+        data = pd.read_table(filename, delim_whitespace = True)
+        data = data[data.Stand > 0]
 
-    assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, "Data must not contain more than one (Lat, Lon) combination: {}".format(filename)
+        assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, "Data must not contain more than one (Lat, Lon) combination: {}".format(filename)
 
-    baf_name = "burned_area_frac"
+        baf_name = "burned_area_frac"
 
-    data[baf_name] = 1.0 / data.FireRT # convert return time back into burned area fraction
-    data_mean = data[[STAND_STR, baf_name]].groupby(STAND_STR, sort = False).mean() # average burned area over years and patches
+        data[baf_name] = 1.0 / data.FireRT # convert return time back into burned area fraction
+        data_mean = data[[STAND_STR, baf_name]].groupby(STAND_STR, sort = False).mean() # average burned area over years and patches
 
-    if baf_name not in grid.keys(NODE_STR):
-        grid.add_zeros(NODE_STR, baf_name)
+        if baf_name not in grid.keys(NODE_STR):
+            grid.add_zeros(NODE_STR, baf_name)
 
-    grid.at_node[baf_name] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), baf_name)
+        grid.at_node[baf_name] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), baf_name)
+    except FileNotFoundError:
+        logging.error("Could not open file '{}' for burned_area values".format(filename))
 
 def import_runoff(grid, filename):
     import_csv_data(grid, filename, "runoff")

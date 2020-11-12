@@ -237,9 +237,6 @@ class SimData:
     def plot3(self, filename):
         fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
 
-        # TODO: plot runoff, evapo_trans_soil, evapo_trans_area, net_primary_productivity
-        # self.plot(ax[0,0], self.burned_area_frac, "burned area [%]")
-
         self.plot(ax[0,0], self.runoff_mean, "runoff [?]")
         self.plot(ax[0,1], self.net_primary_productivity, "net primary productivity [?]")
         self.plot(ax[1,0], self.evapo_trans_soil, "evapo_trans_soil [?]")
@@ -300,7 +297,7 @@ if __name__ == "__main__":
         step_size = float(config["Output"]["outIntTransient"])
         plot_start = int(round(plot_start / step_size) * step_size)
 
-    if plot_end < spin_up:    
+    if plot_end < spin_up:
         step_size = float(config["Output"]["outIntSpinUp"])
         plot_end = int(round(plot_end / step_size) * step_size)
     else:
@@ -341,33 +338,7 @@ if __name__ == "__main__":
 
         sim_data.append("elapsed_time", elapsed_time)
 
-        parameters = [
-            "topographic__elevation",
-            "erosion__rate",
-            "co2",
-            "sediment__flux",
-            "precipitation",
-            "soil__depth",
-            "temperature",
-            "vegetation__density_lai",
-            "vegetation__density",
-            "burned_area_frac",
-            "runoff",
-            "evapo_trans_soil",
-            "evapo_trans_area",
-            "net_primary_productivity",
-        ]
-
-        if "tree_fpc" and "shrub_fpc" and "grass_fpc" in nc_data.variables:
-            parameters.append("tree_fpc")
-            parameters.append("shrub_fpc")
-            parameters.append("grass_fpc")
-        if "tree_lai" and "shrub_lai" and "grass_lai" in nc_data.variables:
-            parameters.append("tree_lai")
-            parameters.append("shrub_lai")
-            parameters.append("grass_lai")
-
-        for p in parameters:
+        for p in nc_data.variables:
             parameter_data = nc_data.variables[p][:][0]
             # delete boundary nodes
             parameter_data = np.delete(parameter_data, 0 , axis = 0)
