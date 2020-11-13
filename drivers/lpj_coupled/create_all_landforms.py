@@ -1,3 +1,6 @@
+
+import logging
+
 def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     """
     create an array of all possible landform_ID's, as a function of uplift rate and total model runtime
@@ -32,7 +35,13 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     
     _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size) + 1
     _min_possible_ele_id = int(_min_initial_elevation / elevation_bin_size) + 1
-    
+
+    logging.debug("_min_initial_elevation: {}".format(_min_initial_elevation))
+    logging.debug("_max_possible_elevation_gain: {}".format(_max_possible_elevation_gain))
+    logging.debug("_max_possible_elevation: {}".format(_max_possible_elevation))
+    logging.debug("_min_possible_ele_id: {}".format(_min_possible_ele_id))
+    logging.debug("_max_possible_ele_id: {}".format(_max_possible_ele_id))
+
     #create a list with all possible elevation_ids within the grid
     for ele in range(_min_possible_ele_id, _max_possible_ele_id):
         for j in possible_slope_aspect_ids:

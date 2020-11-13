@@ -25,6 +25,7 @@ from landlab.io.netcdf import read_netcdf
 from create_input_for_landlab import lpj_import_run_one_step 
 from create_all_landforms import create_all_landforms
 from netcdf_exporter import NetCDFExporter
+from lpj_debug import LPJDebug
 #external modules
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
@@ -61,6 +62,7 @@ sfT = float(config['Runtime']['sfT'])
 spin_up = float(config['Runtime']['spin_up'])
 dt = int(config['Runtime']['dt'])
 random_seed = config['Runtime']['random_seed']
+debug_output = sorted(map(lambda x: int(x), config['Runtime'].get('debug_output', '').split(',')))
 
 upliftRate = float(config['Uplift']['upliftRate'])
 baseElevation = float(config['Uplift']['baseElevation'])
@@ -218,8 +220,6 @@ mg.at_node['tpi__mask'][mg.boundary_nodes] = 0
 logger.info("finished with setup of modelgrid")
 
 ##---------------------------------Vegi implementation--------------------------#
-##Set up a timeseries for vegetation-densities
-vegiTimeseries  = np.zeros(int(totalT / dt)) + vp
 #this incorporates a vegi step-function at timestep sfT with amplitude sfA
 mg.at_node['vegetation__density'][:] = vp
 #This maps the vegetation density on the nodes to the links between the nodes
@@ -282,6 +282,7 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
                     dt)
 
 netcdf_export = NetCDFExporter(latitude, longitude, dx, spin_up, classificationType, elevationStepBin)
+lpj_dbg = LPJDebug(LPJGUESS_INPUT_PATH)
 
 logger.info("finished with the initialization of the erosion components")   
 elapsed_time = 0
@@ -321,6 +322,7 @@ while elapsed_time < totalT:
             lpj.run_one_step(counter, dt)
             #import lpj lai and precipitation data
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            lpj_dbg.copy_temp_lpj(elapsed_time)
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
@@ -339,7 +341,12 @@ while elapsed_time < totalT:
  
             #reinitialize the flow router
             fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
-    
+
+        if len(debug_output) > 0:
+            if elapsed_time >= debug_output[0]:
+                debug_output.pop(0)
+                lpj_dbg.copy_temp_lpj(elapsed_time)
+
     #apply uplift
     mg.at_node['bedrock__elevation'][mg.core_nodes] += uplift_per_step
     
