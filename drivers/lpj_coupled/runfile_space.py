@@ -22,7 +22,7 @@ from landlab import imshow_grid
 from landlab.components import landformClassifier
 from landlab.io.netcdf import read_netcdf
 #coupling-specific
-from create_input_for_landlab import lpj_import_run_one_step 
+from create_input_for_landlab import lpj_import_run_one_step
 from create_all_landforms import create_all_landforms
 from netcdf_exporter import NetCDFExporter
 from lpj_debug import LPJDebug
@@ -62,7 +62,9 @@ sfT = float(config['Runtime']['sfT'])
 spin_up = float(config['Runtime']['spin_up'])
 dt = int(config['Runtime']['dt'])
 random_seed = config['Runtime']['random_seed']
-debug_output = sorted(map(lambda x: int(x), config['Runtime'].get('debug_output', '').split(',')))
+debug_output = []
+if 'debug_output' in config['Runtime']:
+    debug_output = sorted(map(lambda x: int(x), config['Runtime']['debug_output'].split(',')))
 
 upliftRate = float(config['Uplift']['upliftRate'])
 baseElevation = float(config['Uplift']['baseElevation'])
@@ -164,7 +166,7 @@ mg.add_zeros('node', 'vegetation__density')
 mg.add_zeros('node', 'fluvial_erodibility__soil')
 mg.add_zeros('node', 'fluvial_erodibility__bedrock')
 
-#this checks if there is a initial topography we like to start with. 
+#this checks if there is a initial topography we like to start with.
 #initial topography must be of filename/type 'topoSeed.npy'
 if os.path.isfile('initial_topography.npy'):
     topoSeed = np.load('initial_topography.npy')
@@ -259,14 +261,14 @@ expWeath = ExponentialWeatherer(mg, soil_production__maximum_rate =
 sf = SteepnessFinder(mg,
                     min_drainage_area = 1e6)
 
-sp = Space(mg, K_sed=Kvs, K_br=Kvb, 
+sp = Space(mg, K_sed=Kvs, K_br=Kvb,
            F_f=Ff, phi=phi, H_star=Hstar, v_s=vs, m_sp=m, n_sp=n,
            sp_crit_sed=sp_crit_sedi, sp_crit_br=sp_crit_bedrock,
            solver = solver)
 
 lc = landformClassifier(mg)
 
-DDdiff = DepthDependentDiffuser(mg, 
+DDdiff = DepthDependentDiffuser(mg,
             linear_diffusivity = linDiff,
             soil_transport_decay_depth = 2)
 
@@ -284,7 +286,7 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
 netcdf_export = NetCDFExporter(latitude, longitude, dx, spin_up, classificationType, elevationStepBin)
 lpj_dbg = LPJDebug(LPJGUESS_INPUT_PATH)
 
-logger.info("finished with the initialization of the erosion components")   
+logger.info("finished with the initialization of the erosion components")
 elapsed_time = 0
 counter = 0
 while elapsed_time < totalT:
@@ -297,7 +299,7 @@ while elapsed_time < totalT:
     lm.map_depressions()
     floodedNodes = np.where(lm.flood_status==3)[0]
     sp.run_one_step(dt = dt, flooded_nodes = floodedNodes)
-    
+
     #fetch the nodes where space eroded the bedrock__elevation over topographic__elevation
     #after conversation with charlie shobe:
     b = mg.at_node['bedrock__elevation']
@@ -305,7 +307,7 @@ while elapsed_time < totalT:
 
     #calculate regolith-production rate
     expWeath.calc_soil_prod_rate()
-    
+
     #Generate and move the soil around.
     DDdiff.run_one_step(dt=dt)
 
@@ -338,7 +340,7 @@ while elapsed_time < totalT:
         if lpj_coupled in ["yes", "on", "true"]:
             #import lpj lai and precipitation data
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
- 
+
             #reinitialize the flow router
             fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
 
@@ -349,11 +351,11 @@ while elapsed_time < totalT:
 
     #apply uplift
     mg.at_node['bedrock__elevation'][mg.core_nodes] += uplift_per_step
-    
+
     #set soil-depth to zero at outlet node
     #TODO: try disabling this to get non-zero soil depth?
     mg.at_node['soil__depth'][0] = 0
-    
+
     #recalculate topographic elevation
     mg.at_node['topographic__elevation'][:] = \
             mg.at_node['bedrock__elevation'][:] + mg.at_node['soil__depth'][:]
@@ -361,7 +363,7 @@ while elapsed_time < totalT:
     #Calculate median soil-depth
     for ids in np.unique(mg.at_node['landform__ID'][:]):
         _soilIDS = np.where(mg.at_node['landform__ID']==ids)
-        mg.at_node['median_soil__depth'][_soilIDS] = np.median(mg.at_node['soil__depth'][_soilIDS]) 
+        mg.at_node['median_soil__depth'][_soilIDS] = np.median(mg.at_node['soil__depth'][_soilIDS])
 
     #Calculate dhdt and E
     dh = (mg.at_node['topographic__elevation'] - z0)
@@ -374,7 +376,7 @@ while elapsed_time < totalT:
     #update LinearDiffuser
     linDiff = linDiffBase*np.exp(-alphaDiff * vegiLinks)
     #reinitalize Diffuser
-    DDdiff = DepthDependentDiffuser(mg, 
+    DDdiff = DepthDependentDiffuser(mg,
             linear_diffusivity = linDiff,
             soil_transport_decay_depth = soilProductionDecayDepth)
 
@@ -390,7 +392,7 @@ while elapsed_time < totalT:
         n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / vRef)) #self.vd = VARIABLE!
     else:
         logger.info('Unsupported Argument for Vegetation Mapping')
-    
+
     n_v_frac_to_w = np.power(n_v_frac, w)
     Prefect = np.power(n_v_frac_to_w, 0.9)
     Kvs = k_sediment * Ford/Prefect
@@ -430,13 +432,13 @@ while elapsed_time < totalT:
         plt.close()
         ##Create NetCDF Output
         netcdf_export.write_permanent(mg, elapsed_time)
-                
+
         ##Create erosion_diffmaps
         plt.figure()
         imshow_grid(mg,erosionMatrix,grid_units=['m','m'],var_name='Erosion m/yr',cmap='jet',limits=[DHDTLowLim,DHDTHighLim])
         plt.savefig('./ll_output/DHDT/eMap__{}.png'.format(elapsed_time))
         plt.close()
-        
+
         ##Create Soil Depth Maps
         plt.figure()
         imshow_grid(mg,'soil__depth',grid_units=['m','m'],var_name=
