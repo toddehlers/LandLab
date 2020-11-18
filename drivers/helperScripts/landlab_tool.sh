@@ -52,7 +52,7 @@ case "$1" in
         # For LPJ:
         rm -f -r temp_lpj
         rm -f temp_output/*
-        rm -f debugging/*
+        rm -rf debugging/*
         rm -f myjob*
         for f in ll_output/*; do rm -f "$f"/*; done
 
