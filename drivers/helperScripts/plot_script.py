@@ -4,6 +4,7 @@ import os
 import sys
 import glob
 import configparser
+import logging
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -283,6 +284,8 @@ def extract_time(name):
     return int(name.split("__")[1])
 
 if __name__ == "__main__":
+    logging.basicConfig(filename="plot.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
     config = configparser.ConfigParser()
     config.read("inputFile.ini")
 
@@ -309,6 +312,8 @@ if __name__ == "__main__":
         print("plot_start: {} >= plot_end: {} ".format(plot_start, plot_end))
         sys.exit(1)
 
+    logging.debug("plot_start: {}, plot_end: {}, spin_up: {}".format(plot_start, plot_end, spin_up))
+
     sim_data = SimData()
 
     uplift_rate = float(config["Uplift"]["upliftRate"])
@@ -319,6 +324,8 @@ if __name__ == "__main__":
 
     num_of_nodes = float(config["Grid"]["ncols"])
     sim_data.set_num_of_nodes(num_of_nodes)
+
+    logging.debug("uplift_rate: {}, node_spacing: {}, num_of_nodes: {}".format(uplift_rate, node_spacing, num_of_nodes))
 
     all_files = glob.glob("ll_output/NC/*.nc")
     time_and_names = ((extract_time(name), name) for name in all_files)
@@ -338,7 +345,10 @@ if __name__ == "__main__":
 
         sim_data.append("elapsed_time", elapsed_time)
 
+        logging.debug("elapsed_time: {}, nc_file: {}".format(elapsed_time, nc_file))
+
         for p in nc_data.variables:
+            logging.debug("parameter: {}".format(p))
             parameter_data = nc_data.variables[p][:][0]
             # delete boundary nodes
             parameter_data = np.delete(parameter_data, 0 , axis = 0)
@@ -348,12 +358,14 @@ if __name__ == "__main__":
 
             sim_data.append(p, np.mean(parameter_data))
 
+
     plot_title = config["Plot"].get("plot_title", "")
     plot_sup_title = config["Plot"].get("plot_sup_title", "")
     sim_data.set_title(plot_title, plot_sup_title)
 
     file_type = config["Plot"].get("plot_file_type", "png")
 
+    logging.debug("plot_title: {}, plot_sup_title: {}, file_type: {}".format(plot_title, plot_sup_title, file_type))
 
     sim_data.set_plot_time_type("Normal")
     sim_data.plot1("overview1_elapsed_time.{}".format(file_type))

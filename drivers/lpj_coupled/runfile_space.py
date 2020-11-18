@@ -41,13 +41,7 @@ import random
 
 t0 = time.time()
 
-logger = logging.getLogger('runfile')
-logger.setLevel(logging.INFO)
-fh = logging.FileHandler('landlab.log')
-fh.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+logging.basicConfig(filename="landlab.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 config = configparser.ConfigParser()
 config.read('inputFile.ini')
@@ -145,10 +139,10 @@ if random_seed != "None":
     np.random.seed(random_seed)
     random.seed(random_seed)
 
-logger.info("finished with parameter-initiation")
+logging.info("finished with parameter-initiation")
 
-logger.info("Random seed numpy: {}".format(np.random.get_state()))
-logger.info("Random seed python lib: {}".format(random.getstate()))
+logging.info("Random seed numpy: {}".format(np.random.get_state()))
+logging.info("Random seed python lib: {}".format(random.getstate()))
 
 
 ##----------------------Grid Setup---------------------------------------------
@@ -176,17 +170,17 @@ if os.path.isfile('initial_topography.npy'):
         soilSeed = np.load('initial_soildepth.npy')
         mg.at_node['soil__depth'] = soilSeed
         mg.at_node['bedrock__elevation'] = mg.at_node['topographic__elevation'] - soilSeed
-        logger.info('Using provided soil-thickness data')
+        logging.info('Using provided soil-thickness data')
     else:
         mg.at_node['soil__depth'] += initialSoilDepth
-        logger.info('Adding 1m of soil everywhere.')
-    logger.info('Using pre-existing topography from file initial_topography.npy')
+        logging.info('Adding 1m of soil everywhere.')
+    logging.info('Using pre-existing topography from file initial_topography.npy')
 else:
     topoSeed = np.random.rand(mg.at_node.size) / 100.0 # pylint: disable=no-member
     mg.at_node['topographic__elevation'] += topoSeed + baseElevation
     mg.at_node['bedrock__elevation'] += topoSeed + baseElevation
     mg.at_node['soil__depth'] += initialSoilDepth
-    logger.info('No pre-existing topography. Creating own random noise topo.')
+    logging.info('No pre-existing topography. Creating own random noise topo.')
 
 # Create boundary conditions of the model grid (either closed or fixed-head)
 for edge in (mg.nodes_at_left_edge, mg.nodes_at_right_edge,
@@ -198,28 +192,28 @@ boundary = config['Grid']['boundary'].strip()
 for c in boundary:
     if c == 'E':
         mg.status_at_node[mg.nodes_at_right_edge] = CLOSED_BOUNDARY
-        logger.info("Using closed boundary for east side")
+        logging.info("Using closed boundary for east side")
     elif c == 'S':
         mg.status_at_node[mg.nodes_at_bottom_edge] = CLOSED_BOUNDARY
-        logger.info("Using closed boundary for south side")
+        logging.info("Using closed boundary for south side")
     elif c == 'W':
         mg.status_at_node[mg.nodes_at_left_edge] = CLOSED_BOUNDARY
-        logger.info("Using closed boundary for west side")
+        logging.info("Using closed boundary for west side")
     elif c == 'N':
         mg.status_at_node[mg.nodes_at_top_edge] = CLOSED_BOUNDARY
-        logger.info("Using closed boundary for north side")
+        logging.info("Using closed boundary for north side")
     elif c == 'P':
         mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
-        logger.info("Creating single outlet node")
+        logging.info("Creating single outlet node")
     else:
-        logger.error("Unknown boundary parameter: {}".format(c))
+        logging.error("Unknown boundary parameter: {}".format(c))
 
 #create mask datafield which defaults to 1 to all core nodes and to 0 for
 #boundary nodes. LPJGUESS needs this
 mg.at_node['tpi__mask'][mg.core_nodes] = 1
 mg.at_node['tpi__mask'][mg.boundary_nodes] = 0
 
-logger.info("finished with setup of modelgrid")
+logging.info("finished with setup of modelgrid")
 
 ##---------------------------------Vegi implementation--------------------------#
 #this incorporates a vegi step-function at timestep sfT with amplitude sfA
@@ -240,7 +234,7 @@ Kvb = k_bedrock  * Ford/Prefect
 linDiff = mg.zeros('node', dtype = float)
 linDiff = linDiffBase * np.exp(-alphaDiff * vegiLinks)
 
-logger.info("finished setting up the vegetation fields and Kdiff and Kriv")
+logging.info("finished setting up the vegetation fields and Kdiff and Kriv")
 
 ##---------------------------------Rain implementation--------------------------#
 ##Set up a Timeseries of rainfall values
@@ -286,7 +280,7 @@ lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
 netcdf_export = NetCDFExporter(latitude, longitude, dx, spin_up, classificationType, elevationStepBin)
 lpj_dbg = LPJDebug(LPJGUESS_INPUT_PATH)
 
-logger.info("finished with the initialization of the erosion components")
+logging.info("finished with the initialization of the erosion components")
 elapsed_time = 0
 counter = 0
 while elapsed_time < totalT:
@@ -391,7 +385,7 @@ while elapsed_time < totalT:
     elif LPJGUESS_VEGI_MAPPING == "cumulative":
         n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / vRef)) #self.vd = VARIABLE!
     else:
-        logger.info('Unsupported Argument for Vegetation Mapping')
+        logging.info('Unsupported Argument for Vegetation Mapping')
 
     n_v_frac_to_w = np.power(n_v_frac, w)
     Prefect = np.power(n_v_frac_to_w, 0.9)
@@ -409,7 +403,7 @@ while elapsed_time < totalT:
 
     #Run the output loop every outInt-times
     if elapsed_time % outInt  == 0:
-        logger.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
+        logging.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
         ##Create DEM
         plt.figure()
         #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
@@ -459,5 +453,5 @@ while elapsed_time < totalT:
 
     elapsed_time += dt #update elapsed time
 tE = time.time()
-logger.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
+logging.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
 
