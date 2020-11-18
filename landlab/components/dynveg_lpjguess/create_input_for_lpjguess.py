@@ -84,8 +84,8 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     files_grabbed = []
     for files in types:
         files_grabbed.extend(glob.glob(os.path.join(ll_inpath, files)))
-    loggging.warn(files_grabbed) 
-    loggging.warn(ll_inpath)
+    logging.warn(files_grabbed) 
+    logging.warn(ll_inpath)
     # get global attributes (lat, lon, classification)
     # check that classifiaction match
     coordinates = []
@@ -104,12 +104,12 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
             
             valid_files.append(file)
         else:
-            loggging.warn(f"File {file} does not conform to the format convention. Check global attributes.")
+            logging.warn(f"File {file} does not conform to the format convention. Check global attributes.")
     
     if len(set(classifications)) != 1 or len(set(ele_steps)) != 1:
-        loggging.error("Classification attributes differ. Check files.")
-        loggging.error(f"classification: {classifications}")
-        loggging.error(f"ele_steps: {ele_steps}")            
+        logging.error("Classification attributes differ. Check files.")
+        logging.error(f"classification: {classifications}")
+        logging.error(f"ele_steps: {ele_steps}")            
         exit(-1)
         
     return (classifications[0].upper(), ele_steps[0], valid_files, coordinates)
@@ -133,7 +133,7 @@ def extract_variables_from_landlab_ouput(ll_file):
 
     for map in mapper:
         if map not in ds_ll.data_vars:
-            loggging.error(f'DataArray {map} missing in LandLab file {ll_file}.')
+            logging.error(f'DataArray {map} missing in LandLab file {ll_file}.')
             exit(-1)
 
     # copy data arrays to new file, squeeze, and rename with mapper
@@ -166,10 +166,10 @@ def main():
     #LPJGUESS_INPUT_PATH = os.path.join(os.environ.get('LPJGUESS_INPUT_PATH', 'run'), 'input', 'lfdata')
     LPJGUESS_INPUT_PATH = './temp_lpj/input/lfdata'
 
-    loggging.debug(f'SOIL_NC: {SOIL_NC}')
-    loggging.debug(f'ELEV_NC: {ELEVATION_NC}')
-    loggging.debug(f'LL_PATH: {LANDLAB_OUTPUT_PATH}')
-    loggging.debug(f'LPJ_PATH: {LPJGUESS_INPUT_PATH}')
+    logging.debug(f'SOIL_NC: {SOIL_NC}')
+    logging.debug(f'ELEV_NC: {ELEVATION_NC}')
+    logging.debug(f'LL_PATH: {LANDLAB_OUTPUT_PATH}')
+    logging.debug(f'LPJ_PATH: {LPJGUESS_INPUT_PATH}')
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
@@ -185,7 +185,7 @@ def main():
     df_frac, df_elev, df_slope, df_asp_slope, df_aspect, df_soildepth = compute_statistics_landlab(landlab_files, list_coords)
 
     # build netcdfs
-    loggging.info("Building 2D netCDF files")
+    logging.info("Building 2D netCDF files")
 
     simulation_domain = derive_region(list_coords)
     sitenc = build_site_netcdf(SOIL_NC, ELEVATION_NC, extent=simulation_domain)
@@ -216,7 +216,7 @@ def main():
                          format='NETCDF4_CLASSIC')
 
     # convert to compressed netcdf format
-    loggging.info("Building compressed format netCDF files")
+    logging.info("Building compressed format netCDF files")
     ids_2d, comp_sitenc = build_compressed(sitenc)
     ids_2db, comp_landformnc = build_compressed(landformnc)
 
@@ -230,11 +230,11 @@ def main():
                           format='NETCDF4_CLASSIC')
 
     # gridlist file
-    loggging.info("Creating gridlist file")
+    logging.info("Creating gridlist file")
     gridlist = create_gridlist(ids_2d)
     open(os.path.join(cfg.OUTDIR, cfg.GRIDLIST_TXT), 'w').write(gridlist)
 
-    loggging.info("Done")
+    logging.info("Done")
 
 if __name__ == '__main__':
     main()

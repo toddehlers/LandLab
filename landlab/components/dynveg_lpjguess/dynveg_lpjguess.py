@@ -27,7 +27,7 @@ def add_time_attrs(ds, calendar_year=0):
 
 def fill_template(template: str, data: Dict[str, str]) -> str:
     """Fill template file with specific data from dict"""
-    loggging.debug('Fill LPJ-GUESS ins template')
+    logging.debug('Fill LPJ-GUESS ins template')
     with open( template, 'rU' ) as f:
         src = Template( f.read() )
     return src.substitute(data)
@@ -41,13 +41,13 @@ def split_climate(time_step,
                   dest_path:Optional[str]=None) -> None: 
     """Split climte files into dt-length chunks"""
 
-    loggging.debug('ds_path: %s' % ds_path)
-    loggging.debug('dest_path: %s' % dest_path)
-    loggging.debug(ds_files)
+    logging.debug('ds_path: %s' % ds_path)
+    logging.debug('dest_path: %s' % dest_path)
+    logging.debug(ds_files)
 
     for ds_file in ds_files:
         fpath = os.path.join(ds_path, ds_file) if ds_path else ds_file
-        loggging.debug(fpath)
+        logging.debug(fpath)
 
         with xr.open_dataset(fpath, decode_times=False) as ds:
             n_episodes_monthly = len(ds.time) // (dt*12)
@@ -60,15 +60,15 @@ def split_climate(time_step,
                 episode_int  = np.repeat(list(range(n_episodes_monthly)), dt*12)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_monthly)
                 episode = np.hstack([episode_int, episode_rest])
-                loggging.debug('Number of climate episodes (monthly): %d' % n_episodes_monthly)
+                logging.debug('Number of climate episodes (monthly): %d' % n_episodes_monthly)
             else:
                 episode_int  = np.repeat(list(range(n_episodes_daily)), dt*365)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_daily)
                 episode = np.hstack([episode_int, episode_rest])
-                loggging.debug('Number of climate episodes (daily): %d' % n_episodes_daily)
+                logging.debug('Number of climate episodes (daily): %d' % n_episodes_daily)
 
             ds['grouper'] = xr.DataArray(episode, coords=[('time', ds.time.values)])
-            loggging.info('Splitting file %s' % ds_file)
+            logging.info('Splitting file %s' % ds_file)
 
             for g_cnt, ds_grp in tqdm(ds.groupby(ds.grouper)):
                 del ds_grp['grouper']
@@ -90,23 +90,23 @@ def split_climate(time_step,
         
     # copy co2 file
     src = os.path.join(ds_path, co2_file) if ds_path else co2_file
-    loggging.debug('co2_path: %s' % ds_path) 
+    logging.debug('co2_path: %s' % ds_path) 
     shutil.copyfile(src, os.path.join(dest_path, co2_file))
             
 
 def generate_landform_files(self) -> None:
-    loggging.info('Convert landlab netcdf data to lfdata fromat')
+    logging.info('Convert landlab netcdf data to lfdata fromat')
     create_input_main()
 
 def execute_lpjguess(self) -> None:
     '''Run LPJ-Guess for one time-step'''
-    loggging.info('Execute LPJ-Guess run')
+    logging.info('Execute LPJ-Guess run')
     p = subprocess.call([self._binpath, '-input', 'sp', 'lpjguess.ins'], cwd=self._dest)
     #p.wait()
 
 def move_state(self) -> None:
     '''Move state dumpm files into loaddir for next timestep'''
-    loggging.info('Move state to loaddir')
+    logging.info('Move state to loaddir')
     state_files = glob.glob(os.path.join(self._dest, 'dumpdir_eor/*'))
     for state_file in state_files:
         shutil.copy(state_file, os.path.join(self._dest, 'loaddir'))
@@ -115,10 +115,10 @@ def move_state(self) -> None:
         shutil.copy(state_file, os.path.join('tmp.state'))
 
 def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None) -> None:
-    loggging.debug('Prepare file structure')
-    loggging.debug('Dest: %s' % dest)
+    logging.debug('Prepare file structure')
+    logging.debug('Dest: %s' % dest)
     if os.path.isdir(dest):
-        loggging.fatal('Destination folder exists...')
+        logging.fatal('Destination folder exists...')
         exit(-1)
         #time.sleep(3)
         #shutil.rmtree(dest)
@@ -133,8 +133,8 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
 
 def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
         input_name:str, time_step:str, calendar_year:int, dt:int) -> None:
-    loggging.debug('Prepare input')
-    loggging.debug('dest: %s' % dest)
+    logging.debug('Prepare input')
+    logging.debug('dest: %s' % dest)
     
     prepare_filestructure(dest, template_path)
 
@@ -149,7 +149,7 @@ def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
 def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
     """Prepare files specific to this dt run"""
     # fill template files with per-run data:
-    loggging.warn('REPEATING SPINUP FOR EACH DT !!!')
+    logging.warn('REPEATING SPINUP FOR EACH DT !!!')
     restart = '0' if step_counter == 0 else '1'
     #restart = '0'
 
