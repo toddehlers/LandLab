@@ -33,14 +33,6 @@ from lpjguesstools.lgt_createinput.main import define_landform_classes, \
 from lpjguesstools.lgt_createinput import _xr_tile
 from lpjguesstools.lgt_createinput import _xr_geo
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-log.addHandler(ch)
-
 class Bunch(object):
     """Simple data storage class."""
     def __init__(self, adict):
@@ -92,8 +84,8 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     files_grabbed = []
     for files in types:
         files_grabbed.extend(glob.glob(os.path.join(ll_inpath, files)))
-    log.warn(files_grabbed) 
-    log.warn(ll_inpath)
+    loggging.warn(files_grabbed) 
+    loggging.warn(ll_inpath)
     # get global attributes (lat, lon, classification)
     # check that classifiaction match
     coordinates = []
@@ -112,12 +104,12 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
             
             valid_files.append(file)
         else:
-            log.warn(f"File {file} does not conform to the format convention. Check global attributes.")
+            loggging.warn(f"File {file} does not conform to the format convention. Check global attributes.")
     
     if len(set(classifications)) != 1 or len(set(ele_steps)) != 1:
-        log.error("Classification attributes differ. Check files.")
-        log.error(f"classification: {classifications}")
-        log.error(f"ele_steps: {ele_steps}")            
+        loggging.error("Classification attributes differ. Check files.")
+        loggging.error(f"classification: {classifications}")
+        loggging.error(f"ele_steps: {ele_steps}")            
         exit(-1)
         
     return (classifications[0].upper(), ele_steps[0], valid_files, coordinates)
@@ -141,7 +133,7 @@ def extract_variables_from_landlab_ouput(ll_file):
 
     for map in mapper:
         if map not in ds_ll.data_vars:
-            log.error(f'DataArray {map} missing in LandLab file {ll_file}.')
+            loggging.error(f'DataArray {map} missing in LandLab file {ll_file}.')
             exit(-1)
 
     # copy data arrays to new file, squeeze, and rename with mapper
@@ -174,10 +166,10 @@ def main():
     #LPJGUESS_INPUT_PATH = os.path.join(os.environ.get('LPJGUESS_INPUT_PATH', 'run'), 'input', 'lfdata')
     LPJGUESS_INPUT_PATH = './temp_lpj/input/lfdata'
 
-    log.debug(f'SOIL_NC: {SOIL_NC}')
-    log.debug(f'ELEV_NC: {ELEVATION_NC}')
-    log.debug(f'LL_PATH: {LANDLAB_OUTPUT_PATH}')
-    log.debug(f'LPJ_PATH: {LPJGUESS_INPUT_PATH}')
+    loggging.debug(f'SOIL_NC: {SOIL_NC}')
+    loggging.debug(f'ELEV_NC: {ELEVATION_NC}')
+    loggging.debug(f'LL_PATH: {LANDLAB_OUTPUT_PATH}')
+    loggging.debug(f'LPJ_PATH: {LPJGUESS_INPUT_PATH}')
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
@@ -193,7 +185,7 @@ def main():
     df_frac, df_elev, df_slope, df_asp_slope, df_aspect, df_soildepth = compute_statistics_landlab(landlab_files, list_coords)
 
     # build netcdfs
-    log.info("Building 2D netCDF files")
+    loggging.info("Building 2D netCDF files")
 
     simulation_domain = derive_region(list_coords)
     sitenc = build_site_netcdf(SOIL_NC, ELEVATION_NC, extent=simulation_domain)
@@ -224,7 +216,7 @@ def main():
                          format='NETCDF4_CLASSIC')
 
     # convert to compressed netcdf format
-    log.info("Building compressed format netCDF files")
+    loggging.info("Building compressed format netCDF files")
     ids_2d, comp_sitenc = build_compressed(sitenc)
     ids_2db, comp_landformnc = build_compressed(landformnc)
 
@@ -238,11 +230,11 @@ def main():
                           format='NETCDF4_CLASSIC')
 
     # gridlist file
-    log.info("Creating gridlist file")
+    loggging.info("Creating gridlist file")
     gridlist = create_gridlist(ids_2d)
     open(os.path.join(cfg.OUTDIR, cfg.GRIDLIST_TXT), 'w').write(gridlist)
 
-    log.info("Done")
+    loggging.info("Done")
 
 if __name__ == '__main__':
     main()

@@ -17,22 +17,6 @@ from typing import Dict, List, Optional
 # should be refactored into this script
 from .create_input_for_lpjguess import main as create_input_main
 
-
-# logging setup
-logPath = '.'
-fileName = 'dynveg_lpjguess'
-
-FORMAT="%(levelname).1s %(asctime)s %(filename)s:%(lineno)s - %(funcName).15s :: %(message)s"
-logging.basicConfig(
-    level=logging.DEBUG,
-    format = FORMAT,
-    handlers=[
-        logging.FileHandler("{0}/{1}.log".format(logPath, fileName)),
-        logging.StreamHandler()
-    ])
-
-log = logging.getLogger(__name__)
-
 def add_time_attrs(ds, calendar_year=0):
     ds['time'].attrs['units'] = "days since 1-1-15 00:00:00" 
     ds['time'].attrs['axis'] = "T" 
@@ -43,7 +27,7 @@ def add_time_attrs(ds, calendar_year=0):
 
 def fill_template(template: str, data: Dict[str, str]) -> str:
     """Fill template file with specific data from dict"""
-    log.debug('Fill LPJ-GUESS ins template')
+    loggging.debug('Fill LPJ-GUESS ins template')
     with open( template, 'rU' ) as f:
         src = Template( f.read() )
     return src.substitute(data)
@@ -57,13 +41,13 @@ def split_climate(time_step,
                   dest_path:Optional[str]=None) -> None: 
     """Split climte files into dt-length chunks"""
 
-    log.debug('ds_path: %s' % ds_path)
-    log.debug('dest_path: %s' % dest_path)
-    log.debug(ds_files)
+    loggging.debug('ds_path: %s' % ds_path)
+    loggging.debug('dest_path: %s' % dest_path)
+    loggging.debug(ds_files)
 
     for ds_file in ds_files:
         fpath = os.path.join(ds_path, ds_file) if ds_path else ds_file
-        log.debug(fpath)
+        loggging.debug(fpath)
 
         with xr.open_dataset(fpath, decode_times=False) as ds:
             n_episodes_monthly = len(ds.time) // (dt*12)
@@ -76,15 +60,15 @@ def split_climate(time_step,
                 episode_int  = np.repeat(list(range(n_episodes_monthly)), dt*12)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_monthly)
                 episode = np.hstack([episode_int, episode_rest])
-                log.debug('Number of climate episodes (monthly): %d' % n_episodes_monthly)
+                loggging.debug('Number of climate episodes (monthly): %d' % n_episodes_monthly)
             else:
                 episode_int  = np.repeat(list(range(n_episodes_daily)), dt*365)
                 episode_rest = np.repeat(episode_int[-1] + 1 , n_rest_daily)
                 episode = np.hstack([episode_int, episode_rest])
-                log.debug('Number of climate episodes (daily): %d' % n_episodes_daily)
+                loggging.debug('Number of climate episodes (daily): %d' % n_episodes_daily)
 
             ds['grouper'] = xr.DataArray(episode, coords=[('time', ds.time.values)])
-            log.info('Splitting file %s' % ds_file)
+            loggging.info('Splitting file %s' % ds_file)
 
             for g_cnt, ds_grp in tqdm(ds.groupby(ds.grouper)):
                 del ds_grp['grouper']
@@ -106,23 +90,23 @@ def split_climate(time_step,
         
     # copy co2 file
     src = os.path.join(ds_path, co2_file) if ds_path else co2_file
-    log.debug('co2_path: %s' % ds_path) 
+    loggging.debug('co2_path: %s' % ds_path) 
     shutil.copyfile(src, os.path.join(dest_path, co2_file))
             
 
 def generate_landform_files(self) -> None:
-    log.info('Convert landlab netcdf data to lfdata fromat')
+    loggging.info('Convert landlab netcdf data to lfdata fromat')
     create_input_main()
 
 def execute_lpjguess(self) -> None:
     '''Run LPJ-Guess for one time-step'''
-    log.info('Execute LPJ-Guess run')
+    loggging.info('Execute LPJ-Guess run')
     p = subprocess.call([self._binpath, '-input', 'sp', 'lpjguess.ins'], cwd=self._dest)
     #p.wait()
 
 def move_state(self) -> None:
     '''Move state dumpm files into loaddir for next timestep'''
-    log.info('Move state to loaddir')
+    loggging.info('Move state to loaddir')
     state_files = glob.glob(os.path.join(self._dest, 'dumpdir_eor/*'))
     for state_file in state_files:
         shutil.copy(state_file, os.path.join(self._dest, 'loaddir'))
@@ -131,10 +115,10 @@ def move_state(self) -> None:
         shutil.copy(state_file, os.path.join('tmp.state'))
 
 def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None) -> None:
-    log.debug('Prepare file structure')
-    log.debug('Dest: %s' % dest)
+    loggging.debug('Prepare file structure')
+    loggging.debug('Dest: %s' % dest)
     if os.path.isdir(dest):
-        log.fatal('Destination folder exists...')
+        loggging.fatal('Destination folder exists...')
         exit(-1)
         #time.sleep(3)
         #shutil.rmtree(dest)
@@ -149,8 +133,8 @@ def prepare_filestructure(dest:str,template_path:str,  source:Optional[str]=None
 
 def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
         input_name:str, time_step:str, calendar_year:int, dt:int) -> None:
-    log.debug('Prepare input')
-    log.debug('dest: %s' % dest)
+    loggging.debug('Prepare input')
+    loggging.debug('dest: %s' % dest)
     
     prepare_filestructure(dest, template_path)
 
@@ -165,7 +149,7 @@ def prepare_input(dest:str, co2_file:str,  template_path:str, forcings_path,
 def prepare_runfiles(self, step_counter:int, ins_file:str, input_name:str, co2_file:str) -> None:
     """Prepare files specific to this dt run"""
     # fill template files with per-run data:
-    log.warn('REPEATING SPINUP FOR EACH DT !!!')
+    loggging.warn('REPEATING SPINUP FOR EACH DT !!!')
     restart = '0' if step_counter == 0 else '1'
     #restart = '0'
 
@@ -261,13 +245,3 @@ DynVeg_LpjGuess.generate_landform_files = generate_landform_files
 DynVeg_LpjGuess.execute_lpjguess = execute_lpjguess
 DynVeg_LpjGuess.move_state = move_state
 
-#TODO: Check if you need this shit!
-#if __name__ == '__main__':
-#    # silence debug logging by setup loglevel to INFO here
-#    logging.getLogger().setLevel(logging.INFO)
-#    log.info('DynVeg LPJ-Guess Component')
-#    DT = 100
-#    component = DynVeg_LpjGuess(LPJGUESS_INPUT_PATH)
-#
-#    for i in range(2):
-#        component.run_one_step(dt=DT)
