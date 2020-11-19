@@ -210,7 +210,7 @@ def import_evapo_trans_area(grid, filename):
 def import_npp(grid, filename):
     import_csv_data(grid, filename, "net_primary_productivity")
 
-def lpj_import_run_one_step(grid, vegi_mapping_method):
+def lpj_import_one_step(grid, vegi_mapping_method):
     """
     main function for input_conversion to be called from landlab driver file
     """

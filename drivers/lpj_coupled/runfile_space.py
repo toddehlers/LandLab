@@ -31,7 +31,7 @@ from landlab.components import DynVeg_LpjGuess
 from landlab import imshow_grid
 from landlab.components import landformClassifier
 #coupling-specific
-from create_input_for_landlab import lpj_import_run_one_step
+from create_input_for_landlab import lpj_import_one_step
 from create_all_landforms import create_all_landforms
 from netcdf_exporter import NetCDFExporter
 from lpj_debug import LPJDebug
@@ -315,7 +315,7 @@ while elapsed_time < totalT:
             lpj.run_one_step(counter, dt)
 
             #import lpj lai and precipitation data
-            lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
             lpj_dbg.copy_temp_lpj(elapsed_time)
             netcdf_export.write(mg, elapsed_time)
 
@@ -332,7 +332,7 @@ while elapsed_time < totalT:
 
         if lpj_coupled in ["yes", "on", "true"]:
             #import lpj lai and precipitation data
-            lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
