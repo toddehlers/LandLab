@@ -1,10 +1,9 @@
-import numpy as np
-import pandas as pd
 import logging
 
-"""
-set of scripts which makes post-processed lpj-output landlab compatible
-"""
+import numpy as np
+import pandas as pd
+
+# set of scripts which makes post-processed lpj-output landlab compatible
 
 NODE_STR = "node"
 YEAR_STR = "Year"
@@ -16,7 +15,7 @@ def _calc_fpc(lai):
     """Calculate FPC using the LPJ-GUESS method
 
     """
-    return (1.0 - np.exp(-0.5 * lai))
+    return 1.0 - np.exp(-0.5 * lai)
 
 def map_data_per_landform_on_grid(grid, data_array, data_name):
     data_grid = np.zeros(np.shape(grid.at_node[data_name]))
@@ -48,14 +47,14 @@ def map_vegi_per_landform_on_grid(grid, vegi_array):
 # bigger grids, this would be important.
 
 def process_vegetation_data(data, index_cols, other_cols):
-    data_filtered = data[index_cols + other_cols].groupby(index_cols, sort = False).mean()
-    fpc_data = data_filtered.apply(_calc_fpc, 1).sum(axis = 1)
+    data_filtered = data[index_cols + other_cols].groupby(index_cols, sort=False).mean()
+    fpc_data = data_filtered.apply(_calc_fpc, 1).sum(axis=1)
     fpc_data = fpc_data.reset_index().set_index(index_cols)
-    fpc_data = fpc_data.mean(level = 1).T
+    fpc_data = fpc_data.mean(level=1).T
 
-    lai_data = data_filtered.sum(axis = 1)
+    lai_data = data_filtered.sum(axis=1)
     lai_data = lai_data.reset_index().set_index(index_cols)
-    lai_data = lai_data.mean(level = 1).T
+    lai_data = lai_data.mean(level=1).T
 
     return (fpc_data.to_records(), lai_data.to_records())
 
@@ -78,8 +77,8 @@ def import_vegetation(grid, vegi_mapping_method, filename):
 
 
     if vegi_mapping_method == "individual":
-        tree_cols = ["TeBE_tm","TeBE_itm","TeBE_itscl","TeBS_itm","TeNE","BBS_itm","BBE_itm"]
-        shrub_cols = ["BE_s","TeR_s","TeE_s"]
+        tree_cols = ["TeBE_tm", "TeBE_itm", "TeBE_itscl", "TeBS_itm", "TeNE", "BBS_itm", "BBE_itm"]
+        shrub_cols = ["BE_s", "TeR_s", "TeE_s"]
         grass_cols = ["C3G"]
 
         (tree_fpc, tree_lai) = process_vegetation_data(csv_data, index_cols, tree_cols)
@@ -99,8 +98,8 @@ def import_vegetation(grid, vegi_mapping_method, filename):
         if "shrub_lai" not in grid.keys(NODE_STR):
             grid.add_zeros(NODE_STR, "shrub_lai")
 
-        grid.at_node["shrub_fpc"]  = map_vegi_per_landform_on_grid(grid, shrub_fpc)
-        grid.at_node["shrub_lai"]  = map_vegi_per_landform_on_grid(grid, shrub_lai)
+        grid.at_node["shrub_fpc"] = map_vegi_per_landform_on_grid(grid, shrub_fpc)
+        grid.at_node["shrub_lai"] = map_vegi_per_landform_on_grid(grid, shrub_lai)
 
         if "grass_fpc" not in grid.keys(NODE_STR):
             grid.add_zeros(NODE_STR, "grass_fpc")
@@ -111,21 +110,21 @@ def import_vegetation(grid, vegi_mapping_method, filename):
         grid.at_node["grass_lai"] = map_vegi_per_landform_on_grid(grid, grass_lai)
 
 
-def import_csv_data(grid, filename, data_name, factor = None):
-    csv_data = pd.read_table(filename, delim_whitespace = True)
+def import_csv_data(grid, filename, data_name, factor=None):
+    csv_data = pd.read_table(filename, delim_whitespace=True)
 
     month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(",")
     index_cols = [YEAR_STR, STAND_STR]
 
     filtered_data = csv_data[index_cols + month_cols][csv_data.Stand > 0]
-    filtered_data["Annual"] = filtered_data[month_cols].sum(axis = 1)
+    filtered_data["Annual"] = filtered_data[month_cols].sum(axis=1)
 
     cleared_data = filtered_data.drop(columns=month_cols).set_index(index_cols)
 
     if factor:
-        final_data = cleared_data.mean(level = 1).T / factor
+        final_data = cleared_data.mean(level=1).T / factor
     else:
-        final_data = cleared_data.mean(level = 1).T
+        final_data = cleared_data.mean(level=1).T
 
     if data_name not in grid.keys(NODE_STR):
         grid.add_zeros(NODE_STR, data_name)
@@ -143,7 +142,7 @@ def import_radiation(grid, filename):
 
 def import_co2(grid, filename):
     co2_name = "co2"
-    csv_data = pd.read_table(filename, delim_whitespace = True)
+    csv_data = pd.read_table(filename, delim_whitespace=True)
     co2_values = csv_data[co2_name]
     co2_value = co2_values.mean()
 
@@ -165,7 +164,7 @@ def import_fire(grid, filename):
     and averaged per landform__ID.
     """
     try:
-        data = pd.read_table(filename, delim_whitespace = True)
+        data = pd.read_table(filename, delim_whitespace=True)
         data = data[data.Stand > 0]
 
         assert len(data[["Lon", "Lat"]].drop_duplicates()) == 1, "Data must not contain more than one (Lat, Lon) combination: {}".format(filename)
@@ -173,14 +172,14 @@ def import_fire(grid, filename):
         baf_name = "burned_area_frac"
 
         data[baf_name] = 1.0 / data.FireRT # convert return time back into burned area fraction
-        data_mean = data[[STAND_STR, baf_name]].groupby(STAND_STR, sort = False).mean() # average burned area over years and patches
+        data_mean = data[[STAND_STR, baf_name]].groupby(STAND_STR, sort=False).mean() # average burned area over years and patches
 
         if baf_name not in grid.keys(NODE_STR):
             grid.add_zeros(NODE_STR, baf_name)
 
         grid.at_node[baf_name] = map_data_per_landform_on_grid(grid, data_mean.T.to_records(), baf_name)
     except FileNotFoundError:
-        logging.error("Could not open file '{}' for burned_area values".format(filename))
+        logging.error("Could not open file '%s' for burned_area values", filename)
 
 def import_runoff(grid, filename):
     import_csv_data(grid, filename, "runoff")
@@ -195,11 +194,11 @@ def import_evapo_trans_area(grid, filename):
 
     total_col = [TOTAL_STR]
 
-    data_filtered = csv_data[index_cols + total_col].groupby(index_cols, sort = False).mean()
+    data_filtered = csv_data[index_cols + total_col].groupby(index_cols, sort=False).mean()
 
-    et_area = data_filtered.sum(axis = 1)
+    et_area = data_filtered.sum(axis=1)
     et_area = et_area.reset_index().set_index(index_cols)
-    et_area = et_area.mean(level = 1).T
+    et_area = et_area.mean(level=1).T
 
     et_name = "evapo_trans_area"
 
