@@ -311,12 +311,13 @@ while elapsed_time < totalT:
         if elapsed_time == 0:
             #create all possible landform__ID's in here ONCE before lpjguess is called
             create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
-            netcdf_export.write(mg, elapsed_time)
 
             lpj.run_one_step(counter, dt)
+
             #import lpj lai and precipitation data
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
             lpj_dbg.copy_temp_lpj(elapsed_time)
+            netcdf_export.write(mg, elapsed_time)
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
