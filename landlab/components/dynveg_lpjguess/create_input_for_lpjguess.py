@@ -9,14 +9,13 @@
 # Christian Werner (christian.werner@senckenberg.de)
 # 2018-08-02
 
-from collections import OrderedDict
-import logging
-import math
-import numpy as np
 import glob
 import os
 import sys
+import logging
+import math
 from typing import List, Tuple
+import numpy as np
 
 import pandas as pd
 import xarray as xr
@@ -29,17 +28,12 @@ from lpjguesstools.lgt_createinput.main import define_landform_classes, \
                                                mask_dataset, \
                                                build_compressed, \
                                                create_gridlist
-
-from lpjguesstools.lgt_createinput import _xr_tile
-from lpjguesstools.lgt_createinput import _xr_geo
-
-class Bunch(object):
+class Bunch:
     """Simple data storage class."""
     def __init__(self, adict):
         self.__dict__.update(adict)
     def overwrite(self, adict):
         self.__dict__.update(adict)
-
 
 def compute_statistics_landlab(list_ds, list_coords):
     tiles_stats = []
@@ -49,10 +43,10 @@ def compute_statistics_landlab(list_ds, list_coords):
         number_of_ids = len(lf_stats)
         lat, lon = coord
 
-        coord_tuple = (round(lon,2),round(lat,2), int(number_of_ids))
+        coord_tuple = (round(lon, 2), round(lat, 2), int(number_of_ids))
         lf_stats['coord'] = pd.Series([coord_tuple for _ in range(len(lf_stats))])
         lf_stats.set_index(['coord', 'lf_id'], inplace=True)
-        tiles_stats.append( lf_stats )
+        tiles_stats.append(lf_stats)
 
     df = pd.concat(tiles_stats)
     df = df.drop_duplicates()
@@ -84,40 +78,40 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     files_grabbed = []
     for files in types:
         files_grabbed.extend(glob.glob(os.path.join(ll_inpath, files)))
-    logging.warn(files_grabbed) 
-    logging.warn(ll_inpath)
+    logging.warning(files_grabbed)
+    logging.warning(ll_inpath)
     # get global attributes (lat, lon, classification)
     # check that classifiaction match
     coordinates = []
     classifications = []
     valid_files = []
     ele_steps = []
-    
+
     for file in files_grabbed:
         ds = xr.open_dataset(file)
         attrs = ds.attrs
 
-        if {'lgt.lon', 'lgt.lat', 'lgt.classification', 'lgt.elevation_step'}.issubset( set(attrs.keys() )):
+        if {'lgt.lon', 'lgt.lat', 'lgt.classification', 'lgt.elevation_step'}.issubset(set(attrs.keys())):
             coordinates.append((attrs['lgt.lat'], attrs['lgt.lon']))
             classifications.append(attrs['lgt.classification'])
             ele_steps.append(attrs['lgt.elevation_step'])
-            
+
             valid_files.append(file)
         else:
-            logging.warn(f"File {file} does not conform to the format convention. Check global attributes.")
-    
+            logging.warning("File %s does not conform to the format convention. Check global attributes.", file)
+
     if len(set(classifications)) != 1 or len(set(ele_steps)) != 1:
         logging.error("Classification attributes differ. Check files.")
-        logging.error(f"classification: {classifications}")
-        logging.error(f"ele_steps: {ele_steps}")            
+        logging.error("classification: %s", classifications)
+        logging.error("ele_steps: %d", ele_steps)
         exit(-1)
-        
+
     return (classifications[0].upper(), ele_steps[0], valid_files, coordinates)
-    
+
 
 def extract_variables_from_landlab_ouput(ll_file):
     """Extract 2d data from raw LandLab output and convert to
-    lpjguesstool intermediate format. 
+    lpjguesstool intermediate format.
     """
     # simple rename
     mapper = {'topographic__elevation' : 'elevation',
@@ -131,9 +125,9 @@ def extract_variables_from_landlab_ouput(ll_file):
 
     ds_ll = xr.open_dataset(ll_file)
 
-    for map in mapper:
-        if map not in ds_ll.data_vars:
-            logging.error(f'DataArray {map} missing in LandLab file {ll_file}.')
+    for _map in mapper:
+        if _map not in ds_ll.data_vars:
+            logging.error('DataArray %s missing in LandLab file %s.', _map. ll_file)
             exit(-1)
 
     # copy data arrays to new file, squeeze, and rename with mapper
@@ -166,18 +160,18 @@ def main():
     #LPJGUESS_INPUT_PATH = os.path.join(os.environ.get('LPJGUESS_INPUT_PATH', 'run'), 'input', 'lfdata')
     LPJGUESS_INPUT_PATH = './temp_lpj/input/lfdata'
 
-    logging.debug(f'SOIL_NC: {SOIL_NC}')
-    logging.debug(f'ELEV_NC: {ELEVATION_NC}')
-    logging.debug(f'LL_PATH: {LANDLAB_OUTPUT_PATH}')
-    logging.debug(f'LPJ_PATH: {LPJGUESS_INPUT_PATH}')
+    logging.debug('SOIL_NC: %s', SOIL_NC)
+    logging.debug('ELEV_NC: %s', ELEVATION_NC)
+    logging.debug('LL_PATH: %s', LANDLAB_OUTPUT_PATH)
+    logging.debug('LPJ_PATH: %s', LPJGUESS_INPUT_PATH)
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
     lf_classes, lf_ele_levels = define_landform_classes(int(ele_step), 6000, TYPE=classification)
 
     # config object / totally overkill here but kept for consistency
-    cfg = Bunch(dict(OUTDIR=LPJGUESS_INPUT_PATH, 
-                     CLASSIFICATION=classification, 
+    cfg = Bunch(dict(OUTDIR=LPJGUESS_INPUT_PATH,
+                     CLASSIFICATION=classification,
                      GRIDLIST_TXT='lpj2ll_gridlist.txt'))
 
     landlab_files = [extract_variables_from_landlab_ouput(x) for x in landlab_files]
@@ -190,7 +184,7 @@ def main():
     simulation_domain = derive_region(list_coords)
     sitenc = build_site_netcdf(SOIL_NC, ELEVATION_NC, extent=simulation_domain)
 
-    df_dict = dict(frac_lf=df_frac, elev_lf=df_elev, slope_lf=df_slope, 
+    df_dict = dict(frac_lf=df_frac, elev_lf=df_elev, slope_lf=df_slope,
                    asp_slope_lf=df_asp_slope, aspect_lf=df_aspect, soildepth_lf=df_soildepth)
 
     landformnc = build_landform_netcdf(lf_classes, df_dict, cfg, lf_ele_levels, refnc=sitenc)
@@ -218,7 +212,6 @@ def main():
     # convert to compressed netcdf format
     logging.info("Building compressed format netCDF files")
     ids_2d, comp_sitenc = build_compressed(sitenc)
-    ids_2db, comp_landformnc = build_compressed(landformnc)
 
     # write netcdf files
     ids_2d.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_land_ids_2d.nc"),
