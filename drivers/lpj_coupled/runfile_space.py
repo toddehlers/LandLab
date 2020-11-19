@@ -4,6 +4,18 @@ Derived from the messy thing I produced to glue/patch the model together.
 """
 
 ## Import necessary Python and Landlab Modules
+
+
+import time
+import logging
+import os.path
+import random
+import configparser
+
+from matplotlib import pyplot as plt
+from matplotlib import rcParams
+import numpy as np
+
 #basic grid setup
 from landlab import RasterModelGrid
 from landlab import CLOSED_BOUNDARY, FIXED_VALUE_BOUNDARY
@@ -11,33 +23,22 @@ from landlab import CLOSED_BOUNDARY, FIXED_VALUE_BOUNDARY
 from landlab.components.flow_routing import FlowRouter
 from landlab.components import ExponentialWeatherer
 from landlab.components import DepthDependentDiffuser
-from landlab.components import FastscapeEroder
 from landlab.components import Space
 from landlab.components import DepressionFinderAndRouter
 from landlab.components import SteepnessFinder
-from landlab.components import rainfallOscillation as ro
 from landlab.components import DynVeg_LpjGuess
 #input/output
 from landlab import imshow_grid
 from landlab.components import landformClassifier
-from landlab.io.netcdf import read_netcdf
 #coupling-specific
 from create_input_for_landlab import lpj_import_run_one_step
 from create_all_landforms import create_all_landforms
 from netcdf_exporter import NetCDFExporter
 from lpj_debug import LPJDebug
 #external modules
-from matplotlib import pyplot as plt
-from matplotlib import rcParams
+
 rcParams.update({'figure.autolayout': True})
 rcParams['agg.path.chunksize'] = 200000000
-import time
-import logging
-import numpy as np
-import os.path
-import shutil
-import configparser
-import random
 
 t0 = time.time()
 
@@ -141,13 +142,13 @@ if random_seed != "None":
 
 logging.info("finished with parameter-initiation")
 
-logging.info("Random seed numpy: {}".format(np.random.get_state()))
-logging.info("Random seed python lib: {}".format(random.getstate()))
+logging.info("Random seed numpy: %s", np.random.get_state())
+logging.info("Random seed python lib: %s", random.getstate())
 
 
 ##----------------------Grid Setup---------------------------------------------
 #This initiates a Modelgrid with dimensions nrows x ncols and spatial scaling of dx
-mg = RasterModelGrid((nrows,ncols), dx)
+mg = RasterModelGrid((nrows, ncols), dx)
 #Initate all the fields that are needed for calculations
 mg.add_zeros('node', 'topographic__elevation')
 mg.add_zeros('node', 'bedrock__elevation')
@@ -203,10 +204,10 @@ for c in boundary:
         mg.status_at_node[mg.nodes_at_top_edge] = CLOSED_BOUNDARY
         logging.info("Using closed boundary for north side")
     elif c == 'P':
-        mg.set_watershed_boundary_condition_outlet_id(0,mg['node']['topographic__elevation'],-9999)
+        mg.set_watershed_boundary_condition_outlet_id(0, mg['node']['topographic__elevation'], -9999)
         logging.info("Creating single outlet node")
     else:
-        logging.error("Unknown boundary parameter: {}".format(c))
+        logging.error("Unknown boundary parameter: %s", c)
 
 #create mask datafield which defaults to 1 to all core nodes and to 0 for
 #boundary nodes. LPJGUESS needs this
@@ -231,7 +232,7 @@ Kvs = k_sediment * Ford/Prefect
 Kvb = k_bedrock  * Ford/Prefect
 
 ##These are the calcultions to calculate the linear diffusivity based on vegis
-linDiff = mg.zeros('node', dtype = float)
+linDiff = mg.zeros('node', dtype=float)
 linDiff = linDiffBase * np.exp(-alphaDiff * vegiLinks)
 
 logging.info("finished setting up the vegetation fields and Kdiff and Kriv")
@@ -245,26 +246,23 @@ mg.at_node['rainvalue'][:] = int(baseRainfall)
 ##---------------------------------Component initialization---------------------#
 
 
-fr = FlowRouter(mg,method = 'd8', runoff_rate = baseRainfall)
+fr = FlowRouter(mg, method='d8', runoff_rate=baseRainfall)
 
 lm = DepressionFinderAndRouter(mg)
 
-expWeath = ExponentialWeatherer(mg, soil_production__maximum_rate =
-        soilProductionRate, soil_production__decay_depth = soilProductionDecayDepth)
+expWeath = ExponentialWeatherer(mg, soil_production__maximum_rate=soilProductionRate,
+    soil_production__decay_depth=soilProductionDecayDepth)
 
-sf = SteepnessFinder(mg,
-                    min_drainage_area = 1e6)
+sf = SteepnessFinder(mg, min_drainage_area=1e6)
 
-sp = Space(mg, K_sed=Kvs, K_br=Kvb,
-           F_f=Ff, phi=phi, H_star=Hstar, v_s=vs, m_sp=m, n_sp=n,
-           sp_crit_sed=sp_crit_sedi, sp_crit_br=sp_crit_bedrock,
-           solver = solver)
+sp = Space(mg, K_sed=Kvs, K_br=Kvb, F_f=Ff, phi=phi, H_star=Hstar, v_s=vs, m_sp=m, n_sp=n,
+           sp_crit_sed=sp_crit_sedi, sp_crit_br=sp_crit_bedrock, solver=solver)
 
 lc = landformClassifier(mg)
 
 DDdiff = DepthDependentDiffuser(mg,
-            linear_diffusivity = linDiff,
-            soil_transport_decay_depth = 2)
+            linear_diffusivity=linDiff,
+            soil_transport_decay_depth=2)
 
 lpj = DynVeg_LpjGuess(LPJGUESS_TIME_INTERVAL,
                     LPJGUESS_INPUT_PATH,
@@ -291,8 +289,8 @@ while elapsed_time < totalT:
     #Call the erosion routines.
     fr.run_one_step()
     lm.map_depressions()
-    floodedNodes = np.where(lm.flood_status==3)[0]
-    sp.run_one_step(dt = dt, flooded_nodes = floodedNodes)
+    floodedNodes = np.where(lm.flood_status == 3)[0]
+    sp.run_one_step(dt=dt, flooded_nodes=floodedNodes)
 
     #fetch the nodes where space eroded the bedrock__elevation over topographic__elevation
     #after conversation with charlie shobe:
@@ -306,7 +304,7 @@ while elapsed_time < totalT:
     DDdiff.run_one_step(dt=dt)
 
     #run the landform classifier
-    lc.run_one_step(elevationStepBin, 300, classtype = classificationType)
+    lc.run_one_step(elevationStepBin, 300, classtype=classificationType)
 
     #run lpjguess once at the beginning and then each timestep after the spinup.
     if elapsed_time < spin_up:
@@ -321,7 +319,7 @@ while elapsed_time < totalT:
             lpj_dbg.copy_temp_lpj(elapsed_time)
 
             #reinitialize the flow router
-            fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
+            fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
     elif elapsed_time >= spin_up:
         #reset counter to 1, to get right position in climate file
@@ -336,7 +334,7 @@ while elapsed_time < totalT:
             lpj_import_run_one_step(mg, LPJGUESS_VEGI_MAPPING)
 
             #reinitialize the flow router
-            fr = FlowRouter(mg, method = 'd8', runoff_rate = mg.at_node['precipitation'])
+            fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
         if len(debug_output) > 0:
             if elapsed_time >= debug_output[0]:
@@ -356,7 +354,7 @@ while elapsed_time < totalT:
 
     #Calculate median soil-depth
     for ids in np.unique(mg.at_node['landform__ID'][:]):
-        _soilIDS = np.where(mg.at_node['landform__ID']==ids)
+        _soilIDS = np.where(mg.at_node['landform__ID'] == ids)
         mg.at_node['median_soil__depth'][_soilIDS] = np.median(mg.at_node['soil__depth'][_soilIDS])
 
     #Calculate dhdt and E
@@ -371,16 +369,16 @@ while elapsed_time < totalT:
     linDiff = linDiffBase*np.exp(-alphaDiff * vegiLinks)
     #reinitalize Diffuser
     DDdiff = DepthDependentDiffuser(mg,
-            linear_diffusivity = linDiff,
-            soil_transport_decay_depth = soilProductionDecayDepth)
+            linear_diffusivity=linDiff,
+            soil_transport_decay_depth=soilProductionDecayDepth)
 
     #update K_sp
     #after the first-timestep there is LPJ information about phenologic groups so now use them instead of total vegetation-cover
     if LPJGUESS_VEGI_MAPPING == "individual":
         n_grass_fpc = nGrass * (mg.at_node['grass_fpc'] / vRef)**w
-        n_tree_fpc  = nTree  * (mg.at_node['tree_fpc']  / vRef)**w
+        n_tree_fpc = nTree  * (mg.at_node['tree_fpc']  / vRef)**w
         n_shrub_fpc = nShrub * (mg.at_node['shrub_fpc'] / vRef)**w
-        n_total  = (nSoil + n_tree_fpc + n_shrub_fpc + n_grass_fpc)
+        n_total = (nSoil + n_tree_fpc + n_shrub_fpc + n_grass_fpc)
         n_v_frac = n_total
     elif LPJGUESS_VEGI_MAPPING == "cumulative":
         n_v_frac = nSoil + (nVRef * (mg.at_node['vegetation__density'] / vRef)) #self.vd = VARIABLE!
@@ -394,7 +392,7 @@ while elapsed_time < totalT:
     sp.K_sed = Kvs
     sp.K_bed = Kvb
     #write the erodibility values in an grid-field. This is not used for calculations, just for visualiziation afterwards.
-    mg.at_node['fluvial_erodibility__soil']    = Kvs
+    mg.at_node['fluvial_erodibility__soil'] = Kvs
     mg.at_node['fluvial_erodibility__bedrock'] = Kvb
 
     #increment counter
@@ -402,24 +400,24 @@ while elapsed_time < totalT:
 
 
     #Run the output loop every outInt-times
-    if elapsed_time % outInt  == 0:
-        logging.info('Elapsed Time: {}, writing output!'.format(elapsed_time))
+    if elapsed_time % outInt == 0:
+        logging.info('Elapsed Time: %d, writing output!', elapsed_time)
         ##Create DEM
         plt.figure()
-        #imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation',cmap='terrain')
-        imshow_grid(mg,'topographic__elevation',grid_units=['m','m'],var_name = 'Elevation [m]',cmap='terrain', plot_name='Time: {} [kyrs]'.format(elapsed_time / 1000))
+        imshow_grid(mg, 'topographic__elevation', grid_units=['m', 'm'], var_name='Elevation [m]',
+            cmap='terrain', plot_name='Time: {} [kyrs]'.format(elapsed_time / 1000))
         plt.savefig('./ll_output/DEM/DEM__{}.png'.format(elapsed_time))
         plt.close()
         ##Create Bedrock Elevation Map
         plt.figure()
-        imshow_grid(mg,'bedrock__elevation', grid_units=['m','m'], var_name = 'bedrock', cmap='jet')
+        imshow_grid(mg, 'bedrock__elevation', grid_units=['m', 'm'], var_name='bedrock', cmap='jet')
         plt.savefig('./ll_output/BED/BED__{}.png'.format(elapsed_time))
         plt.close()
         ##Create Slope - Area Map
         plt.figure()
         plt.loglog(mg.at_node['drainage_area'][np.where(mg.at_node['drainage_area'] > 0)],
            mg.at_node['topographic__steepest_slope'][np.where(mg.at_node['drainage_area'] > 0)],
-           marker='.',linestyle='None')
+           marker='.', linestyle='None')
         plt.xlabel('Area')
         plt.ylabel('Slope')
         plt.savefig('./ll_output/SA/SA__{}.png'.format(elapsed_time))
@@ -429,29 +427,27 @@ while elapsed_time < totalT:
 
         ##Create erosion_diffmaps
         plt.figure()
-        imshow_grid(mg,erosionMatrix,grid_units=['m','m'],var_name='Erosion m/yr',cmap='jet',limits=[DHDTLowLim,DHDTHighLim])
+        imshow_grid(mg, erosionMatrix, grid_units=['m', 'm'], var_name='Erosion m/yr', cmap='jet', limits=[DHDTLowLim, DHDTHighLim])
         plt.savefig('./ll_output/DHDT/eMap__{}.png'.format(elapsed_time))
         plt.close()
 
         ##Create Soil Depth Maps
         plt.figure()
-        imshow_grid(mg,'soil__depth',grid_units=['m','m'],var_name=
-                'Elevation',cmap='terrain', limits = [0, 1.5])
+        imshow_grid(mg, 'soil__depth', grid_units=['m', 'm'], var_name='Elevation', cmap='terrain', limits=[0, 1.5])
         plt.savefig('./ll_output/SoilDepth/SD__{}.png'.format(elapsed_time))
         plt.close()
         #Create SoilProd Maps
         plt.figure()
-        imshow_grid(mg,'soil_production__rate')
+        imshow_grid(mg, 'soil_production__rate')
         plt.savefig('./ll_output/SoilP/SoilP__{}.png'.format(elapsed_time))
         plt.close()
         #create Vegi_Density maps
         plt.figure()
-        imshow_grid(mg, 'vegetation__density', limits = [0,1])
+        imshow_grid(mg, 'vegetation__density', limits=[0, 1])
         plt.savefig('./ll_output/Veg/vegidensity__{}.png'.format(elapsed_time))
         plt.close()
 
 
     elapsed_time += dt #update elapsed time
 tE = time.time()
-logging.info('End of  Main Loop. So far it took {}s to get here. No worries homeboy...'.format(tE-t0))
-
+logging.info('End of  Main Loop. So far it took %s s to get here', tE-t0)
