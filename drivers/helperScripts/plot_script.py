@@ -6,11 +6,11 @@ import glob
 import configparser
 import logging
 import numpy as np
+import netCDF4
+from tqdm import tqdm
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import netCDF4
-from tqdm import tqdm
 
 class SimData:
     def __init__(self):
@@ -56,62 +56,73 @@ class SimData:
         self.plot_end = 0
         self.plot_time_type = "Normal"
 
-    def append(self, p, data):
-        if p == "elapsed_time":
+        # Misc
+        self.max_elevation = None
+        self.min_elevation = None
+        self.max_erosion = None
+        self.min_erosion = None
+        self.time_label = None
+        self.title = None
+        self.sup_title = None
+        self.time_label = None
+
+
+    def append(self, p_, data):
+        if p_ == "elapsed_time":
             self.elapsed_time.append(data / 1000)
-        elif p == "topographic__elevation":
+        elif p_ == "topographic__elevation":
             self.topo_mean.append(data)
-        elif p == "erosion__rate":
+        elif p_ == "erosion__rate":
             self.eros_mean.append(data * 1000)
-        elif p == "co2":
+        elif p_ == "co2":
             self.co2_mean.append(data)
-        elif p == "sediment__flux":
+        elif p_ == "sediment__flux":
             self.sedi_mean.append(data)
-        elif p == "precipitation":
+        elif p_ == "precipitation":
             self.prec_mean.append(data)
-        elif p == "soil__depth":
+        elif p_ == "soil__depth":
             self.soil_mean.append(data)
-        elif p == "temperature":
+        elif p_ == "temperature":
             self.temperature_mean.append(data)
-        elif p == "vegetation__density":
+        elif p_ == "vegetation__density":
             self.vegi_mean_fpc.append(data * 100)
-        elif p == "vegetation__density_lai":
+        elif p_ == "vegetation__density_lai":
             self.vegi_mean_lai.append(data)
-        elif p == "tree_fpc":
+        elif p_ == "tree_fpc":
             self.tree_mean_fpc.append(data * 100)
-        elif p == "tree_lai":
+        elif p_ == "tree_lai":
             self.tree_mean_lai.append(data)
-        elif p == "shrub_fpc":
+        elif p_ == "shrub_fpc":
             self.shrub_mean_fpc.append(data * 100)
-        elif p == "shrub_lai":
+        elif p_ == "shrub_lai":
             self.shrub_mean_lai.append(data)
-        elif p == "grass_fpc":
+        elif p_ == "grass_fpc":
             self.grass_mean_fpc.append(data * 100)
-        elif p == "grass_lai":
+        elif p_ == "grass_lai":
             self.grass_mean_lai.append(data)
-        elif p == "burned_area_frac":
+        elif p_ == "burned_area_frac":
             self.burned_area_frac.append(data * 100) # convert to %
-        elif p == "runoff":
+        elif p_ == "runoff":
             self.runoff_mean.append(data)
-        elif p == "evapo_trans_soil":
+        elif p_ == "evapo_trans_soil":
             self.evapo_trans_soil.append(data)
-        elif p == "evapo_trans_area":
+        elif p_ == "evapo_trans_area":
             self.evapo_trans_area.append(data)
-        elif p == "net_primary_productivity":
+        elif p_ == "net_primary_productivity":
             self.net_primary_productivity.append(data)
         else:
-            print("Unknown parameter: {}".format(p))
+            print("Unknown parameter: {}".format(p_))
             sys.exit(1)
 
-    def set_uplift_rate(self, uplift_rate):
-        self.uplift_rate = uplift_rate * 1000
+    def set_uplift_rate(self, uplift_rate_):
+        self.uplift_rate = uplift_rate_ * 1000
 
-    def set_node_spacing(self, node_spacing):
+    def set_node_spacing(self, node_spacing_):
         # Convert from [m] to [km]
-        self.node_spacing = node_spacing / 1000.0
+        self.node_spacing = node_spacing_ / 1000.0
 
-    def set_num_of_nodes(self, num_of_nodes):
-        self.num_of_nodes = num_of_nodes - 1.0
+    def set_num_of_nodes(self, num_of_nodes_):
+        self.num_of_nodes = num_of_nodes_ - 1.0
 
     def set_map_elevation1(self, map_elevation):
         self.map_elevation1 = map_elevation
@@ -139,7 +150,7 @@ class SimData:
             right_end = self.elapsed_time[-1]
             self.elapsed_time = [abs(t - right_end) for t in self.elapsed_time]
         else:
-            self.time_tabel = "Unknown"
+            self.time_label = "Unknown"
 
     def set_title(self, title, sup_title):
         self.title = title
@@ -152,22 +163,22 @@ class SimData:
 
     def plot(self, ax, data, ylabel):
         ax.plot(self.elapsed_time, data)
-        ax.set_ylabel(ylabel, fontsize = self.fontsize_label, color = self.color)
-        ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
-        ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax.set_ylabel(ylabel, fontsize=self.fontsize_label, color=self.color)
+        ax.xaxis.set_tick_params(labelsize=self.fontsize_ticks)
+        ax.yaxis.set_tick_params(labelsize=self.fontsize_ticks)
 
     def plot_image(self, ax, image_data, color_map, cbar_label, vmin, vmax):
         end = self.num_of_nodes * self.node_spacing
         extent = (0, end, 0, end)
 
-        img = ax.imshow(image_data, cmap = color_map, vmin = vmin, vmax = vmax, extent = extent, origin = "lower")
+        img = ax.imshow(image_data, cmap=color_map, vmin=vmin, vmax=vmax, extent=extent, origin="lower")
 
         cbar = ax.figure.colorbar(img, ax=ax, fraction=0.045)
-        cbar.ax.set_ylabel(cbar_label, fontsize = self.fontsize_label, color = self.color)
-        cbar.ax.tick_params(labelsize = self.fontsize_ticks)
+        cbar.ax.set_ylabel(cbar_label, fontsize=self.fontsize_label, color=self.color)
+        cbar.ax.tick_params(labelsize=self.fontsize_ticks)
 
-        ax.xaxis.set_tick_params(labelsize = self.fontsize_ticks)
-        ax.yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax.xaxis.set_tick_params(labelsize=self.fontsize_ticks)
+        ax.yaxis.set_tick_params(labelsize=self.fontsize_ticks)
 
         #ax.invert_yaxis()
         #ax.axis("tight")
@@ -179,102 +190,102 @@ class SimData:
         self.plot_image(ax, data, "hot", "erosion rate [$mm/yr$]", self.min_erosion, self.max_erosion)
 
     def plot1(self, filename):
-        fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
+        fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
 
-        ax[0,0].plot(self.elapsed_time, self.prec_mean)
-        ax[0,0].plot(self.elapsed_time, self.temperature_mean, color = "red")
-        ax[0,0].text(-0.15, 0.5, "prec. [$cm/yr$]", color = "tab:blue", fontsize = self.fontsize_label,
-            rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
-        ax[0,0].text(-0.1, 0.5, "temp. [$°C$]", color = "red", fontsize = self.fontsize_label,
-            rotation = "vertical", transform = ax[0,0].transAxes, verticalalignment = "center")
-        ax[0,0].xaxis.set_tick_params(labelsize = self.fontsize_ticks)
-        ax[0,0].yaxis.set_tick_params(labelsize = self.fontsize_ticks)
+        ax[0, 0].plot(self.elapsed_time, self.prec_mean)
+        ax[0, 0].plot(self.elapsed_time, self.temperature_mean, color="red")
+        ax[0, 0].text(-0.15, 0.5, "prec. [$cm/yr$]", color="tab:blue", fontsize=self.fontsize_label,
+            rotation="vertical", transform=ax[0, 0].transAxes, verticalalignment="center")
+        ax[0, 0].text(-0.1, 0.5, "temp. [$°C$]", color="red", fontsize=self.fontsize_label,
+            rotation="vertical", transform=ax[0, 0].transAxes, verticalalignment="center")
+        ax[0, 0].xaxis.set_tick_params(labelsize=self.fontsize_ticks)
+        ax[0, 0].yaxis.set_tick_params(labelsize=self.fontsize_ticks)
 
-        self.plot(ax[0,1], self.eros_mean, "erosion rate [$mm/yr$]")
-        self.plot(ax[1,0], self.co2_mean, "CO2 [$ppm$]")
-        self.plot(ax[1,1], self.sedi_mean, "sedi mean [$m^3/s$]")
-        self.plot(ax[2,0], self.soil_mean, "soil thickness [$m$]")
-        self.plot(ax[2,1], self.tree_mean_fpc, "tree FPC mean [%]")
-        self.plot(ax[3,0], self.grass_mean_fpc, "grass FPC mean [%]")
-        self.plot(ax[3,1], self.shrub_mean_fpc, "shrub FPC mean [%]")
+        self.plot(ax[0, 1], self.eros_mean, "erosion rate [$mm/yr$]")
+        self.plot(ax[1, 0], self.co2_mean, "CO2 [$ppm$]")
+        self.plot(ax[1, 1], self.sedi_mean, "sedi mean [$m^3/s$]")
+        self.plot(ax[2, 0], self.soil_mean, "soil thickness [$m$]")
+        self.plot(ax[2, 1], self.tree_mean_fpc, "tree FPC mean [%]")
+        self.plot(ax[3, 0], self.grass_mean_fpc, "grass FPC mean [%]")
+        self.plot(ax[3, 1], self.shrub_mean_fpc, "shrub FPC mean [%]")
 
-        uplift_rate = [self.uplift_rate for i in self.elapsed_time]
-        ax[0,1].plot(self.elapsed_time, uplift_rate, color = "red", linestyle = "--")
+        uplift_rate_ = [self.uplift_rate for i in self.elapsed_time]
+        ax[0, 1].plot(self.elapsed_time, uplift_rate_, color="red", linestyle="--")
 
-        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
+        ax[3, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
 
         if self.plot_time_type == "LGM":
-            ax[0,0].invert_xaxis()
+            ax[0, 0].invert_xaxis()
 
-        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize=self.fontsize_label)
 
-        plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, dpi = self.dpi)
+        plt.tight_layout(rect=self.rect)
+        plt.savefig(filename, dpi=self.dpi)
 
     def plot2(self, filename):
-        fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
+        fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
 
-        self.plot(ax[0,0], self.burned_area_frac, "burned area [%]")
-        self.plot(ax[0,1], self.vegi_mean_fpc, "vegi FPC mean [%]")
-        self.plot(ax[1,0], self.eros_mean, "erosion rate [$mm/yr$]")
-        self.plot(ax[1,1], self.vegi_mean_lai, "vegi LAI mean")
-        self.plot(ax[2,0], self.topo_mean, "mean elevation [$m$]")
-        self.plot(ax[2,1], self.tree_mean_lai, "tree LAI mean")
-        self.plot(ax[3,0], self.grass_mean_lai, "grass LAI mean")
-        self.plot(ax[3,1], self.shrub_mean_lai, "shrub LAI mean")
+        self.plot(ax[0, 0], self.burned_area_frac, "burned area [%]")
+        self.plot(ax[0, 1], self.vegi_mean_fpc, "vegi FPC mean [%]")
+        self.plot(ax[1, 0], self.eros_mean, "erosion rate [$mm/yr$]")
+        self.plot(ax[1, 1], self.vegi_mean_lai, "vegi LAI mean")
+        self.plot(ax[2, 0], self.topo_mean, "mean elevation [$m$]")
+        self.plot(ax[2, 1], self.tree_mean_lai, "tree LAI mean")
+        self.plot(ax[3, 0], self.grass_mean_lai, "grass LAI mean")
+        self.plot(ax[3, 1], self.shrub_mean_lai, "shrub LAI mean")
 
-        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
+        ax[3, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
 
         if self.plot_time_type == "LGM":
-            ax[0,0].invert_xaxis()
+            ax[0, 0].invert_xaxis()
 
-        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize=self.fontsize_label)
 
-        plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, dpi = self.dpi)
+        plt.tight_layout(rect=self.rect)
+        plt.savefig(filename, dpi=self.dpi)
 
     def plot3(self, filename):
-        fig, ax = plt.subplots(4,2, figsize = self.figsize, sharex = True)
+        fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
 
-        self.plot(ax[0,0], self.runoff_mean, "runoff [?]")
-        self.plot(ax[0,1], self.net_primary_productivity, "net primary productivity [?]")
-        self.plot(ax[1,0], self.evapo_trans_soil, "evapo_trans_soil [?]")
-        self.plot(ax[1,1], self.evapo_trans_area, "evapo_trans_mean [?]")
+        self.plot(ax[0, 0], self.runoff_mean, "runoff [?]")
+        self.plot(ax[0, 1], self.net_primary_productivity, "net primary productivity [?]")
+        self.plot(ax[1, 0], self.evapo_trans_soil, "evapo_trans_soil [?]")
+        self.plot(ax[1, 1], self.evapo_trans_area, "evapo_trans_mean [?]")
 
-        ax[3,0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
-        ax[3,1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize = self.fontsize_label, color = self.color)
+        ax[3, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
+        ax[3, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
 
         if self.plot_time_type == "LGM":
-            ax[0,0].invert_xaxis()
+            ax[0, 0].invert_xaxis()
 
-        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize=self.fontsize_label)
 
-        plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, dpi = self.dpi)
+        plt.tight_layout(rect=self.rect)
+        plt.savefig(filename, dpi=self.dpi)
 
     def plot4(self, filename):
-        fig, ax = plt.subplots(2,2, figsize = self.figsize, sharex = True, sharey = True)
+        fig, ax = plt.subplots(2, 2, figsize=self.figsize, sharex=True, sharey=True)
 
-        self.plot_elevation(ax[0,0], self.map_elevation1)
-        self.plot_elevation(ax[1,0], self.map_elevation2)
-        self.plot_erosion_rate(ax[0,1], self.map_erosion_rate1)
-        self.plot_erosion_rate(ax[1,1], self.map_erosion_rate2)
+        self.plot_elevation(ax[0, 0], self.map_elevation1)
+        self.plot_elevation(ax[1, 0], self.map_elevation2)
+        self.plot_erosion_rate(ax[0, 1], self.map_erosion_rate1)
+        self.plot_erosion_rate(ax[1, 1], self.map_erosion_rate2)
 
-        ax[0,0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[0]), fontsize = self.fontsize_label)
-        ax[1,0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[-1]), fontsize = self.fontsize_label)
+        ax[0, 0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[0]), fontsize=self.fontsize_label)
+        ax[1, 0].set_title("{}: {:.2f} [$kyr$]".format(self.time_label, self.elapsed_time[-1]), fontsize=self.fontsize_label)
 
-        ax[1,0].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
-        ax[1,1].set_xlabel("X($km$)", fontsize = self.fontsize_label, color = self.color)
+        ax[1, 0].set_xlabel("X($km$)", fontsize=self.fontsize_label, color=self.color)
+        ax[1, 1].set_xlabel("X($km$)", fontsize=self.fontsize_label, color=self.color)
 
-        ax[0,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
-        ax[1,0].set_ylabel("Y($km$)", fontsize = self.fontsize_label, color = self.color)
+        ax[0, 0].set_ylabel("Y($km$)", fontsize=self.fontsize_label, color=self.color)
+        ax[1, 0].set_ylabel("Y($km$)", fontsize=self.fontsize_label, color=self.color)
 
-        fig.suptitle(self.sup_title, fontsize = self.fontsize_label)
+        fig.suptitle(self.sup_title, fontsize=self.fontsize_label)
 
-        plt.tight_layout(rect = self.rect)
-        plt.savefig(filename, dpi = self.dpi)
+        plt.tight_layout(rect=self.rect)
+        plt.savefig(filename, dpi=self.dpi)
 
     def debug_output(self):
         print("elapsed_time: {}".format(len(self.elapsed_time)))
@@ -312,7 +323,7 @@ if __name__ == "__main__":
         print("plot_start: {} >= plot_end: {} ".format(plot_start, plot_end))
         sys.exit(1)
 
-    logging.debug("plot_start: {}, plot_end: {}, spin_up: {}".format(plot_start, plot_end, spin_up))
+    logging.debug("plot_start: %f, plot_end: %f, spin_up: %f", plot_start, plot_end, spin_up)
 
     sim_data = SimData()
 
@@ -325,7 +336,7 @@ if __name__ == "__main__":
     num_of_nodes = float(config["Grid"]["ncols"])
     sim_data.set_num_of_nodes(num_of_nodes)
 
-    logging.debug("uplift_rate: {}, node_spacing: {}, num_of_nodes: {}".format(uplift_rate, node_spacing, num_of_nodes))
+    logging.debug("uplift_rate: %f, node_spacing: %f, num_of_nodes: %f", uplift_rate, node_spacing, num_of_nodes)
 
     all_files = glob.glob("ll_output/NC/*.nc")
     time_and_names = ((extract_time(name), name) for name in all_files)
@@ -345,16 +356,16 @@ if __name__ == "__main__":
 
         sim_data.append("elapsed_time", elapsed_time)
 
-        logging.debug("elapsed_time: {}, nc_file: {}".format(elapsed_time, nc_file))
+        logging.debug("elapsed_time: %d, nc_file: %s", elapsed_time, nc_file)
 
         for p in nc_data.variables:
-            logging.debug("parameter: {}".format(p))
+            logging.debug("parameter: %s", p)
             parameter_data = nc_data.variables[p][:][0]
             # delete boundary nodes
-            parameter_data = np.delete(parameter_data, 0 , axis = 0)
-            parameter_data = np.delete(parameter_data, -1 , axis = 0)
-            parameter_data = np.delete(parameter_data, 0 , axis = 1)
-            parameter_data = np.delete(parameter_data, -1 , axis = 1)
+            parameter_data = np.delete(parameter_data, 0, axis=0)
+            parameter_data = np.delete(parameter_data, -1, axis=0)
+            parameter_data = np.delete(parameter_data, 0, axis=1)
+            parameter_data = np.delete(parameter_data, -1, axis=1)
 
             sim_data.append(p, np.mean(parameter_data))
 
@@ -365,7 +376,7 @@ if __name__ == "__main__":
 
     file_type = config["Plot"].get("plot_file_type", "png")
 
-    logging.debug("plot_title: {}, plot_sup_title: {}, file_type: {}".format(plot_title, plot_sup_title, file_type))
+    logging.debug("plot_title: %s, plot_sup_title: %s, file_type: %s", plot_title, plot_sup_title, file_type)
 
     sim_data.set_plot_time_type("Normal")
     sim_data.plot1("overview1_elapsed_time.{}".format(file_type))
@@ -378,4 +389,3 @@ if __name__ == "__main__":
     sim_data.plot2("overview2_time_before_pd.{}".format(file_type))
     sim_data.plot3("overview3_time_before_pd.{}".format(file_type))
     sim_data.plot4("overview4_time_before_pd.{}".format(file_type))
-
