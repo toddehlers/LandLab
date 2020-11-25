@@ -359,15 +359,17 @@ if __name__ == "__main__":
         logging.debug("elapsed_time: %d, nc_file: %s", elapsed_time, nc_file)
 
         for p in nc_data.variables:
-            logging.debug("parameter: %s", p)
-            parameter_data = nc_data.variables[p][:][0]
-            # delete boundary nodes
-            parameter_data = np.delete(parameter_data, 0, axis=0)
-            parameter_data = np.delete(parameter_data, -1, axis=0)
-            parameter_data = np.delete(parameter_data, 0, axis=1)
-            parameter_data = np.delete(parameter_data, -1, axis=1)
+            logging.debug("parameter: %s, shape: %s", p, p.shape)
 
-            sim_data.append(p, np.mean(parameter_data))
+            if p.shape == (1, num_of_nodes, num_of_nodes):
+                parameter_data = nc_data.variables[p][:][0]
+                # delete boundary nodes
+                parameter_data = np.delete(parameter_data, 0, axis=0)
+                parameter_data = np.delete(parameter_data, -1, axis=0)
+                parameter_data = np.delete(parameter_data, 0, axis=1)
+                parameter_data = np.delete(parameter_data, -1, axis=1)
+
+                sim_data.append(p, np.mean(parameter_data))
 
 
     plot_title = config["Plot"].get("plot_title", "")
