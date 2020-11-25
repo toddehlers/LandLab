@@ -1,61 +1,47 @@
 import xarray as xr
+import logging
+
 import numpy as np
-from statistics import mean
 
-df = xr.open_dataset('Nahuelbuta_TraCE21ka_prec.nc', decode_times=False)['prec'][:].to_dataframe()
-print(df)
+YEAR_IN_DAYS = 365.2425
+# YEAR_IN_DAYS = 362.40
+YEARS_100 = YEAR_IN_DAYS * 100.0
 
-ds = xr.open_dataset(f"Nahuelbuta_TraCE21ka_prec.nc", decode_times=False)
-print("Mean of precipitation : " , np.mean(ds.prec))
+class SimulationData:
+    def __init__(self, filename, parameter):
+        self.filename = filename
+        self.parameter = parameter
+        self.ds = xr.open_dataset(self.filename, decode_times=False)
+        self.data = self.ds.variables[parameter]
+        self.days = self.ds.variables["time"]
 
-prec = ds.variables['prec']
-day = ds.variables['time']
-dayid = (day >=0 ) & (day <=36240 )
-precN = prec[:]
-precN = precN[:, dayid]
-precN_1 = precN
-print ("100 years LGM precipitation: ", np.mean(precN_1))
+        logging.info("Mean of '%s': %f", self.parameter, np.mean(self.data))
 
-dayid = (day >=8008329 ) & (day <=8044569 )
-precN = prec[:]
-precN = precN[:, dayid]
-precN_1 = precN
-print ("Last 100 years precipitation: ", np.mean(precN_1))
+    def avg_intervall(self, first_day, last_day):
+        duration = last_day - first_day
+        dayid = (self.days >= first_day) & (self.days <= last_day)
+        logging.info("Average over %.0f days (%.0f years) for '%s': %f (first: %.0f)", duration, duration / YEAR_IN_DAYS,
+            self.parameter, np.mean(self.data[:, dayid]), first_day)
 
+    def avg_first_100_years(self):
+        self.avg_intervall(0, YEARS_100)
 
+    def avg_last_100_years(self):
+        last = self.days[-1].item()
+        self.avg_intervall(last - YEARS_100, last)
 
-ds = xr.open_dataset(f"Nahuelbuta_TraCE21ka_temp.nc", decode_times=False)
-print("Mean of tenperature : " , np.mean(ds.temp))
+    def avg_first_and_last(self):
+        self.avg_first_100_years()
+        self.avg_last_100_years()
 
-temp = ds.variables['temp']
-day = ds.variables['time']
-dayid = (day >=0 ) & (day <=36240 )
-tempN = temp[:]
-tempN = tempN[:, dayid]
-tempN_1 = tempN
-print ("100 years LGM temperature: ", np.mean(tempN_1))
+if __name__ == "__main__":
+    logging.basicConfig(filename="average.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-dayid = (day >=8008329 ) & (day <=8044569 )
-tempN = temp[:]
-tempN = tempN[:, dayid]
-tempN_1 = tempN
-print ("Last 100 years temperature: ", np.mean(tempN_1))
+    sd = SimulationData("Nahuelbuta_TraCE21ka_prec.nc", "prec")
+    sd.avg_first_and_last()
 
+    sd = SimulationData("Nahuelbuta_TraCE21ka_temp.nc", "temp")
+    sd.avg_first_and_last()
 
-
-ds = xr.open_dataset(f"Nahuelbuta_TraCE21ka_rad.nc", decode_times=False)
-print("Mean of radiation : " , np.mean(ds.rad))
-
-rad = ds.variables['rad']
-day = ds.variables['time']
-dayid = (day >=0 ) & (day <=36240 )
-radN = rad[:]
-radN = radN[:, dayid]
-radN_1 = radN
-print ("100 years LGM radiation: ", np.mean(radN_1))
-
-dayid = (day >=8008329 ) & (day <=8044569 )
-radN = rad[:]
-radN = radN[:, dayid]
-radN_1 = radN
-print ("Last 100 years radiation: ", np.mean(radN_1))
+    sd = SimulationData("Nahuelbuta_TraCE21ka_rad.nc", "rad")
+    sd.avg_first_and_last()
