@@ -1,6 +1,6 @@
-import xarray as xr
 import logging
 
+import xarray as xr
 import numpy as np
 
 YEAR_IN_DAYS = 365.2425
@@ -30,7 +30,7 @@ class SimulationData:
         last = self.days[-1].item()
         self.avg_intervall(last - YEARS_100, last)
 
-    def avg_first_and_last(self):
+    def avg_first_and_last_100_years(self):
         self.avg_first_100_years()
         self.avg_last_100_years()
 
@@ -38,10 +38,10 @@ if __name__ == "__main__":
     logging.basicConfig(filename="average.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     sd = SimulationData("Nahuelbuta_TraCE21ka_prec.nc", "prec")
-    sd.avg_first_and_last()
+    sd.avg_first_and_last_100_years()
 
     sd = SimulationData("Nahuelbuta_TraCE21ka_temp.nc", "temp")
-    sd.avg_first_and_last()
+    sd.avg_first_and_last_100_years()
 
     sd = SimulationData("Nahuelbuta_TraCE21ka_rad.nc", "rad")
-    sd.avg_first_and_last()
+    sd.avg_first_and_last_100_years()
