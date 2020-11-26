@@ -78,8 +78,8 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     files_grabbed = []
     for files in types:
         files_grabbed.extend(glob.glob(os.path.join(ll_inpath, files)))
-    logging.warning(files_grabbed)
-    logging.warning(ll_inpath)
+    logging.debug("files_grabbed: %s", files_grabbed)
+    logging.debug("ll_inpath: %s", ll_inpath)
     # get global attributes (lat, lon, classification)
     # check that classifiaction match
     coordinates = []
