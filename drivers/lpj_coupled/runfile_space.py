@@ -117,7 +117,13 @@ LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
 LPJGUESS_CALENDAR_YEAR = int(config['LPJ']['LPJGUESS_CALENDAR_YEAR'])
 lpj_output = config['LPJ']['lpj_output']
-lpj_coupled = config['LPJ']['lpj_coupled'].lower()
+lpj_coupled = config['LPJ']['lpj_coupled'].lower() in ["yes", "on", "true"]
+lpj_coupled_intervall = 50000
+if 'lpj_coupled_intervall' in config['LPJ']:
+    lpj_coupled_intervall = int(config['LPJ']['lpj_coupled_intervall'])
+lpj_coupled_duration = 100
+if 'lpj_coupled_duration' in config['LPJ']:
+    lpj_coupled_duration = int(config['LPJ']['lpj_coupled_duration'])
 
 outInt = int(config['Output']['outIntSpinUp'])
 
@@ -281,6 +287,7 @@ lpj_dbg = LPJDebug(LPJGUESS_INPUT_PATH)
 logging.info("finished with the initialization of the erosion components")
 elapsed_time = 0
 counter = 0
+spin_up_couple_time = lpj_coupled_intervall
 while elapsed_time < totalT:
 
     #create copy of "old" topography
@@ -312,7 +319,8 @@ while elapsed_time < totalT:
             #create all possible landform__ID's in here ONCE before lpjguess is called
             create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
 
-            lpj.run_one_step(counter, dt)
+            lpj.run_one_step(counter, lpj_coupled_duration)
+            counter += 1
 
             #import lpj lai and precipitation data
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
@@ -321,26 +329,35 @@ while elapsed_time < totalT:
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
+        else:
+            if elapsed_time >= spin_up_couple_time:
+                spin_up_couple_time += lpj_coupled_intervall
+                lpj.run_one_step(counter, lpj_coupled_duration)
+                counter += 1
+                if lpj_coupled:
+                    #import lpj lai and precipitation data
+                    lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
+                    #reinitialize the flow router
+                    fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
     elif elapsed_time >= spin_up:
-        #reset counter to 1, to get right position in climate file
         if elapsed_time == spin_up:
-            counter = 1
             outInt = int(config['Output']['outIntTransient'])
 
         lpj.run_one_step(counter, dt)
-
-        if lpj_coupled in ["yes", "on", "true"]:
+        counter += 1
+        if lpj_coupled:
             #import lpj lai and precipitation data
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
-        if len(debug_output) > 0:
-            if elapsed_time >= debug_output[0]:
-                debug_output.pop(0)
-                lpj_dbg.copy_temp_lpj(elapsed_time)
+    # Save all LPJ inputs and outputs if specified by the user
+    if len(debug_output) > 0:
+        if elapsed_time >= debug_output[0]:
+            debug_output.pop(0)
+            lpj_dbg.copy_temp_lpj(elapsed_time)
 
     #apply uplift
     mg.at_node['bedrock__elevation'][mg.core_nodes] += uplift_per_step
@@ -395,10 +412,6 @@ while elapsed_time < totalT:
     #write the erodibility values in an grid-field. This is not used for calculations, just for visualiziation afterwards.
     mg.at_node['fluvial_erodibility__soil'] = Kvs
     mg.at_node['fluvial_erodibility__bedrock'] = Kvb
-
-    #increment counter
-    counter += 1
-
 
     #Run the output loop every outInt-times
     if elapsed_time % outInt == 0:

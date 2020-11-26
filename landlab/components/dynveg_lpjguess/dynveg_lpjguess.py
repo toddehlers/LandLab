@@ -117,9 +117,7 @@ def prepare_input(dest: str, co2_file: str, template_path: str, forcings_path,
 
     # move this to a config or make it smarter
     variables = ['prec', 'temp', 'rad']
-    #TODO: CHANGE HARDCODING OF file_name
     ds_files = [str(input_name) + '_%s.nc' % v for v in variables]
-    #ds_files = ['coupl_%s_35ka_lcy_landid.nc' % v for v in variables]
     split_climate(time_step, ds_files, co2_file, dt, calendar_year,
         os.path.join(forcings_path, 'climdata'), os.path.join(dest, 'input', 'climdata'))
 
@@ -169,12 +167,14 @@ class DynVeg_LpjGuess(Component):
         #if len(self._timesteps) > 0:
         #    return self._timesteps[-1]
         #return None
+        # TODO: change this
         len(self._timesteps)
 
 
     @property
     def elapsed(self):
         '''Total sim time elapsed'''
+        # TODO: change this
         return sum(self._timesteps)
 
     def run_one_step(self, step_counter, dt: int = 100) -> None:
