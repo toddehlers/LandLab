@@ -42,6 +42,8 @@ def split_climate(time_step,
                   dest_path: Optional[str] = None) -> None:
     """Split climte files into dt-length chunks"""
 
+    # TODO: This is broken for variable dt and must be fixed!
+
     logging.debug('ds_path: %s', ds_path)
     logging.debug('dest_path: %s', dest_path)
     logging.debug(ds_files)
