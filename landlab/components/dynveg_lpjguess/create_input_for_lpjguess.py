@@ -103,7 +103,7 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     if len(set(classifications)) != 1 or len(set(ele_steps)) != 1:
         logging.error("Classification attributes differ. Check files.")
         logging.error("classification: %s", classifications)
-        logging.error("ele_steps: %d", ele_steps)
+        logging.error("ele_steps: %s", ele_steps)
         exit(-1)
 
     return (classifications[0].upper(), ele_steps[0], valid_files, coordinates)
