@@ -12,8 +12,12 @@ import os.path
 import random
 import configparser
 
-from matplotlib import pyplot as plt
 from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+rcParams['agg.path.chunksize'] = 200000000
+
+from matplotlib import pyplot as plt
+
 import numpy as np
 
 #basic grid setup
@@ -37,8 +41,6 @@ from netcdf_exporter import NetCDFExporter
 from lpj_debug import LPJDebug
 #external modules
 
-rcParams.update({'figure.autolayout': True})
-rcParams['agg.path.chunksize'] = 200000000
 
 t0 = time.time()
 
