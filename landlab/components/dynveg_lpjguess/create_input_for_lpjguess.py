@@ -236,15 +236,18 @@ def main():
     # convert to compressed netcdf format
     logging.info("Building compressed format netCDF files")
     ids_2d, comp_sitenc = build_compressed(sitenc)
+    ids_2db, comp_landformnc = build_compressed(landformnc)
 
     # write netcdf files
     ids_2d.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_land_ids_2d.nc"),
                      format='NETCDF4_CLASSIC')
+    ids_2db.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_land_ids_2db.nc"),
+                     format='NETCDF4_CLASSIC')
 
-    comp_landformnc.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_landform_data.nc"),
-                              format='NETCDF4_CLASSIC')
     comp_sitenc.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_site_data.nc"),
                           format='NETCDF4_CLASSIC')
+    comp_landformnc.to_netcdf(os.path.join(cfg.OUTDIR, "lpj2ll_landform_data.nc"),
+                              format='NETCDF4_CLASSIC')
 
     # gridlist file
     logging.info("Creating gridlist file")
