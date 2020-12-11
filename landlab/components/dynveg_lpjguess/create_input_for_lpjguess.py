@@ -74,6 +74,8 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     """Derive the locations and landform classification
     mode from the landlab grid files"""
 
+    logging.debug("derive_base_info")
+
     types = ('*.nc', '*.NC')
     files_grabbed = []
     for files in types:
@@ -127,7 +129,7 @@ def extract_variables_from_landlab_ouput(ll_file):
 
     for _map in mapper:
         if _map not in ds_ll.data_vars:
-            logging.error('DataArray %s missing in LandLab file %s.', _map. ll_file)
+            logging.error('DataArray %s missing in LandLab file %s.', _map, ll_file)
             exit(-1)
 
     # copy data arrays to new file, squeeze, and rename with mapper
@@ -145,6 +147,8 @@ def get_data_location(pkg, resource):
     return os.path.join(d, resource)
 
 def main():
+    logging.debug("main")
+
     # default soil and elevation data (contained in lpjguesstools package)
     SOIL_NC      = 'GLOBAL_WISESOIL_DOM_05deg.nc'
     ELEVATION_NC = 'GLOBAL_ELEVATION_05deg.nc'

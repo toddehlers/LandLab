@@ -44,7 +44,7 @@ from lpj_debug import LPJDebug
 
 t0 = time.time()
 
-logging.basicConfig(filename="landlab.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename="landlab.log", level=logging.DEBUG, format="%(asctime)s - %(filename)s - %(levelname)s - %(message)s")
 
 config = configparser.ConfigParser()
 config.read('inputFile.ini')

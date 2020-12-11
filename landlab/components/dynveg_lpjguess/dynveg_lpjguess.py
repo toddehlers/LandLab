@@ -124,6 +124,7 @@ def prepare_input(dest: str, co2_file: str, template_path: str, forcings_path,
         os.path.join(forcings_path, 'climdata'), os.path.join(dest, 'input', 'climdata'))
 
 def generate_landform_files() -> None:
+    logging.debug("generate_landform_files")
     logging.info('Convert landlab netcdf data to lfdata fromat')
     create_input_main()
 
@@ -141,6 +142,8 @@ class DynVeg_LpjGuess(Component):
      LPJGUESS_FORCINGS_STRING: str,
      LPJGUESS_CALENDAR_YEAR: int,
      dt: int):
+        logging.debug("__init__")
+
         self._spinup = True
         self._timesteps = [0]
         self._dest = LPJGUESS_INPUT_PATH
@@ -181,6 +184,7 @@ class DynVeg_LpjGuess(Component):
 
     def run_one_step(self, step_counter, dt: int = 100) -> None:
         '''Run one lpj simulation step (duration: dt)'''
+        logging.debug("run_one_step")
         self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
         generate_landform_files()
         self.execute_lpjguess()
@@ -191,6 +195,7 @@ class DynVeg_LpjGuess(Component):
 
     def prepare_runfiles(self, step_counter: int, ins_file: str, input_name: str, co2_file: str) -> None:
         """Prepare files specific to this dt run"""
+        logging.debug("prepare_runfiles")
         # fill template files with per-run data:
         restart = '0' if step_counter == 0 else '1'
 
