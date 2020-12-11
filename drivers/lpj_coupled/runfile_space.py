@@ -320,6 +320,10 @@ while elapsed_time < totalT:
         if elapsed_time == 0:
             #create all possible landform__ID's in here ONCE before lpjguess is called
             create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
+            # Output file needs to be written before lpj is started
+            # Currently some information from the output is needed as preparation
+            # for LPJGuess.
+            # TODO: Fix this!
             netcdf_export.write(mg, elapsed_time)
 
             lpj.run_one_step(counter, lpj_coupled_duration)
@@ -334,6 +338,7 @@ while elapsed_time < totalT:
         else:
             if elapsed_time >= spin_up_couple_time:
                 spin_up_couple_time += lpj_coupled_intervall
+                # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
                 netcdf_export.write(mg, elapsed_time)
                 lpj.run_one_step(counter, lpj_coupled_duration)
                 counter += 1
