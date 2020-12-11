@@ -28,6 +28,12 @@ from lpjguesstools.lgt_createinput.main import define_landform_classes, \
                                                mask_dataset, \
                                                build_compressed, \
                                                create_gridlist
+
+# extensions to xarray dataset and dataarray types
+
+from lpjguesstools.lgt_createinput import _xr_tile
+from lpjguesstools.lgt_createinput import _xr_geo
+
 class Bunch:
     """Simple data storage class."""
     def __init__(self, adict):
@@ -36,6 +42,8 @@ class Bunch:
         self.__dict__.update(adict)
 
 def compute_statistics_landlab(list_ds, list_coords):
+    logging.debug("compute_statistics_landlab")
+
     tiles_stats = []
     for ds, coord in zip(list_ds, list_coords):
         lf_stats = get_tile_summary(ds)     # no cutoff for now
@@ -171,7 +179,16 @@ def main():
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
+    logging.debug("classifiaction: %s", classification)
+    logging.debug("ele_step: %s", ele_step)
+    logging.debug("landlab_files: %s", landlab_files)
+    logging.debug("list_coords: %s", list_coords)
+
+    # TODO: Make value configurable: 6000
     lf_classes, lf_ele_levels = define_landform_classes(int(ele_step), 6000, TYPE=classification)
+
+    logging.debug("lf_classes: %s", lf_classes)
+    logging.debug("lf_ele_levels: %s", lf_ele_levels)
 
     # config object / totally overkill here but kept for consistency
     cfg = Bunch(dict(OUTDIR=LPJGUESS_INPUT_PATH,
@@ -186,6 +203,9 @@ def main():
     logging.info("Building 2D netCDF files")
 
     simulation_domain = derive_region(list_coords)
+
+    logging.debug("simulation_domain: %s", simulation_domain)
+
     sitenc = build_site_netcdf(SOIL_NC, ELEVATION_NC, extent=simulation_domain)
 
     df_dict = dict(frac_lf=df_frac, elev_lf=df_elev, slope_lf=df_slope,
