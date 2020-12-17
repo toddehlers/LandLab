@@ -12,10 +12,11 @@ import os.path
 import random
 import configparser
 
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 rcParams['agg.path.chunksize'] = 200000000
-
 from matplotlib import pyplot as plt
 
 import numpy as np

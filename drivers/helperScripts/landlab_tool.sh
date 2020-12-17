@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PYTHON_BIN=/usr/bin/python3
+TEMPLATE_DIR=/usr/local/landlab/Templates_2020_11_26
 
 if [[ -z "${LANDLABDRIVER}" ]]; then
     echo "Environment variable LANDLABDRIVER is not set"
@@ -63,16 +64,16 @@ case "$1" in
     template)
         case "$2" in
             az)
-                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateAZ .
+                cp -v -r $TEMPLATE_DIR/TemplateAZ .
             ;;
             lc)
-                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateLC .
+                cp -v -r $TEMPLATE_DIR/TemplateLC .
             ;;
             na)
-                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateNA .
+                cp -v -r $TEMPLATE_DIR/TemplateNA .
             ;;
             sg)
-                cp -v -r /usr/local/landlab/Templates_2020_07_09/TemplateSG .
+                cp -v -r $TEMPLATE_DIR/TemplateSG .
             ;;
             *)
                 echo "Unknown template"
