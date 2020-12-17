@@ -359,6 +359,9 @@ if __name__ == "__main__":
         logging.debug("elapsed_time: %d, nc_file: %s", elapsed_time, nc_file)
 
         for p in nc_data.variables:
+            if not hasattr(p, "shape"):
+                continue
+
             logging.debug("parameter: %s, shape: %s", p, p.shape)
 
             if p.shape == (1, num_of_nodes, num_of_nodes):
