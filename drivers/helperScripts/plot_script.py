@@ -65,6 +65,7 @@ class SimData:
         self.title = None
         self.sup_title = None
         self.time_label = None
+        self.unknown_params = set() # keeps track of unknown parameter names encountered
 
 
     def append(self, p_, data):
@@ -111,8 +112,11 @@ class SimData:
         elif p_ == "net_primary_productivity":
             self.net_primary_productivity.append(data)
         else:
-            print("Unknown parameter: {}".format(p_))
-            sys.exit(1)
+            if p_ not in self.unknown_params:
+                logging.warning("Ignoring unknown parameter: %s", p_)
+                self.unknown_params.add(p_)
+            else:
+                pass
 
     def set_uplift_rate(self, uplift_rate_):
         self.uplift_rate = uplift_rate_ * 1000
@@ -358,21 +362,21 @@ if __name__ == "__main__":
 
         logging.debug("elapsed_time: %d, nc_file: %s", elapsed_time, nc_file)
 
-        for p in nc_data.variables:
+        for p_name, p in nc_data.variables.items():
             if not hasattr(p, "shape"):
                 continue
 
-            logging.debug("parameter: %s, shape: %s", p, p.shape)
+            logging.debug("parameter: %s, shape: %s", p_name, p.shape)
 
             if p.shape == (1, num_of_nodes, num_of_nodes):
-                parameter_data = nc_data.variables[p][:][0]
+                parameter_data = p[:][0]
                 # delete boundary nodes
                 parameter_data = np.delete(parameter_data, 0, axis=0)
                 parameter_data = np.delete(parameter_data, -1, axis=0)
                 parameter_data = np.delete(parameter_data, 0, axis=1)
                 parameter_data = np.delete(parameter_data, -1, axis=1)
 
-                sim_data.append(p, np.mean(parameter_data))
+                sim_data.append(p_name, np.mean(parameter_data))
 
 
     plot_title = config["Plot"].get("plot_title", "")
