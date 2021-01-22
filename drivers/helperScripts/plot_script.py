@@ -295,7 +295,7 @@ def extract_time(name):
     return int(name.split("__")[1])
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="plot.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.basicConfig(filename="plot.log", level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d:%(funcName)s - %(message)s")
 
     config = configparser.ConfigParser()
     config.read("inputFile.ini")
