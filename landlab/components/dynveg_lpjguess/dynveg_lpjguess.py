@@ -144,7 +144,7 @@ class DynVeg_LpjGuess(Component):
      dt: int):
         logging.debug("__init__")
 
-        self._spinup = True
+        self._is_spinup = True
         self._timesteps = [0]
         self._dest = LPJGUESS_INPUT_PATH
         self._templatepath = LPJGUESS_INS_FILE_TPL
@@ -161,10 +161,6 @@ class DynVeg_LpjGuess(Component):
             LPJGUESS_TIME_INTERVAL,
             LPJGUESS_CALENDAR_YEAR,
             dt)
-
-    #@property
-    #def spinup(self):
-    #    return self._spinup
 
     @property
     def timestep(self):
@@ -185,12 +181,12 @@ class DynVeg_LpjGuess(Component):
     def run_one_step(self, step_counter, dt: int, is_spinup: bool) -> None:
         '''Run one lpj simulation step (duration: dt)'''
         logging.debug("run_one_step")
+        self._is_spinup = is_spinup
         self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
         generate_landform_files()
         self.execute_lpjguess()
         self.move_state()
         self._timesteps.append(dt)
-        self._is_spinup = is_spinup
 
     def prepare_runfiles(self, step_counter: int, ins_file: str, input_name: str, co2_file: str) -> None:
         """Prepare files specific to this dt run"""
