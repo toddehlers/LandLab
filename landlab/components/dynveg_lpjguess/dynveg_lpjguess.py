@@ -182,22 +182,21 @@ class DynVeg_LpjGuess(Component):
         # TODO: change this
         return sum(self._timesteps)
 
-    def run_one_step(self, step_counter, dt: int = 100) -> None:
+    def run_one_step(self, step_counter, dt: int, is_spinup: bool) -> None:
         '''Run one lpj simulation step (duration: dt)'''
         logging.debug("run_one_step")
         self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
         generate_landform_files()
         self.execute_lpjguess()
         self.move_state()
-        #if self.timestep == 0:
-        #    self._spinup = False
         self._timesteps.append(dt)
+        self._is_spinup = is_spinup
 
     def prepare_runfiles(self, step_counter: int, ins_file: str, input_name: str, co2_file: str) -> None:
         """Prepare files specific to this dt run"""
         logging.debug("prepare_runfiles")
         # fill template files with per-run data:
-        restart = '0' if step_counter == 0 else '1'
+        restart = '0' if self._is_spinup else '1'
 
         run_data = {# climate data
                     'CLIMPREC': str(input_name) + '_prec_%s.nc' % str(int(step_counter)).zfill(6),

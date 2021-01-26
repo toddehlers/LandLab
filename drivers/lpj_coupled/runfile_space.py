@@ -291,6 +291,7 @@ logging.info("finished with the initialization of the erosion components")
 elapsed_time = 0
 counter = 0
 spin_up_couple_time = lpj_coupled_intervall
+is_spinup = True
 while elapsed_time < totalT:
 
     #create copy of "old" topography
@@ -327,8 +328,7 @@ while elapsed_time < totalT:
             # TODO: Fix this!
             netcdf_export.write(mg, elapsed_time)
 
-            lpj.run_one_step(counter, lpj_coupled_duration)
-            counter += 1
+            lpj.run_one_step(counter, lpj_coupled_duration, is_spinup)
 
             #import lpj lai and precipitation data
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
@@ -341,8 +341,7 @@ while elapsed_time < totalT:
                 spin_up_couple_time += lpj_coupled_intervall
                 # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
                 netcdf_export.write(mg, elapsed_time)
-                lpj.run_one_step(counter, lpj_coupled_duration)
-                counter += 1
+                lpj.run_one_step(counter, lpj_coupled_duration, is_spinup)
                 if lpj_coupled:
                     #import lpj lai and precipitation data
                     lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
@@ -352,8 +351,9 @@ while elapsed_time < totalT:
     elif elapsed_time >= spin_up:
         if elapsed_time == spin_up:
             outInt = int(config['Output']['outIntTransient'])
+            is_spinup = False
 
-        lpj.run_one_step(counter, dt)
+        lpj.run_one_step(counter, dt, is_spinup)
         counter += 1
         if lpj_coupled:
             #import lpj lai and precipitation data
