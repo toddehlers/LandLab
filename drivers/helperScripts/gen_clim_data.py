@@ -1,16 +1,28 @@
+import itertools
+import operator
+
 import numpy as np
 import netCDF4
 
-NUM_OF_DAYS = 365 * 1000
+NUM_OF_YEARS = 22000
+NUM_OF_MONTHS = 12 * NUM_OF_YEARS
+NUM_OF_DAYS = 365 * NUM_OF_YEARS
+
+# Please set mode accordingly
+mode = "monthly"
+# mode = "daily"
+
+if mode == "monthly":
+    NUM_OF_ELEMENTS = NUM_OF_MONTHS
+elif mode == "daily":
+    NUM_OF_ELEMENTS = NUM_OF_DAYS
 
 def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_description,
              var_long_name, var_units, var_code):
     file_name = "{}_{}.nc".format(file_name_base, var_name)
     f = netCDF4.Dataset(file_name, "w", format = "NETCDF4")
 
-    num_of_elements = NUM_OF_DAYS
-
-    f.createDimension("time", num_of_elements)
+    f.createDimension("time", NUM_OF_ELEMENTS)
     f.createDimension("land_id", 1)
 
     num_type = "f8"
@@ -21,17 +33,24 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
     var_instance = f.createVariable(var_name, num_type, ("land_id", "time"))
     land_id = f.createVariable("land_id", "i8", "land_id")
 
-    time[:] = np.arange(0, num_of_elements, 1)
+    if mode == "monthly":
+        time[:] = np.arange(0, NUM_OF_ELEMENTS, 1)
+    elif mode == "daily":
+        days = itertools.cycle([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
+        days = itertools.chain([0], days)
+        days = itertools.accumulate(days, operator.add)
+        time[:] = np.array(itertools.islice(days, NUM_OF_ELEMENTS))
+
     lat[:] = np.full(1, lat_val)
     lon[:] = np.full(1, lon_val)
-    var_instance[:] = np.full(num_of_elements, var_value)
+    var_instance[:] = np.full(NUM_OF_ELEMENTS, var_value)
     land_id[:] = np.full(1, 0)
 
     time.axis = "T"
     time.standard_name = "time"
     time.long_name = "time"
     time.units = "day"
-    time.calendar = "22000 yr B.P."
+    time.calendar = "{} yr B.P.".format(NUM_OF_YEARS)
 
     lat.standard_name = "latitude"
     lat.long_name = "latitude"
@@ -58,5 +77,5 @@ def gen_data_for_location(file_name_base, lat, lon, prec, temp, rad):
 gen_data_for_location("LaCampana_LGM", lat = -32.75, lon = -71.25, prec = 0.92, temp = 284.6, rad = 249.1)
 
 with open("co2_data.txt", "w+") as f:
-    for i in range(1, NUM_OF_DAYS):
+    for i in range(1, NUM_OF_ELEMENTS):
         f.write("{} 200\n".format(i))
