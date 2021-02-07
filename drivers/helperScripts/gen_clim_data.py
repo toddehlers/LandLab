@@ -16,11 +16,13 @@ if mode == "monthly":
     NUM_OF_ELEMENTS = NUM_OF_MONTHS
 elif mode == "daily":
     NUM_OF_ELEMENTS = NUM_OF_DAYS
+else:
+    raise Exception("Unknown mode: {}".format(mode))
 
 def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_description,
              var_long_name, var_units, var_code):
     file_name = "{}_{}.nc".format(file_name_base, var_name)
-    f = netCDF4.Dataset(file_name, "w", format = "NETCDF4")
+    f = netCDF4.Dataset(file_name, "w", format = "NETCDF4") # pylint: disable=no-member
 
     f.createDimension("time", NUM_OF_ELEMENTS)
     f.createDimension("land_id", 1)
@@ -39,7 +41,9 @@ def gen_data(file_name_base, lat_val, lon_val, var_name, var_value, var_descript
         days = itertools.cycle([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
         days = itertools.chain([0], days)
         days = itertools.accumulate(days, operator.add)
-        time[:] = np.array(itertools.islice(days, NUM_OF_ELEMENTS))
+        time[:] = np.array(list(itertools.islice(days, NUM_OF_ELEMENTS)))
+    else:
+        raise Exception("Unknown mode: {}".format(mode))
 
     lat[:] = np.full(1, lat_val)
     lon[:] = np.full(1, lon_val)
