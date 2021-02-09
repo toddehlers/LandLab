@@ -20,7 +20,7 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
         4 = W
         0 = FLAT SURFACE (with TPI = 1, 4, 6)
 
-    So we need to create a list with all possible permuations ranking from
+    So we need to create a list with all possible permutations ranking from
     min_ele_ID to max_ele_ID + TPI + ASPECT
 
     """
@@ -47,5 +47,7 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
             _lf = str(ele) + j
             landform_list.append(_lf)
 
-    for lf, ind in zip(landform_list, range(len(landform_list))):
+    logging.debug("landform_list: {}".format(landform_list))
+
+    for ind, lf in enumerate(landform_list):
         grid.at_node['landform__ID'][ind] = lf
