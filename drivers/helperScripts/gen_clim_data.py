@@ -75,7 +75,7 @@ def gen_var_data(f, var_name, var_value, var_description,
     var_instance.units = var_units
     if var_code:
         var_instance.code = var_code
-    var_instance.table = "128"
+        var_instance.table = "128"
 
 
 def gen_data_for_location(file_name_base, lat, lon, prec, wet, temp, rad):
