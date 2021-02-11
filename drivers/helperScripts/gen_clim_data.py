@@ -69,7 +69,7 @@ def gen_var_data(f, var_name, var_value, var_description,
 
     var_instance = f.createVariable(var_name, num_type, ("land_id", "time"))
     var_instance[:] = np.full(NUM_OF_ELEMENTS, var_value)
-    var_instance.coordinates = "lat lon"
+    var_instance.coordinates = "lon lat"
     var_instance.standard_name = var_description
     var_instance.long_name = var_long_name
     var_instance.units = var_units
