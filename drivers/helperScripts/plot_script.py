@@ -191,7 +191,7 @@ class SimData:
         self.plot_image(ax, data, "terrain", "elevation [$m$]", self.min_elevation, self.max_elevation)
 
     def plot_erosion_rate(self, ax, data):
-        self.plot_image(ax, data, "hot", "erosion rate [$mm/yr$]", self.min_erosion, self.max_erosion)
+        self.plot_image(ax, data, "hot", "erosion rate [$mm / yr$]", self.min_erosion, self.max_erosion)
 
     def plot1(self, filename):
         fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
@@ -205,9 +205,9 @@ class SimData:
         ax[0, 0].xaxis.set_tick_params(labelsize=self.fontsize_ticks)
         ax[0, 0].yaxis.set_tick_params(labelsize=self.fontsize_ticks)
 
-        self.plot(ax[0, 1], self.eros_mean, "erosion rate [$mm/yr$]")
+        self.plot(ax[0, 1], self.eros_mean, "erosion rate [$mm / yr$]")
         self.plot(ax[1, 0], self.co2_mean, "CO2 [$ppm$]")
-        self.plot(ax[1, 1], self.sedi_mean, "sedi mean [$m^3/s$]")
+        self.plot(ax[1, 1], self.sedi_mean, "sedi mean [$m^3 / s$]")
         self.plot(ax[2, 0], self.soil_mean, "soil thickness [$m$]")
         self.plot(ax[2, 1], self.tree_mean_fpc, "tree FPC mean [%]")
         self.plot(ax[3, 0], self.grass_mean_fpc, "grass FPC mean [%]")
@@ -232,7 +232,7 @@ class SimData:
 
         self.plot(ax[0, 0], self.burned_area_frac, "burned area [%]")
         self.plot(ax[0, 1], self.vegi_mean_fpc, "vegi FPC mean [%]")
-        self.plot(ax[1, 0], self.eros_mean, "erosion rate [$mm/yr$]")
+        self.plot(ax[1, 0], self.eros_mean, "erosion rate [$mm / yr$]")
         self.plot(ax[1, 1], self.vegi_mean_lai, "vegi LAI mean")
         self.plot(ax[2, 0], self.topo_mean, "mean elevation [$m$]")
         self.plot(ax[2, 1], self.tree_mean_lai, "tree LAI mean")
@@ -253,10 +253,10 @@ class SimData:
     def plot3(self, filename):
         fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
 
-        self.plot(ax[0, 0], self.runoff_mean, "runoff [?]")
-        self.plot(ax[0, 1], self.net_primary_productivity, "net primary productivity [?]")
-        self.plot(ax[1, 0], self.evapo_trans_soil, "evapo_trans_soil [?]")
-        self.plot(ax[1, 1], self.evapo_trans_area, "evapo_trans_mean [?]")
+        self.plot(ax[0, 0], self.runoff_mean, "runoff [$mm / month$]")
+        self.plot(ax[0, 1], self.net_primary_productivity, "net primary productivity [$kgC / (m^2 month$)]")
+        self.plot(ax[1, 0], self.evapo_trans_soil, "evapo_trans_soil [$mm / month$]")
+        self.plot(ax[1, 1], self.evapo_trans_area, "evapo_trans_mean [$mm / year$]")
 
         ax[3, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
         ax[3, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
