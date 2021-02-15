@@ -60,15 +60,19 @@ def compute_statistics_landlab(list_ds, list_coords):
     df = df.drop_duplicates()
     print(df)
     frac_lf = create_stats_table(df, 'frac_scaled')
+    logging.debug("create_input_for_landlab, frac_lf: {}".format(frac_lf))
     elev_lf = create_stats_table(df, 'elevation')
+    logging.debug("create_input_for_landlab, elev_lf: {}".format(elev_lf))
     slope_lf = create_stats_table(df, 'slope')
+    logging.debug("create_input_for_landlab, slope_lf: {}".format(slope_lf))
     asp_slope_lf = create_stats_table(df, 'asp_slope')
     aspect_lf = create_stats_table(df, 'aspect')
+    logging.debug("create_input_for_landlab, aspect: {}".format(aspect_lf))
     soildepth_lf = create_stats_table(df, 'soildepth')
     return (frac_lf, elev_lf, slope_lf, asp_slope_lf, aspect_lf, soildepth_lf)
 
 def derive_region(coords):
-    """Derive bounding box for all coorinates.
+    """Derive bounding box for all coordinates.
     """
     lats, lons = zip(*coords)
     min_lat = math.floor(min(lats))
@@ -91,7 +95,7 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     logging.debug("files_grabbed: %s", files_grabbed)
     logging.debug("ll_inpath: %s", ll_inpath)
     # get global attributes (lat, lon, classification)
-    # check that classifiaction match
+    # check that classification match
     coordinates = []
     classifications = []
     valid_files = []
@@ -119,7 +123,7 @@ def derive_base_info(ll_inpath: str) -> Tuple[str, int, List[str], List[Tuple[fl
     return (classifications[0].upper(), ele_steps[0], valid_files, coordinates)
 
 
-def extract_variables_from_landlab_ouput(ll_file):
+def extract_variables_from_landlab_output(ll_file):
     """Extract 2d data from raw LandLab output and convert to
     lpjguesstool intermediate format.
     """
@@ -179,7 +183,7 @@ def main():
 
     classification, ele_step, landlab_files, list_coords = derive_base_info(LANDLAB_OUTPUT_PATH)
 
-    logging.debug("classifiaction: %s", classification)
+    logging.debug("classification: %s", classification)
     logging.debug("ele_step: %s", ele_step)
     logging.debug("landlab_files: %s", landlab_files)
     logging.debug("list_coords: %s", list_coords)
@@ -195,7 +199,7 @@ def main():
                      CLASSIFICATION=classification,
                      GRIDLIST_TXT='lpj2ll_gridlist.txt'))
 
-    landlab_files = [extract_variables_from_landlab_ouput(x) for x in landlab_files]
+    landlab_files = [extract_variables_from_landlab_output(x) for x in landlab_files]
 
     df_frac, df_elev, df_slope, df_asp_slope, df_aspect, df_soildepth = compute_statistics_landlab(landlab_files, list_coords)
 
@@ -207,6 +211,8 @@ def main():
     logging.debug("simulation_domain: %s", simulation_domain)
 
     sitenc = build_site_netcdf(SOIL_NC, ELEVATION_NC, extent=simulation_domain)
+
+    logging.debug("create_input_for_lpjguess, df_elev: {}".format(df_elev))
 
     df_dict = dict(frac_lf=df_frac, elev_lf=df_elev, slope_lf=df_slope,
                    asp_slope_lf=df_asp_slope, aspect_lf=df_aspect, soildepth_lf=df_soildepth)

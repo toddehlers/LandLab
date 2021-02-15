@@ -23,6 +23,7 @@ def map_data_per_landform_on_grid(grid, data_array, data_name):
     if data_array is not None:
         for landform in data_array.dtype.names[1:]:
             data_grid[grid.at_node[LANDFORM_ID_STR] == int(landform)] = data_array[landform]
+            logging.debug("create_input_for_landlab, landform: {}".format(landform))
 
     return data_grid
 

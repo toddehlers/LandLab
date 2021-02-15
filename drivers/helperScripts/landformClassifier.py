@@ -22,6 +22,7 @@ matplotlib.use('AGG')
 import matplotlib.pyplot as plt
 from scipy.ndimage.filters import generic_filter
 import math
+import logging
 
 class landformClassifier():
     """classify a DEM in different landform, according to slope, elevation and aspect"""
@@ -501,6 +502,7 @@ class landformClassifier():
         elif self._tpiTYPE == 'SIMPLE':
             lfClasses = [3]
 
+        lfIndex_set = set()
 
         #this whole int(str(int())) thing is probably horrible but thats what it is for now...
         #works though...
@@ -511,7 +513,9 @@ class landformClassifier():
                 lfIndex = int(str(_elevationID[i]) + str(_slopeID[i]) + str(0))
 
             self._grid.at_node['landform__ID'][i] = lfIndex
+            lfIndex_set.add(lfIndex)
 
+        logging.debug("landformClassifier.py, createLandformID(), lfIndex: {}".format(lfIndex_set))
 
     def run_one_step(self, scalefact, classtype):
             """
