@@ -60,14 +60,14 @@ def compute_statistics_landlab(list_ds, list_coords):
     df = df.drop_duplicates()
     print(df)
     frac_lf = create_stats_table(df, 'frac_scaled')
-    logging.debug("create_input_for_landlab, frac_lf: {}".format(frac_lf))
+    logging.debug("create_input_for_lpjguess, frac_lf: {}".format(frac_lf))
     elev_lf = create_stats_table(df, 'elevation')
-    logging.debug("create_input_for_landlab, elev_lf: {}".format(elev_lf))
+    logging.debug("create_input_for_lpjguess, elev_lf: {}".format(elev_lf))
     slope_lf = create_stats_table(df, 'slope')
-    logging.debug("create_input_for_landlab, slope_lf: {}".format(slope_lf))
+    logging.debug("create_input_for_lpjguess, slope_lf: {}".format(slope_lf))
     asp_slope_lf = create_stats_table(df, 'asp_slope')
     aspect_lf = create_stats_table(df, 'aspect')
-    logging.debug("create_input_for_landlab, aspect: {}".format(aspect_lf))
+    logging.debug("create_input_for_lpjguess, aspect: {}".format(aspect_lf))
     soildepth_lf = create_stats_table(df, 'soildepth')
     return (frac_lf, elev_lf, slope_lf, asp_slope_lf, aspect_lf, soildepth_lf)
 
@@ -159,7 +159,7 @@ def get_data_location(pkg, resource):
     return os.path.join(d, resource)
 
 def main():
-    logging.debug("main")
+    logging.debug("create_input_for_lpjguess.py, main")
 
     # default soil and elevation data (contained in lpjguesstools package)
     SOIL_NC      = 'GLOBAL_WISESOIL_DOM_05deg.nc'
