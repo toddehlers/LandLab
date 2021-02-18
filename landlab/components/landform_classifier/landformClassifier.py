@@ -52,7 +52,7 @@ class landformClassifier(Component):
 
         #Flags
         self._tpiTYPE = ''
-        self.isPadded = False 
+        self.isPadded = False
         #DEPRECATED
         #self.isPadded = False #flag for dem-padding
         #self.existGrid = False #flag if grid was initialised
@@ -267,11 +267,11 @@ class landformClassifier(Component):
         """
         writes aspect values to landlab-data-field
         """
-        
+
         _aspectFlat = self._aspect.flatten().astype(int)
         self._grid.at_node['aspect'] = _aspectFlat
         self._grid.at_node['aspect'][self._grid.boundary_nodes] = 0
-        
+
     def classifyAspect(self, classNum = 4):
         #print('aspect classifier was run!')
         """
@@ -356,9 +356,9 @@ class landformClassifier(Component):
                 break
 
             else:
-                raise NameError('This is not a correct argument. Check function docstring') 
+                raise NameError('This is not a correct argument. Check function docstring')
 
-            
+
 
     def calculate_tpi(self,scalefactor, res=30, return_unclassed=False, TYPE='SIMPLE'):
         """Classify DEM to tpi300 array according to Weiss 2001
@@ -434,7 +434,7 @@ class landformClassifier(Component):
         #return tpi_classes
 
     aspectLF = [2,3,5]
-            
+
 
     def writeTpiToGrid(self):
         """
@@ -464,21 +464,21 @@ class landformClassifier(Component):
         self._slope = np.degrees(np.arctan(self._grid.at_node['topographic__steepest_slope']))
         self._grid.at_node['slope_degrees'] = self._slope
         self._aspect = self._grid.calc_aspect_at_node()
-        
-        
+
+
     def createElevationID(self, dem, minimum,maximum,step):
         elevationID = np.zeros(np.shape(dem)) #creates ID array
         elevationSteps = np.arange(minimum,maximum,step) #creates elevation-step array
         counterID = 1 #starts at 1 for lowester elevation class
-    
+
         for i in elevationSteps:
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
             counterID += 1
-            
+
 
         self._elevationID = elevationID
-        self._grid.at_node['elevation__ID'] = elevationID   
+        self._grid.at_node['elevation__ID'] = elevationID
 
         return elevationID
 
@@ -488,14 +488,14 @@ class landformClassifier(Component):
 
         ID-system is:
             [elevationID, slopeID, aspectID]
-            
+
             elevationID:
                 1 = [minium:step[i]] e.g    1 = [0:200]
                                             2 = [200:400]
                                             3 = [400 : 600]
-            
+
             slopeID: TPI Slope ID, see TPI function
-            
+
             aspectID:
             right now it only works with the 4-class aspect ID system for consistency with LPJGuess
                 1 N
@@ -507,10 +507,14 @@ class landformClassifier(Component):
 
         #this is not very memory efficient and was just done for ease of coding
         #can be changed later but due to pythons fancy indexing I guess this is still
-        #ok. 
+        #ok.
         _slopeID     = self._tpiClasses.flatten().astype(int)
         _aspectID    = self._aspectClass.flatten().astype(int)
         _elevationID = self._elevationID.flatten().astype(int)
+
+        logging.debug("landformClassifier, createLandformID, _slopeID: {}".format(_slopeID))
+        logging.debug("landformClassifier, createLandformID, _aspectID: {}".format(_aspectID))
+        logging.debug("landformClassifier, createLandformID, _elevationID: {}".format(_elevationID))
 
         #check which tpi_type was used and adjust the matrix with aspect-dependend landform
 
@@ -518,6 +522,8 @@ class landformClassifier(Component):
             lfClasses = [2,3,5]
         elif self._tpiTYPE == 'SIMPLE':
             lfClasses = [3]
+
+        logging.debug("lfClasses: {}".format(lfClasses))
 
         lfIndex_set = set()
 
@@ -532,7 +538,7 @@ class landformClassifier(Component):
             self._grid.at_node['landform__ID'][i] = lfIndex
             lfIndex_set.add(lfIndex)
 
-        logging.debug("landformClassifier.py, createLandformID(), lfIndex: {}".format(lfIndex_set))
+        logging.debug("landformClassifier, createLandformID, lfIndex: {}".format(lfIndex_set))
 
     def calc_asp_slope(self):
             """
@@ -548,7 +554,7 @@ class landformClassifier(Component):
             Calls the calc_asp_slope function and writes the returned values
             back to the landlab grid
             """
-            
+
             _aspSlope = self.calc_asp_slope()
             _aspSlopeFlat = _aspSlope.flatten().astype(int)
 
@@ -559,9 +565,9 @@ class landformClassifier(Component):
             """
             Landlab style wrapper function which is to be called in the main-model-loop
 
-            inputs: 
+            inputs:
                 elevationBin : bin-size for elevation Id
-                scalefact: scalefactor for classification donut 
+                scalefact: scalefactor for classification donut
                 classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
             """
             #self.createLandlabDatafields() #moved to constructor.
@@ -576,6 +582,6 @@ class landformClassifier(Component):
             self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
             self.createLandformID()
             self.writeTpiToGrid()
-            
 
-       
+
+
