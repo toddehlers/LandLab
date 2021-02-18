@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 from landlab import Component
 from scipy.ndimage.filters import generic_filter
 import math
+import logging
 
 
 
@@ -518,6 +519,7 @@ class landformClassifier(Component):
         elif self._tpiTYPE == 'SIMPLE':
             lfClasses = [3]
 
+        lfIndex_set = set()
 
         #this whole int(str(int())) thing is probably horrible but thats what it is for now...
         #works though...
@@ -528,7 +530,9 @@ class landformClassifier(Component):
                 lfIndex = int(str(_elevationID[i]) + str(_slopeID[i]) + str(0))
 
             self._grid.at_node['landform__ID'][i] = lfIndex
+            lfIndex_set.add(lfIndex)
 
+        logging.debug("landformClassifier.py, createLandformID(), lfIndex: {}".format(lfIndex_set))
 
     def calc_asp_slope(self):
             """
