@@ -293,74 +293,64 @@ class landformClassifier(Component):
                     3.S
                     4.W
                 """
-        while True:
-            if classNum == '8':
-                #define value breaks for aspect classes
-                aspectClass = {1 : [0, 22.5],       #N
-                               2 : [22.5, 67.5],    #NE
-                               3 : [67.5,  112.6],  #E
-                               4 : [112.5, 157.6],  #SE
-                               5 : [157.5, 202.6],  #S
-                               6 : [202.5, 247.6],  #SW
-                               7 : [247.5, 292.6],  #W
-                               8 : [292.5, 337.6],  #NW
-                               9 : [337.5, 360]}    #N
 
+        #create aspectClassArray
+        #if padGrid() was run then use the padded grid, otherwise use normal grid
+        if self.isPadded:
+            _dem = self.paddedGrid
+        else:
+            _dem = self._grid
+        (rows,cols) = np.shape(_dem)
+        self._aspectClass = np.zeros((rows,cols))
 
-                #create aspectClassArray
-                #if padGrid() was run then use the padded grid, otherwise use normal grid
-                if self.isPadded == True:
-                    _dem = self.paddedGrid
-                elif self.isPadded == False:
-                    _dem = self._grid
-                (rows,cols) = np.shape(_dem)
-                self._aspectClass = np.zeros((rows,cols))
+        logging.debug("classifyAspect(), self._aspect: min: {}, max: {}".format(min(self._aspect), max(self._aspect)))
 
-                #check which node belongs to which class
-                for nrow in range(rows):
-                    for ncol in range(cols):
-                        for i,j in zip(aspectClass,aspectClass.values()):
-                            if j[0] <= self._aspect[nrow,ncol] <= j[1]:
-                                aspectC = i
-                                if aspectC == 9:
-                                    aspectC = 1
-                                self._aspectClass[nrow,ncol] = aspectC
-                break
+        if classNum == '8':
+            #define value breaks for aspect classes
+            aspectClass = {1 : [0, 22.5],       #N
+                            2 : [22.5, 67.5],    #NE
+                            3 : [67.5,  112.6],  #E
+                            4 : [112.5, 157.6],  #SE
+                            5 : [157.5, 202.6],  #S
+                            6 : [202.5, 247.6],  #SW
+                            7 : [247.5, 292.6],  #W
+                            8 : [292.5, 337.6],  #NW
+                            9 : [337.5, 360]}    #N
 
-            elif classNum == '4':
-                #define value breaks for aspect classes
-                aspectClass = {1 : [0,   45],       #N
-                               2 : [45,  135],      #E
-                               3 : [135, 225],      #S
-                               4 : [225, 315],      #W
-                               5 : [315, 360]}      #N
+            #check which node belongs to which class
+            for nrow in range(rows):
+                for ncol in range(cols):
+                    for i,j in zip(aspectClass,aspectClass.values()):
+                        if j[0] <= self._aspect[nrow,ncol] <= j[1]:
+                            aspectC = i
+                            if aspectC == 9:
+                                aspectC = 1
+                            self._aspectClass[nrow,ncol] = aspectC
 
-                #create aspectClassArray
-                #if padGrid() was run then use the padded grid, otherwise use normal grid
-                if self.isPadded == True:
-                    _dem = self.paddedGrid
-                elif self.isPadded == False:
-                    _dem = self._grid
-                (rows,cols) = np.shape(_dem)
-                self._aspectClass = np.zeros((rows,cols))
+        elif classNum == '4':
+            #define value breaks for aspect classes
+            aspectClass = {1 : [0,   45],       #N
+                            2 : [45,  135],      #E
+                            3 : [135, 225],      #S
+                            4 : [225, 315],      #W
+                            5 : [315, 360]}      #N
 
-                #check which node belongs to which class
-                for nrow in range(rows):
-                    for ncol in range(cols):
-                        for i,j in zip(aspectClass,aspectClass.values()):
-                            if j[0] <= self._aspect[nrow,ncol] <= j[1]:
-                                aspectC = i
-                                if aspectC == 5:
-                                    aspectC = 1
-                                self._aspectClass[nrow,ncol] = aspectC
-                break
+            #check which node belongs to which class
+            for nrow in range(rows):
+                for ncol in range(cols):
+                    for i,j in zip(aspectClass,aspectClass.values()):
+                        if j[0] <= self._aspect[nrow,ncol] <= j[1]:
+                            aspectC = i
+                            if aspectC == 5:
+                                aspectC = 1
+                            self._aspectClass[nrow,ncol] = aspectC
 
-            else:
-                raise NameError('This is not a correct argument. Check function docstring')
+        else:
+            raise NameError('This is not a correct argument. Check function docstring')
 
 
 
-    def calculate_tpi(self,scalefactor, res=30, return_unclassed=False, TYPE='SIMPLE'):
+    def calculate_tpi(self,scalefactor, res=30, TYPE='SIMPLE'):
         """Classify DEM to tpi300 array according to Weiss 2001
         Modified after C. Werner, lpjguesstools.
 
@@ -375,7 +365,6 @@ class landformClassifier(Component):
         # Parameters:
         # - scalefactor: outerradius in map units (300 := 300m)
         # - res: resolution of one pixel in map units (default SRTM1: 30m)
-        # - return_unclassed: return the continuous tpi values
         # - dx: cell size
 
         #data structures moved here for convenience
@@ -402,6 +391,8 @@ class landformClassifier(Component):
         tpi = self._dem - generic_filter(self._dem, np.mean, footprint=k_outer, mode="reflect") + 0.5
         tpi = generic_filter(tpi, np.mean, footprint=k_smooth, mode="reflect").astype(int)
 
+        logging.debug("calculate_tpi(), set(tpi): {}".format(set(tpi)))
+
         if TYPE == 'WEISS':
             self._tpiTYPE = "WEISS"
             # values from poster, results in strange NaN values for some reason beyound me.
@@ -426,12 +417,8 @@ class landformClassifier(Component):
             tpi_classes[(tpi >  mz10) & (tpi < pz10) & (self._slope  < 6)]  = 4 # flat surface
             tpi_classes[(tpi <= mz10)]                               = 6 # valley
 
-        if return_unclassed:
-            return tpi
-
         self._tpiClasses = tpi_classes
         self._tpi = tpi
-        #return tpi_classes
 
     aspectLF = [2,3,5]
 
@@ -474,6 +461,7 @@ class landformClassifier(Component):
         for i in elevationSteps:
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
+            logging.debug("createElevationID(), index: {}, counterID: {}".format(index, counterID))
             counterID += 1
 
 
@@ -512,9 +500,9 @@ class landformClassifier(Component):
         _aspectID    = self._aspectClass.flatten().astype(int)
         _elevationID = self._elevationID.flatten().astype(int)
 
-        logging.debug("landformClassifier, createLandformID, _slopeID: {}".format(_slopeID))
-        logging.debug("landformClassifier, createLandformID, _aspectID: {}".format(_aspectID))
-        logging.debug("landformClassifier, createLandformID, _elevationID: {}".format(_elevationID))
+        logging.debug("landformClassifier, createLandformID, set(_slopeID): {}".format(set(_slopeID)))
+        logging.debug("landformClassifier, createLandformID, set(_aspectID): {}".format(set(_aspectID)))
+        logging.debug("landformClassifier, createLandformID, set(_elevationID): {}".format(set(_elevationID)))
 
         #check which tpi_type was used and adjust the matrix with aspect-dependend landform
 
