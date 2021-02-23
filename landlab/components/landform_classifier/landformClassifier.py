@@ -299,7 +299,10 @@ class landformClassifier(Component):
         (rows,cols) = np.shape(_dem)
         self._aspectClass = np.zeros((rows,cols))
 
-        logging.debug("classifyAspect(), self._aspect: min: {}, max: {}".format(min(self._aspect), max(self._aspect)))
+        aspect_list = self._aspect.flatten().tolist()
+
+        logging.debug("classifyAspect(), self._aspect: min: {}, max: {}".format(min(aspect_list), max(aspect_list)))
+        logging.debug("classifyAspect(), set(self._aspect): {}".format(set(aspect_list)))
 
         if classNum == '8':
             #define value breaks for aspect classes
