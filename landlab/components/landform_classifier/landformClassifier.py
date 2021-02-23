@@ -17,9 +17,6 @@ the standart NetCDF output to write data.
 """
 
 import numpy as np
-import matplotlib
-matplotlib.use('AGG')
-import matplotlib.pyplot as plt
 from landlab import Component
 from scipy.ndimage.filters import generic_filter
 import math
@@ -57,7 +54,6 @@ class landformClassifier(Component):
         #self.isPadded = False #flag for dem-padding
         #self.existGrid = False #flag if grid was initialised
         #self.existSlope = False #flag if slope-map was created
-        NODATA = -9999
 
 
     """
@@ -391,7 +387,7 @@ class landformClassifier(Component):
         tpi = self._dem - generic_filter(self._dem, np.mean, footprint=k_outer, mode="reflect") + 0.5
         tpi = generic_filter(tpi, np.mean, footprint=k_smooth, mode="reflect").astype(int)
 
-        logging.debug("calculate_tpi(), set(tpi): {}".format(set(tpi)))
+        logging.debug("calculate_tpi(), set(tpi): {}".format(set(tpi.flatten().tolist())))
 
         if TYPE == 'WEISS':
             self._tpiTYPE = "WEISS"
@@ -500,9 +496,9 @@ class landformClassifier(Component):
         _aspectID    = self._aspectClass.flatten().astype(int)
         _elevationID = self._elevationID.flatten().astype(int)
 
-        logging.debug("landformClassifier, createLandformID, set(_slopeID): {}".format(set(_slopeID)))
-        logging.debug("landformClassifier, createLandformID, set(_aspectID): {}".format(set(_aspectID)))
-        logging.debug("landformClassifier, createLandformID, set(_elevationID): {}".format(set(_elevationID)))
+        logging.debug("landformClassifier, createLandformID, set(_slopeID): {}".format(set(_slopeID.tolist())))
+        logging.debug("landformClassifier, createLandformID, set(_aspectID): {}".format(set(_aspectID.tolist())))
+        logging.debug("landformClassifier, createLandformID, set(_elevationID): {}".format(set(_elevationID.tolist())))
 
         #check which tpi_type was used and adjust the matrix with aspect-dependend landform
 
@@ -529,47 +525,44 @@ class landformClassifier(Component):
         logging.debug("landformClassifier, createLandformID, lfIndex: {}".format(lfIndex_set))
 
     def calc_asp_slope(self):
-            """
-            calculate some strange aspect-slope-metric that lpjguess needs and
-            nobody understand excepts some random climate-dude from senckenberg
-            """
-            _aspSlope = self._slope * np.abs(np.cos(np.radians(self._aspect)))
+        """
+        calculate some strange aspect-slope-metric that lpjguess needs and
+        nobody understand excepts some random climate-dude from senckenberg
+        """
+        _aspSlope = self._slope * np.abs(np.cos(np.radians(self._aspect)))
 
-            return _aspSlope
+        return _aspSlope
 
     def write_asp_slope_to_grid(self):
-            """
-            Calls the calc_asp_slope function and writes the returned values
-            back to the landlab grid
-            """
+        """
+        Calls the calc_asp_slope function and writes the returned values
+        back to the landlab grid
+        """
 
-            _aspSlope = self.calc_asp_slope()
-            _aspSlopeFlat = _aspSlope.flatten().astype(int)
+        _aspSlope = self.calc_asp_slope()
+        _aspSlopeFlat = _aspSlope.flatten().astype(int)
 
-            self._grid.at_node['aspectSlope'] = _aspSlopeFlat
-            self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
+        self._grid.at_node['aspectSlope'] = _aspSlopeFlat
+        self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
 
     def run_one_step(self, elevationBin, scalefact, classtype):
-            """
-            Landlab style wrapper function which is to be called in the main-model-loop
+        """
+        Landlab style wrapper function which is to be called in the main-model-loop
 
-            inputs:
-                elevationBin : bin-size for elevation Id
-                scalefact: scalefactor for classification donut
-                classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
-            """
-            #self.createLandlabDatafields() #moved to constructor.
-            self.updateGrid()
-            self.reshapeGrid(nrows = self._grid.number_of_node_rows,
-                            ncols = self._grid.number_of_node_columns)
-            self.calculate_tpi(scalefact, res = self._grid.dx, TYPE = classtype)
-            self.calcAspect()
-            self.write_asp_slope_to_grid()
-            self.writeAspectToGrid()
-            self.classifyAspect(classNum = '4')
-            self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
-            self.createLandformID()
-            self.writeTpiToGrid()
-
-
-
+        inputs:
+            elevationBin : bin-size for elevation Id
+            scalefact: scalefactor for classification donut
+            classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
+        """
+        #self.createLandlabDatafields() #moved to constructor.
+        self.updateGrid()
+        self.reshapeGrid(nrows = self._grid.number_of_node_rows,
+                        ncols = self._grid.number_of_node_columns)
+        self.calculate_tpi(scalefact, res = self._grid.dx, TYPE = classtype)
+        self.calcAspect()
+        self.write_asp_slope_to_grid()
+        self.writeAspectToGrid()
+        self.classifyAspect(classNum = '4')
+        self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
+        self.createLandformID()
+        self.writeTpiToGrid()
