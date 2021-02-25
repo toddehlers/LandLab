@@ -349,7 +349,7 @@ class landformClassifier(Component):
 
 
 
-    def calculate_tpi(self,scalefactor, res=30, TYPE='SIMPLE'):
+    def calculate_tpi(self, scalefactor, res=30, TYPE='SIMPLE'):
         """Classify DEM to tpi300 array according to Weiss 2001
         Modified after C. Werner, lpjguesstools.
 
@@ -417,6 +417,8 @@ class landformClassifier(Component):
             tpi_classes[(tpi <= mz10)]                               = 6 # valley
 
         self._tpiClasses = tpi_classes
+        logging.debug("calculate_tpi(), set(tpi_classes): {}".format(set(tpi_classes.flatten().tolist())))
+        logging.debug("calculate_tpi(), set(self._slope): {}".format(set(self._slope.flatten().tolist())))
         self._tpi = tpi
 
     aspectLF = [2,3,5]
@@ -451,18 +453,18 @@ class landformClassifier(Component):
         self._grid.at_node['slope_degrees'] = self._slope
         self._aspect = self._grid.calc_aspect_at_node()
 
-
-    def createElevationID(self, dem, minimum,maximum,step):
+    def createElevationID(self, dem, minimum, maximum, step):
         elevationID = np.zeros(np.shape(dem)) #creates ID array
-        elevationSteps = np.arange(minimum,maximum,step) #creates elevation-step array
+        elevationSteps = np.arange(minimum, maximum, step) #creates elevation-step array
+        logging.debug("createElevationID(), min: {}, max: {}, step: {}".format(minimum, maximum, step))
         counterID = 1 #starts at 1 for lowester elevation class
 
         for i in elevationSteps:
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
-            logging.debug("createElevationID(), index: {}, counterID: {}".format(index, counterID))
+            if index.size > 0 :
+                logging.debug("createElevationID(), index: {}, counterID: {}, i: {}".format(index, counterID, i))
             counterID += 1
-
 
         self._elevationID = elevationID
         self._grid.at_node['elevation__ID'] = elevationID
