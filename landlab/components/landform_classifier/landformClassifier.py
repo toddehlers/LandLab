@@ -418,7 +418,7 @@ class landformClassifier(Component):
 
         self._tpiClasses = tpi_classes
         logging.debug("calculate_tpi(), set(tpi_classes): {}".format(set(tpi_classes.flatten().tolist())))
-        logging.debug("calculate_tpi(), set(self._slope): {}".format(set(self._slope.flatten().tolist())))
+        logging.debug("calculate_tpi(), min(self._slope): {}, max(self._slope): {}".format(min(self._slope), max(self._slope)))
         self._tpi = tpi
 
     aspectLF = [2,3,5]
@@ -462,7 +462,7 @@ class landformClassifier(Component):
         for i in elevationSteps:
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
-            if index.size > 0 :
+            if index[0].size > 0 :
                 logging.debug("createElevationID(), index: {}, counterID: {}, i: {}".format(index, counterID, i))
             counterID += 1
 
