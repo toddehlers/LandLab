@@ -392,12 +392,13 @@ class landformClassifier(Component):
 
         logging.debug("calculate_tpi(), set(tpi): {}".format(set(tpi.flatten().tolist())))
 
+        tpi_classes = np.ones( tpi.shape ) * NODATA
+
         if TYPE == 'WEISS':
             self._tpiTYPE = "WEISS"
             # values from poster, results in strange NaN values for some reason beyound me.
             mz10, mz05, pz05, pz10 = np.percentile(tpi, [100-84.13, 100-69.15, 69.15, 84.13])
             #TODO: check if this should be a decision tree (we have unclassified cells)
-            tpi_classes = np.ones( tpi.shape ) * NODATA
             tpi_classes[(tpi > pz10)]                                   = 1 # ridge
             tpi_classes[((tpi > pz05)  & (tpi <= pz10))]                = 2 # upper slope
             tpi_classes[((tpi > mz05)  & (tpi <  pz05) & (self._slope >  5))] = 3 # middle slope
@@ -410,7 +411,6 @@ class landformClassifier(Component):
             self._tpiTYPE = 'SIMPLE'
             # according to Tagil & Jenness (2008) Science Alert doi:10.3923/jas.2008.910.921
             mz10, pz10 = np.percentile(tpi, [100-84.13, 84.13])
-            tpi_classes = np.ones( tpi.shape ) * NODATA
             tpi_classes[(tpi >= mz10)]                               = 1 # hilltop
             tpi_classes[(tpi >= mz10) & (tpi < pz10) & (self._slope >= 6)] = 3 # mid slope
             tpi_classes[(tpi >  mz10) & (tpi < pz10) & (self._slope  < 6)]  = 4 # flat surface
@@ -464,7 +464,7 @@ class landformClassifier(Component):
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
             if index[0].size > 0 :
-                logging.debug("createElevationID(), index: {}, counterID: {}, i: {}".format(index, counterID, i))
+                logging.debug("createElevationID(), counterID: {}, i: {}".format(counterID, i))
             counterID += 1
 
         self._elevationID = elevationID
