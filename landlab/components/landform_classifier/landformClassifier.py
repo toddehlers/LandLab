@@ -418,7 +418,8 @@ class landformClassifier(Component):
 
         self._tpiClasses = tpi_classes
         logging.debug("calculate_tpi(), set(tpi_classes): {}".format(set(tpi_classes.flatten().tolist())))
-        logging.debug("calculate_tpi(), min(self._slope): {}, max(self._slope): {}".format(min(self._slope), max(self._slope)))
+        slope_list = self._slope.flatten().tolist(())
+        logging.debug("calculate_tpi(), min(self._slope): {}, max(self._slope): {}".format(min(slope_list), max(slope_list)))
         self._tpi = tpi
 
     aspectLF = [2,3,5]
