@@ -26,11 +26,13 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     """
 
     landform_list = []
-    possible_slope_aspect_ids = ['10', '60', '40', '31', '32', '33', '34']
+    possible_slope_aspect_ids = ['10', '40', '60', '31', '32', '33', '34']
 
     _min_initial_elevation = np.min(grid.at_node['topographic__elevation'])
+    _max_initial_elevation = np.max(grid.at_node['topographic__elevation'])
+
     _max_possible_elevation_gain = uplift * runtime #note: have to be same units
-    _max_possible_elevation = _max_possible_elevation_gain + _min_initial_elevation
+    _max_possible_elevation = _max_possible_elevation_gain + _max_initial_elevation
 
     _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size) + 2
     # Only one digit for elevation ID allowed
@@ -39,6 +41,7 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     _min_possible_ele_id = int(_min_initial_elevation / elevation_bin_size) + 1
 
     logging.debug("_min_initial_elevation: %f", _min_initial_elevation)
+    logging.debug("_max_initial_elevation: %f", _max_initial_elevation)
     logging.debug("_max_possible_elevation_gain: %f", _max_possible_elevation_gain)
     logging.debug("_max_possible_elevation: %f", _max_possible_elevation)
     logging.debug("_min_possible_ele_id: %d", _min_possible_ele_id)
