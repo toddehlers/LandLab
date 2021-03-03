@@ -396,7 +396,7 @@ class landformClassifier(Component):
 
         if TYPE == 'WEISS':
             self._tpiTYPE = "WEISS"
-            # values from poster, results in strange NaN values for some reason beyound me.
+            # values from poster, results in strange NaN values for some reason beyond me.
             mz10, mz05, pz05, pz10 = np.percentile(tpi, [100-84.13, 100-69.15, 69.15, 84.13])
             #TODO: check if this should be a decision tree (we have unclassified cells)
             tpi_classes[(tpi > pz10)]                                   = 1 # ridge
@@ -431,7 +431,7 @@ class landformClassifier(Component):
         Landlab Grid nodes
         """
 
-        #flatten array to make it landlab accesible
+        #flatten array to make it landlab accessible
         _tpiFlat = self._tpi.flatten().astype(int)
         _tpiClassFlat = self._tpiClasses.flatten().astype(int)
 
@@ -551,7 +551,7 @@ class landformClassifier(Component):
         self._grid.at_node['aspectSlope'] = _aspSlopeFlat
         self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
 
-    def run_one_step(self, elevationBin, scalefact, classtype):
+    def run_one_step(self, elevationBin, scalefact, classtype, max_elevation):
         """
         Landlab style wrapper function which is to be called in the main-model-loop
 
@@ -559,6 +559,7 @@ class landformClassifier(Component):
             elevationBin : bin-size for elevation Id
             scalefact: scalefactor for classification donut
             classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
+            max_elevation: possible maximum elevation
         """
         #self.createLandlabDatafields() #moved to constructor.
         self.updateGrid()
@@ -569,6 +570,6 @@ class landformClassifier(Component):
         self.write_asp_slope_to_grid()
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
-        self.createElevationID(self._dem, 0, 6000, elevationBin) #hardcoding of value... BAD!
+        self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
         self.createLandformID()
         self.writeTpiToGrid()

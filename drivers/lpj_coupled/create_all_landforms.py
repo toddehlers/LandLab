@@ -57,3 +57,5 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
 
     for ind, lf in enumerate(landform_list):
         grid.at_node['landform__ID'][ind] = lf
+
+    return _max_possible_elevation

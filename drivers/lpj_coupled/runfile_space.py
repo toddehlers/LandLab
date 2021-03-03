@@ -292,6 +292,8 @@ elapsed_time = 0
 counter = 0
 spin_up_couple_time = lpj_coupled_intervall
 is_spinup = True
+max_elevation = 10000 # in [m]
+
 while elapsed_time < totalT:
 
     #create copy of "old" topography
@@ -315,13 +317,13 @@ while elapsed_time < totalT:
     DDdiff.run_one_step(dt=dt)
 
     #run the landform classifier
-    lc.run_one_step(elevationStepBin, 300, classtype=classificationType)
+    lc.run_one_step(elevationStepBin, 300, classificationType, max_elevation)
 
     #run lpjguess once at the beginning and then each timestep after the spinup.
     if elapsed_time < spin_up:
         if elapsed_time == 0:
             #create all possible landform__ID's in here ONCE before lpjguess is called
-            create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
+            max_elevation = create_all_landforms(upliftRate, totalT, elevationStepBin, mg)
             # Output file needs to be written before lpj is started
             # Currently some information from the output is needed as preparation
             # for LPJGuess.
