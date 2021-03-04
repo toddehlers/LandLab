@@ -561,7 +561,6 @@ class landformClassifier(Component):
             classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
             max_elevation: possible maximum elevation
         """
-        #self.createLandlabDatafields() #moved to constructor.
         self.updateGrid()
         self.reshapeGrid(nrows = self._grid.number_of_node_rows,
                         ncols = self._grid.number_of_node_columns)
@@ -570,6 +569,7 @@ class landformClassifier(Component):
         self.write_asp_slope_to_grid()
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
-        self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
+        #self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
+        self.createElevationID(self._dem, 0, 6000, 100)
         self.createLandformID()
         self.writeTpiToGrid()

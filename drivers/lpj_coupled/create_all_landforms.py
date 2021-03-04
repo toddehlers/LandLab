@@ -51,11 +51,12 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     for ele in range(_min_possible_ele_id, _max_possible_ele_id):
         for j in possible_slope_aspect_ids:
             _lf = str(ele) + j
-            landform_list.append(_lf)
+            landform_list.append((_lf, ele))
 
     logging.debug("landform_list: {}".format(landform_list))
 
-    for ind, lf in enumerate(landform_list):
+    for ind, (lf, ele) in enumerate(landform_list):
         grid.at_node['landform__ID'][ind] = lf
+        grid.at_node['topographic__elevation'][ind] = ele * elevation_bin_size
 
     return _max_possible_elevation
