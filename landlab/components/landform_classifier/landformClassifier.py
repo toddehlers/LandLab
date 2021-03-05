@@ -52,7 +52,7 @@ class landformClassifier(Component):
         self.isPadded = False
         #DEPRECATED
         #self.isPadded = False #flag for dem-padding
-        #self.existGrid = False #flag if grid was initialised
+        #self.existGrid = False #flag if grid was initialized
         #self.existSlope = False #flag if slope-map was created
 
 
@@ -72,7 +72,7 @@ class landformClassifier(Component):
         _tempGrid = np.zeros((ny + 2, nx + 2)) #create enlarged grid
         _tempGrid[1:-1, 1:-1] = self._grid #insert old grid in center
 
-        #values at the new padded boundaries will get the same values as their neigbours.
+        #values at the new padded boundaries will get the same values as their neighbors.
         #note: these added nodes don't have any physical meaning
         #sides
         _tempGrid[0 , 1:-1]  = self._grid[0 , :]
@@ -94,7 +94,7 @@ class landformClassifier(Component):
 
 
     def _calcFiniteDifferences(self, dx):
-        """Calculate the finite differences at each node for the 8-neighbour nodes.
+        """Calculate the finite differences at each node for the 8-neighbor nodes.
         This is a implementation of the standart D8-Algorithm used in ArcGIS"""
 
         #if padGrid() was run then use the padded grid, otherwise use normal grid
@@ -187,7 +187,7 @@ class landformClassifier(Component):
     ----------------------------------------------------------------------------
     """
 
-    def reshapeGrid(self,nrows, ncols):
+    def reshapeGrid(self, nrows, ncols):
 
         """
         a little bit hacky right now. Landlab uses a 1D-array of elevation values
@@ -229,23 +229,6 @@ class landformClassifier(Component):
         k[mask] = value
 
         return k
-
-    def _calcAspect(self, mode):
-        """
-        DEPRECATED. USE calcAspect() instead, it uses build in landlab routines
-
-
-        Takes the self.dzdx and self.dzdy values and calculates a per-node aspect value of the grid.
-        Algorithm is ESRI ArcGIS Standard:
-
-            Aspect = 180/Pi * arctan2([dzdy])
-        """
-
-        aspect = (180/np.pi) * np.arctan2(self.dzdy, -self.dzdx)
-        aspect = np.mod(450 - aspect, 360)
-        aspect[aspect == 360] = 0
-
-        self._aspect = aspect
 
     def calcAspect(self):
         """
@@ -422,9 +405,6 @@ class landformClassifier(Component):
         logging.debug("calculate_tpi(), min(self._slope): {}, max(self._slope): {}".format(min(slope_list), max(slope_list)))
         self._tpi = tpi
 
-    aspectLF = [2,3,5]
-
-
     def writeTpiToGrid(self):
         """
         Function that takes tpi-values and tpi classes and writes it back to
@@ -517,15 +497,13 @@ class landformClassifier(Component):
 
         lfIndex_set = set()
 
-        #this whole int(str(int())) thing is probably horrible but thats what it is for now...
-        #works though...
         for i in range(len(self._grid.at_node['landform__ID'])):
             if _slopeID[i] in lfClasses:
-                lfIndex = int(str(_elevationID[i]) + str(_slopeID[i]) + str(_aspectID[i]))
+                lfIndex = "{}{}{}".format(_elevationID[i], _slopeID[i], _aspectID[i])
             else:
-                lfIndex = int(str(_elevationID[i]) + str(_slopeID[i]) + str(0))
+                lfIndex = "{}{}0".format(_elevationID[i], _slopeID[i])
 
-            self._grid.at_node['landform__ID'][i] = lfIndex
+            self._grid.at_node['landform__ID'][i] = int(lfIndex)
             lfIndex_set.add(lfIndex)
 
         logging.debug("landformClassifier, createLandformID, lfIndex: {}".format(lfIndex_set))
@@ -570,6 +548,6 @@ class landformClassifier(Component):
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
         #self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
-        self.createElevationID(self._dem, 0, 6000, 100)
+        self.createElevationID(self._dem, 0, max_elevation, 100)
         self.createLandformID()
         self.writeTpiToGrid()
