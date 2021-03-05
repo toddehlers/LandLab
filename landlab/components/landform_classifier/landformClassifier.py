@@ -412,6 +412,6 @@ class landformClassifier(Component):
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
         #self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
-        self.createElevationID(self._dem, 0, max_elevation, 100)
+        self.createElevationID(self._dem, 0, 6000, 100)
         self.createLandformID()
         self.writeTpiToGrid()
