@@ -397,7 +397,7 @@ class landformClassifier(Component):
         self._grid.at_node['aspectSlope'] = _aspSlopeFlat
         self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
 
-    def run_one_step(self, elevationBin, scalefact, classtype, max_elevation):
+    def run_one_step(self, scalefact, classtype, max_elevation):
         """
         Landlab style wrapper function which is to be called in the main-model-loop
 
