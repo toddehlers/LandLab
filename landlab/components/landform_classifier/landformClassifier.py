@@ -450,12 +450,15 @@ class landformClassifier(Component):
         """
 
         self._dem = self._grid.at_node['topographic__elevation']
-        self._slope = np.degrees(np.arctan(self._grid.at_node['topographic__steepest_slope']))
+        self._slope = self._grid.at_node['topographic__steepest_slope']
+        #convert slope map to degrees for CLASSIFICATION
+        self._slope = np.rad2deg(self._slope)
         self._grid.at_node['slope_degrees'] = self._slope
         self._aspect = self._grid.calc_aspect_at_node()
 
-    def createElevationID(self, dem, minimum, maximum, step):
+    def createElevationID(self, dem, minimum, maximum):
         elevationID = np.zeros(np.shape(dem)) #creates ID array
+        step = maximum / 9.0 # Valid digits from 1 to 9
         elevationSteps = np.arange(minimum, maximum, step) #creates elevation-step array
         logging.debug("createElevationID(), min: {}, max: {}, step: {}".format(minimum, maximum, step))
         counterID = 1 #starts at 1 for lowester elevation class
@@ -463,8 +466,9 @@ class landformClassifier(Component):
         for i in elevationSteps:
             index = np.where((dem >= i) & (dem < i+step))
             elevationID[index] = counterID
+            logging.debug("createElevationID(), counterID: {}".format(counterID))
             if index[0].size > 0 :
-                logging.debug("createElevationID(), counterID: {}, i: {}".format(counterID, i))
+                logging.debug("createElevationID(), counterID: i: {}".format(i))
             counterID += 1
 
         self._elevationID = elevationID
@@ -569,7 +573,6 @@ class landformClassifier(Component):
         self.write_asp_slope_to_grid()
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
-        #self.createElevationID(self._dem, 0, max_elevation, max_elevation / elevationBin)
-        self.createElevationID(self._dem, 0, 6000, 100)
+        self.createElevationID(self._dem, 0, max_elevation)
         self.createLandformID()
         self.writeTpiToGrid()
