@@ -2,7 +2,7 @@
 import logging
 import numpy as np
 
-def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
+def create_all_landforms(uplift, runtime, grid):
     """
     create an array of all possible landform_ID's, as a function of uplift rate and total model runtime
     and map them on the closed boundary nodes of the grid.
@@ -34,11 +34,10 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
     _max_possible_elevation_gain = uplift * runtime #note: have to be same units
     _max_possible_elevation = _max_possible_elevation_gain + _max_initial_elevation
 
-    _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size) + 2
-    # Only one digit for elevation ID allowed
-    #_max_possible_ele_id = min(9, _max_possible_ele_id)
+    _max_possible_ele_id = 9
+    _min_possible_ele_id = 1
 
-    _min_possible_ele_id = int(_min_initial_elevation / elevation_bin_size) + 1
+    elevation_step = _max_possible_elevation / 9.0
 
     logging.debug("_min_initial_elevation: %f", _min_initial_elevation)
     logging.debug("_max_initial_elevation: %f", _max_initial_elevation)
@@ -57,6 +56,6 @@ def create_all_landforms(uplift, runtime, elevation_bin_size, grid):
 
     for ind, (lf, ele) in enumerate(landform_list):
         grid.at_node['landform__ID'][ind] = lf
-        grid.at_node['topographic__elevation'][ind] = ele * elevation_bin_size
+        grid.at_node['topographic__elevation'][ind] = ele * elevation_step
 
     return _max_possible_elevation
