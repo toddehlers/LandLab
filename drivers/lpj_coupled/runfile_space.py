@@ -329,7 +329,6 @@ while elapsed_time < totalT:
             # for LPJGuess.
             # TODO: Fix this!
             netcdf_export.write(mg, elapsed_time)
-
             lpj.run_one_step(counter, lpj_coupled_duration, is_spinup)
 
             #import lpj lai and precipitation data
@@ -355,6 +354,8 @@ while elapsed_time < totalT:
             outInt = int(config['Output']['outIntTransient'])
             is_spinup = False
 
+        # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
+        netcdf_export.write(mg, elapsed_time)
         lpj.run_one_step(counter, dt, is_spinup)
         counter += 1
         if lpj_coupled:
