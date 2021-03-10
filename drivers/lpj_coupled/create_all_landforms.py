@@ -48,7 +48,7 @@ def create_all_landforms(uplift, runtime, grid):
     logging.debug("_max_possible_ele_id: %d", _max_possible_ele_id)
 
     #create a list with all possible elevation_ids within the grid
-    for ele in range(_min_possible_ele_id, _max_possible_ele_id):
+    for ele in range(_min_possible_ele_id, _max_possible_ele_id + 1):
         for j in possible_slope_aspect_ids:
             _lf = str(ele) + j
             landform_list.append((_lf, ele * elevation_step))
