@@ -39,6 +39,7 @@ def create_all_landforms(uplift, runtime, grid):
 
     elevation_step = _max_possible_elevation / 9.0
 
+    logging.debug("uplift: %f, runtime: %f", uplift, runtime)
     logging.debug("_min_initial_elevation: %f", _min_initial_elevation)
     logging.debug("_max_initial_elevation: %f", _max_initial_elevation)
     logging.debug("_max_possible_elevation_gain: %f", _max_possible_elevation_gain)
