@@ -323,13 +323,13 @@ while elapsed_time < totalT:
     if elapsed_time < spin_up:
         if elapsed_time == 0:
             #create all possible landform__ID's in here ONCE before lpjguess is called
-            max_elevation = create_all_landforms(upliftRate, totalT, mg)
+            (max_elevation, lf_list) = create_all_landforms(upliftRate, totalT, mg)
             # Output file needs to be written before lpj is started
             # Currently some information from the output is needed as preparation
             # for LPJGuess.
             # TODO: Fix this!
             netcdf_export.write(mg, elapsed_time)
-            lpj.run_one_step(counter, lpj_coupled_duration, is_spinup)
+            lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
 
             #import lpj lai and precipitation data
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
@@ -342,7 +342,7 @@ while elapsed_time < totalT:
                 spin_up_couple_time += lpj_coupled_intervall
                 # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
                 netcdf_export.write(mg, elapsed_time)
-                lpj.run_one_step(counter, lpj_coupled_duration, is_spinup)
+                lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
                 if lpj_coupled:
                     #import lpj lai and precipitation data
                     lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
@@ -356,7 +356,7 @@ while elapsed_time < totalT:
 
         # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
         netcdf_export.write(mg, elapsed_time)
-        lpj.run_one_step(counter, dt, is_spinup)
+        lpj.run_one_step(counter, dt, is_spinup, lf_list)
         counter += 1
         if lpj_coupled:
             #import lpj lai and precipitation data

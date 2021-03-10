@@ -26,7 +26,7 @@ def create_all_landforms(uplift, runtime, grid):
     """
 
     landform_list = []
-    possible_slope_aspect_ids = ['10', '40', '60', '31', '32', '33', '34']
+    possible_slope_aspect_ids = ['10', '31', '32', '33', '34', '40', '60']
 
     _min_initial_elevation = np.min(grid.at_node['topographic__elevation'])
     _max_initial_elevation = np.max(grid.at_node['topographic__elevation'])
@@ -50,12 +50,12 @@ def create_all_landforms(uplift, runtime, grid):
     for ele in range(_min_possible_ele_id, _max_possible_ele_id):
         for j in possible_slope_aspect_ids:
             _lf = str(ele) + j
-            landform_list.append((_lf, ele))
+            landform_list.append((_lf, ele * elevation_step))
 
     logging.debug("landform_list: {}".format(landform_list))
 
     for ind, (lf, ele) in enumerate(landform_list):
         grid.at_node['landform__ID'][ind] = lf
-        grid.at_node['topographic__elevation'][ind] = ele * elevation_step
+        grid.at_node['topographic__elevation'][ind] = ele
 
-    return _max_possible_elevation
+    return (_max_possible_elevation, landform_list)

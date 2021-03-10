@@ -158,7 +158,7 @@ def get_data_location(pkg, resource):
     d = os.path.dirname(sys.modules[pkg].__file__)
     return os.path.join(d, resource)
 
-def main():
+def main(lf_list):
     logging.debug("create_input_for_lpjguess.py, main")
 
     # default soil and elevation data (contained in lpjguesstools package)
@@ -188,8 +188,8 @@ def main():
     logging.debug("landlab_files: %s", landlab_files)
     logging.debug("list_coords: %s", list_coords)
 
-    # TODO: Make value configurable: 6000
-    lf_classes, lf_ele_levels = define_landform_classes(int(ele_step), 6000, TYPE=classification)
+    lf_classes = [int(classes) for classes, _ in lf_list]
+    lf_ele_levels = [float(elevation) for _, elevation in lf_list]
 
     logging.debug("lf_classes: %s", lf_classes)
     logging.debug("lf_ele_levels: %s", lf_ele_levels)

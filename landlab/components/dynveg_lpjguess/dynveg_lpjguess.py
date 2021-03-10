@@ -123,10 +123,10 @@ def prepare_input(dest: str, co2_file: str, template_path: str, forcings_path,
     split_climate(time_step, ds_files, co2_file, dt, calendar_year,
         os.path.join(forcings_path, 'climdata'), os.path.join(dest, 'input', 'climdata'))
 
-def generate_landform_files() -> None:
+def generate_landform_files(lf_list) -> None:
     logging.debug("generate_landform_files")
     logging.info('Convert landlab netcdf data to lfdata fromat')
-    create_input_main()
+    create_input_main(lf_list)
 
 class DynVeg_LpjGuess(Component):
     """classify a DEM in different landform, according to slope, elevation and aspect"""
@@ -178,12 +178,12 @@ class DynVeg_LpjGuess(Component):
         # TODO: change this
         return sum(self._timesteps)
 
-    def run_one_step(self, step_counter, dt: int, is_spinup: bool) -> None:
+    def run_one_step(self, step_counter, dt: int, is_spinup: bool, lf_list) -> None:
         '''Run one lpj simulation step (duration: dt)'''
         logging.debug("run_one_step")
         self._is_spinup = is_spinup
         self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
-        generate_landform_files()
+        generate_landform_files(lf_list)
         self.execute_lpjguess()
         self.move_state()
         self._timesteps.append(dt)
