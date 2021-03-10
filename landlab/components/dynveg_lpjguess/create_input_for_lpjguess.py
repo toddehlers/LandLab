@@ -20,13 +20,12 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from lpjguesstools.lgt_createinput.main import define_landform_classes, \
+from lpjguesstools.lgt_createinput.main import build_compressed, \
                                                get_tile_summary, \
                                                create_stats_table, \
                                                build_site_netcdf, \
                                                build_landform_netcdf, \
                                                mask_dataset, \
-                                               build_compressed, \
                                                create_gridlist
 
 # extensions to xarray dataset and dataarray types
