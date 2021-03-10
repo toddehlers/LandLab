@@ -402,7 +402,6 @@ class landformClassifier(Component):
         Landlab style wrapper function which is to be called in the main-model-loop
 
         inputs:
-            elevationBin : bin-size for elevation Id
             scalefact: scalefactor for classification donut
             classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
             max_elevation: possible maximum elevation

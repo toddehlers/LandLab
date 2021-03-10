@@ -187,8 +187,12 @@ def main(lf_list):
     logging.debug("landlab_files: %s", landlab_files)
     logging.debug("list_coords: %s", list_coords)
 
-    lf_classes = [int(classes) for classes, _ in lf_list]
-    lf_ele_levels = [float(elevation) for _, elevation in lf_list]
+    lf_classes = []
+    lf_ele_levels = []
+
+    for (classes, elevation) in lf_list:
+        lf_classes.append(int(classes))
+        lf_ele_levels.append(float(elevation))
 
     logging.debug("lf_classes: %s", lf_classes)
     logging.debug("lf_ele_levels: %s", lf_ele_levels)
