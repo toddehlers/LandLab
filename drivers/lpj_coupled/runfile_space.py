@@ -337,17 +337,6 @@ while elapsed_time < totalT:
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
-        else:
-            if elapsed_time >= spin_up_couple_time:
-                spin_up_couple_time += lpj_coupled_intervall
-                # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
-                netcdf_export.write(mg, elapsed_time)
-                lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
-                if lpj_coupled:
-                    #import lpj lai and precipitation data
-                    lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
-                    #reinitialize the flow router
-                    fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
     elif elapsed_time >= spin_up:
         if elapsed_time == spin_up:
