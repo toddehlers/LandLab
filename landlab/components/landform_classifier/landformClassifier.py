@@ -300,9 +300,8 @@ class landformClassifier(Component):
         self._grid.at_node['slope_degrees'] = self._slope
         self._aspect = self._grid.calc_aspect_at_node()
 
-    def createElevationID(self, dem, minimum, maximum):
+    def createElevationID(self, dem, minimum, maximum, step):
         elevationID = np.zeros(np.shape(dem)) #creates ID array
-        step = maximum / 9.0 # Valid digits from 1 to 9
         elevationSteps = np.arange(minimum, maximum, step) #creates elevation-step array
         logging.debug("createElevationID(), min: {}, max: {}, step: {}".format(minimum, maximum, step))
         counterID = 1 #starts at 1 for lowester elevation class
@@ -397,11 +396,12 @@ class landformClassifier(Component):
         self._grid.at_node['aspectSlope'] = _aspSlopeFlat
         self._grid.at_node['aspectSlope'][self._grid.boundary_nodes] = 0
 
-    def run_one_step(self, scalefact, classtype, max_elevation):
+    def run_one_step(self, elevationStepBin, scalefact, classtype, max_elevation):
         """
         Landlab style wrapper function which is to be called in the main-model-loop
 
         inputs:
+            elevationBin : bin-size for elevation Id
             scalefact: scalefactor for classification donut
             classtype: 'SIMPLE' or 'WEISS', after Weiss, 2001
             max_elevation: possible maximum elevation
@@ -414,6 +414,6 @@ class landformClassifier(Component):
         self.write_asp_slope_to_grid()
         self.writeAspectToGrid()
         self.classifyAspect(classNum = '4')
-        self.createElevationID(self._dem, 0, max_elevation)
+        self.createElevationID(self._dem, 0, max_elevation, elevationStepBin)
         self.createLandformID()
         self.writeTpiToGrid()

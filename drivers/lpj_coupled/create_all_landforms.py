@@ -2,7 +2,7 @@
 import logging
 import numpy as np
 
-def create_all_landforms(uplift, runtime, grid):
+def create_all_landforms(uplift, runtime, grid, elevation_bin_size):
     """
     create an array of all possible landform_ID's, as a function of uplift rate and total model runtime
     and map them on the closed boundary nodes of the grid.
@@ -34,10 +34,8 @@ def create_all_landforms(uplift, runtime, grid):
     _max_possible_elevation_gain = uplift * runtime #note: have to be same units
     _max_possible_elevation = _max_possible_elevation_gain + _max_initial_elevation
 
-    _max_possible_ele_id = 9
+    _max_possible_ele_id = int(_max_possible_elevation / elevation_bin_size)
     _min_possible_ele_id = 1
-
-    elevation_step = _max_possible_elevation / 9.0
 
     logging.debug("uplift: %f, runtime: %f", uplift, runtime)
     logging.debug("_min_initial_elevation: %f", _min_initial_elevation)
@@ -51,7 +49,7 @@ def create_all_landforms(uplift, runtime, grid):
     for ele in range(_min_possible_ele_id, _max_possible_ele_id + 1):
         for j in possible_slope_aspect_ids:
             _lf = str(ele) + j
-            landform_list.append((_lf, ele * elevation_step))
+            landform_list.append((_lf, ele * elevation_bin_size))
 
     logging.debug("landform_list: {}".format(landform_list))
 
