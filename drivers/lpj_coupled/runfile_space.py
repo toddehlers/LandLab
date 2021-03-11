@@ -7,6 +7,7 @@ Derived from the messy thing I produced to glue/patch the model together.
 
 
 import time
+import datetime
 import logging
 import os.path
 import random
@@ -45,7 +46,9 @@ from lpj_debug import LPJDebug
 
 t0 = time.time()
 
-logging.basicConfig(filename="landlab.log", level=logging.DEBUG, format="%(asctime)s - %(filename)s - %(levelname)s - %(message)s")
+time_stamp = datetime.datetime.now()
+log_file_name = "landlab_{}.log".format(time_stamp.strftime("%Y_%m_%d__%H_%M"))
+logging.basicConfig(filename=log_file_name, level=logging.DEBUG, format="%(asctime)s - %(filename)s - %(levelname)s - %(message)s")
 
 config = configparser.ConfigParser()
 config.read('inputFile.ini')
