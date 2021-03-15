@@ -76,11 +76,11 @@ def split_climate(time_step,
             for g_cnt, ds_grp in tqdm(ds.groupby(ds.grouper)):
                 del ds_grp['grouper']
 
-                if g_cnt == 0:
-                    if time_step == "monthly":
-                        ds_grp['time'][:dt*12]
-                    else:
-                        ds_grp['time'][:dt*365]
+#                if g_cnt == 0:
+#                    if time_step == "monthly":
+#                        ds_grp['time'][:dt*12]
+#                    else:
+#                        ds_grp['time'][:dt*365]
 
                 add_time_attrs(ds_grp, calendar_year)
                 foutname = os.path.basename(fpath.replace('.nc', ''))
