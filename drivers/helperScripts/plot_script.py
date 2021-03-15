@@ -251,15 +251,15 @@ class SimData:
         plt.savefig(filename, dpi=self.dpi)
 
     def plot3(self, filename):
-        fig, ax = plt.subplots(4, 2, figsize=self.figsize, sharex=True)
+        fig, ax = plt.subplots(2, 2, figsize=self.figsize, sharex=True)
 
         self.plot(ax[0, 0], self.runoff_mean, "runoff [$mm / month$]")
         self.plot(ax[0, 1], self.net_primary_productivity, "net primary productivity [$kgC / (m^2 month$)]")
-        self.plot(ax[1, 0], self.evapo_trans_soil, "evapo_trans_soil [$mm / month$]")
-        self.plot(ax[1, 1], self.evapo_trans_area, "evapo_trans_mean [$mm / year$]")
+        self.plot(ax[1, 0], self.evapo_trans_soil, "evapo trans soil [$mm / month$]")
+        self.plot(ax[1, 1], self.evapo_trans_area, "evapo trans mean [$mm / year$]")
 
-        ax[3, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
-        ax[3, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
+        ax[1, 0].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
+        ax[1, 1].set_xlabel("{} [$kyr$]".format(self.time_label), fontsize=self.fontsize_label, color=self.color)
 
         if self.plot_time_type == "LGM":
             ax[0, 0].invert_xaxis()
