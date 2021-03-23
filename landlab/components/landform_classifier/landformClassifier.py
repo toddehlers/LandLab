@@ -33,7 +33,7 @@ class landformClassifier(Component):
         self._dem = self._grid.at_node['topographic__elevation']
         self._slope = self._grid.at_node['topographic__steepest_slope']
         #convert slope map to degrees for CLASSIFICATION
-        self._slope = np.rad2deg(self._slope)
+        self._slope = np.rad2deg(np.arctan(self._slope))
         self._aspect = self._grid.calc_aspect_at_node()
 
         #set up landlab grid structure.
