@@ -4,12 +4,6 @@ import operator
 import numpy as np
 import netCDF4
 
-YEAR_IN_DAYS = 365.2425
-# YEAR_IN_DAYS = 362.40
-YEARS_100 = YEAR_IN_DAYS * 100.0
-
-
-
 # variables:
 #         double time(time) ;
 #                 time:_FillValue = NaN ;
@@ -66,9 +60,15 @@ def extract_and_repeat(file_prefix, first_day, last_day, count):
 
     num_of_elements = prec_ds.variables["time"].shape[0]
 
+    print("num_of_elements: {}".format(num_of_elements))
+
     longitude = prec_ds["lon"][0].item()
     latitude = prec_ds["lat"][0].item()
-    land_id = prec_ds["land_id"][0].item()
+    land_id = int(prec_ds["land_id"][0].item())
+
+    print("longitude: {}".format(longitude))
+    print("latitude: {}".format(latitude))
+    print("land_id: {}".format(land_id))
 
     prec_data = []
     wet_data = []
@@ -91,7 +91,12 @@ def extract_and_repeat(file_prefix, first_day, last_day, count):
     rad_ds.close()
 
     duration = last_day - first_day
-    number_of_elements_new = duration * count
+    elements_in_list = len(prec_data)
+    number_of_elements_new = int(elements_in_list * count)
+
+    print("duration: {}".format(duration))
+    print("elements_in_list: {}".format(elements_in_list))
+    print("number_of_elements_new: {}".format(number_of_elements_new))
 
     days = itertools.cycle([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
     days = itertools.chain([0], days)
@@ -104,26 +109,37 @@ def extract_and_repeat(file_prefix, first_day, last_day, count):
     wet_data = itertools.cycle(wet_data)
     wet_data = list(itertools.islice(wet_data, number_of_elements_new))
 
-    temp_data = itertools.cycle(temp_data)
-    temp_data = list(itertools.islice(temp_data, number_of_elements_new))
-
-    rad_data = itertools.cycle(rad_data)
-    rad_data = list(itertools.islice(rad_data, number_of_elements_new))
-
     export_data("{}_repeat_prec.nc".format(file_prefix), days, longitude, latitude, land_id,
     [(prec_data, "prec", "precipitation_amount", "Monthly precipitation amount", "kg m-2"),
      (wet_data, "wet", "number_of_days_with_lwe_thickness_of_precipitation_amount_above_threshold", "wet_days", "count")])
 
+    del prec_data
+    del wet_data
+
+    temp_data = itertools.cycle(temp_data)
+    temp_data = list(itertools.islice(temp_data, number_of_elements_new))
+
     export_data("{}_repeat_temp.nc".format(file_prefix), days, longitude, latitude, land_id,
     [(temp_data, "temp", "air_temperature", "Near surface air temperature at 2m", "K")])
+
+    del temp_data
+
+    rad_data = itertools.cycle(rad_data)
+    rad_data = list(itertools.islice(rad_data, number_of_elements_new))
 
     export_data("{}_repeat_rad.nc".format(file_prefix), days, longitude, latitude, land_id,
     [(rad_data, "rad", "surface_downwelling_shortwave_flux", "Mean daily surface incident shortwave radiation", "W m-2")])
 
+    del rad_data
+
 def export_data(filename, days, longitude, latitude, land_id, data):
+    num_of_elements = len(days)
     netcdf_out_ds = netCDF4.Dataset(filename, "w", format = "NETCDF4") # pylint: disable=no-member
 
-    netcdf_out_ds.createDimension("time", days.len())
+    print("num_of_elements: {}".format(num_of_elements))
+    print("filename: {}".format(filename))
+
+    netcdf_out_ds.createDimension("time", num_of_elements)
     netcdf_out_ds.createDimension("land_id", 1)
 
     num_type = "f8"
@@ -137,15 +153,13 @@ def export_data(filename, days, longitude, latitude, land_id, data):
 
     lat[:] = np.full(1, latitude)
     lon[:] = np.full(1, longitude)
-    land_id[:] = np.full(1, 0)
-
-    num_of_elements = days / 12
+    land_id[:] = np.full(1, land_id)
 
     time.axis = "T"
     time.standard_name = "time"
     time.long_name = "time"
     time.units = "day"
-    time.calendar = "{} yr B.P.".format(num_of_elements)
+    time.calendar = "{} yr B.P.".format(num_of_elements / 12)
 
     lat.standard_name = "latitude"
     lat.long_name = "latitude"
@@ -169,5 +183,7 @@ def export_data(filename, days, longitude, latitude, land_id, data):
         var_instance.long_name = var_long_name
         var_instance.units = var_units
 
+    netcdf_out_ds.close()
+
 if __name__ == "__main__":
-    extract_and_repeat("Nahuelbuta_TraCE21ka", 0.0, YEARS_100, 220)
+    extract_and_repeat("Nahuelbuta_TraCE21ka", 0, int(365.2425 * 100), 220)
