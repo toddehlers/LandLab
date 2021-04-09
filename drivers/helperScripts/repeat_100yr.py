@@ -144,9 +144,9 @@ def export_data(filename, days, longitude, latitude, land_id, data):
 
     num_type = "f8"
 
-    time = netcdf_out_ds.createVariable("time", num_type, "time")
-    lat = netcdf_out_ds.createVariable("lat", num_type, "land_id")
-    lon = netcdf_out_ds.createVariable("lon", num_type, "land_id")
+    time = netcdf_out_ds.createVariable("time", num_type, "time", fill_value="NaN")
+    lat = netcdf_out_ds.createVariable("lat", num_type, "land_id", fill_value="NaN")
+    lon = netcdf_out_ds.createVariable("lon", num_type, "land_id", fill_value="NaN")
     land_id = netcdf_out_ds.createVariable("land_id", "i8", "land_id")
 
     time[:] = np.array(days)
@@ -176,7 +176,7 @@ def export_data(filename, days, longitude, latitude, land_id, data):
         var_long_name = d[3]
         var_units = d[4]
 
-        var_instance = netcdf_out_ds.createVariable(var_name, num_type, ("land_id", "time"))
+        var_instance = netcdf_out_ds.createVariable(var_name, num_type, ("land_id", "time"), fill_value="-9999.0")
         var_instance[:] = np.full(num_of_elements, var_value)
         var_instance.coordinates = "lon lat"
         var_instance.standard_name = var_description
