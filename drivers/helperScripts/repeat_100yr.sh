@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PREFIX="LaCampana_TraCE21ka"
+PREFIX="Nahuelbuta_TraCE21ka"
 
 NC_SCRIPT='time@calendar="365_day";
            t[time]=0;
@@ -18,6 +18,6 @@ NC_SCRIPT='time@calendar="365_day";
 
 for f in $PREFIX_*.nc; do
     echo $f;
-    ncap2 -O -s $NC_SCRIPT "$f" tmp.nc;
+    ncap2 -O -s "$NC_SCRIPT" "$f" tmp.nc;
     ncpdq -a time,land_id tmp.nc ${f/.nc}_first_100a_repeating.nc;
 done
