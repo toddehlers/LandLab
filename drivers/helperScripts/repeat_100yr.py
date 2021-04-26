@@ -132,7 +132,7 @@ def extract_and_repeat(file_prefix, first_day, last_day, count):
 
     del rad_data
 
-def export_data(filename, days, longitude, latitude, land_id, data):
+def export_data(filename, days, longitude, latitude, land_id_orig, data):
     num_of_elements = len(days)
     netcdf_out_ds = netCDF4.Dataset(filename, "w", format = "NETCDF4") # pylint: disable=no-member
 
@@ -153,7 +153,7 @@ def export_data(filename, days, longitude, latitude, land_id, data):
 
     lat[:] = np.full(1, latitude)
     lon[:] = np.full(1, longitude)
-    land_id[:] = np.full(1, land_id)
+    land_id[:] = np.full(1, land_id_orig)
 
     time.axis = "T"
     time.standard_name = "time"
