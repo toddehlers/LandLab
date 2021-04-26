@@ -78,11 +78,6 @@ def split_climate(time_step,
                 add_time_attrs(ds_grp, calendar_year)
                 foutname = os.path.basename(fpath.replace('.nc', ''))
                 foutname = os.path.join(dest_path, '%s_%s.nc' % (foutname, str(g_cnt).zfill(6)))
-
-                # Workaround for this bug in xarray:
-                # https://github.com/pydata/xarray/issues/3665
-                if "time" in ds_grp:
-                    ds_grp.time.encoding.pop("_FillValue", None)
                 ds_grp.to_netcdf(foutname, format='NETCDF4_CLASSIC')
 
     # copy co2 file
