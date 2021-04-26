@@ -28,7 +28,7 @@ from landlab import CLOSED_BOUNDARY, FIXED_VALUE_BOUNDARY
 #landlab components
 from landlab.components.flow_routing import FlowRouter
 from landlab.components import ExponentialWeatherer
-from landlab.components import DepthDependentDiffuser
+from landlab.components import DepthDependentTaylorDiffuser
 from landlab.components import Space
 from landlab.components import DepressionFinderAndRouter
 from landlab.components import SteepnessFinder
@@ -272,7 +272,7 @@ sp = Space(mg, K_sed=Kvs, K_br=Kvb, F_f=Ff, phi=phi, H_star=Hstar, v_s=vs, m_sp=
 
 lc = landformClassifier(mg)
 
-DDdiff = DepthDependentDiffuser(mg,
+DDdiff = DepthDependentTaylorDiffuser(mg,
             linear_diffusivity=linDiff,
             soil_transport_decay_depth=2)
 
@@ -401,7 +401,7 @@ while elapsed_time < totalT:
     #update LinearDiffuser
     linDiff = linDiffBase*np.exp(-alphaDiff * vegiLinks)
     #reinitalize Diffuser
-    DDdiff = DepthDependentDiffuser(mg,
+    DDdiff = DepthDependentTaylorDiffuser(mg,
             linear_diffusivity=linDiff,
             soil_transport_decay_depth=soilProductionDecayDepth)
 
