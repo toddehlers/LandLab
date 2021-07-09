@@ -49,7 +49,7 @@ def map_vegi_per_landform_on_grid(grid, vegi_array):
 
 def process_vegetation_data(data, index_cols, other_cols):
     data_filtered = data[index_cols + other_cols].groupby(index_cols, sort=False).mean()
-    fpc_data = data_filtered.apply(_calc_fpc, 1).sum(axis=1)
+    fpc_data = data_filtered.sum(axis=1).apply(_calc_fpc, 1)
     fpc_data = fpc_data.reset_index().set_index(index_cols)
     fpc_data = fpc_data.mean(level=1).T
 
