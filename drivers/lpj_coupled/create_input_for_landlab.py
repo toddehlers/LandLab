@@ -78,7 +78,7 @@ def import_vegetation(grid, vegi_mapping_method, filename):
 
 
     if vegi_mapping_method == "individual":
-        tree_cols = ["TeBE_tm", "TeBE_itm", "TeBE_itscl", "TeBS_itm", "TeNE", "BBS_itm", "BBE_itm"]
+        tree_cols = ["TeBE_tm", "TeBE_itm", "TeBE_itscl", "TeBS_tm", "TeBS_itm", "TeNE", "BBS_itm", "BBE_itm"]
         shrub_cols = ["BE_s", "TeR_s", "TeE_s"]
         grass_cols = ["C3G"]
 
