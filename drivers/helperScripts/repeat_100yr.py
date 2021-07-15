@@ -186,4 +186,4 @@ def export_data(filename, days, longitude, latitude, land_id_orig, data):
     netcdf_out_ds.close()
 
 if __name__ == "__main__":
-    extract_and_repeat("Nahuelbuta_TraCE21ka", 0, int(365.2425 * 100), 220)
+    extract_and_repeat("Nahuelbuta_TraCE21ka", 0, int(365.2425 * 100) - 1, 220)
