@@ -12,6 +12,7 @@ import logging
 import os.path
 import random
 import configparser
+import itertools
 
 import matplotlib
 matplotlib.use('Agg')
@@ -295,7 +296,6 @@ elapsed_time = 0
 counter = 0
 
 logging.info("Using increasing coupling frequency during spin-up.")
-import itertools
 pretransient = 20000 # how many years before beginning of transient phase coupling frequency should have reached 1/dt
 spin_up_couple_times = list([int(spin_up - pretransient - i*dt) for i in itertools.takewhile(lambda t: t < ((spin_up - pretransient)/dt), itertools.accumulate((x*x*x for x in itertools.count())))])
 spin_up_couple_time = spin_up_couple_times.pop()
