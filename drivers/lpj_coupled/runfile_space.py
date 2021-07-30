@@ -13,6 +13,7 @@ import os.path
 import random
 import configparser
 import itertools
+import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -302,6 +303,7 @@ spin_up_couple_times = list([int(spin_up - pretransient - i*dt) for i in itertoo
 
 if len(spin_up_couple_times) == 0:
     logging.error("spin_up is too low: '%f', please check your input file", spin_up)
+    sys.exit(1)
 else:
     spin_up_couple_time = spin_up_couple_times.pop()
 
