@@ -299,9 +299,11 @@ logging.info("Using increasing coupling frequency during spin-up.")
 # TODO: Make this configurable
 pretransient = 20000 # how many years before beginning of transient phase coupling frequency should have reached 1/dt
 spin_up_couple_times = list([int(spin_up - pretransient - i*dt) for i in itertools.takewhile(lambda t: t < ((spin_up - pretransient)/dt), itertools.accumulate((x*x*x for x in itertools.count())))])
-logging.debug("spin_up: %f, dt: %f", spin_up, dt)
-logging.debug("spin_up_couple_times: {}".format(spin_up_couple_times))
-spin_up_couple_time = spin_up_couple_times.pop()
+
+if len(spin_up_couple_times) == 0:
+    logging.error("spin_up is too low: '%f', please check your input file", spin_up)
+else:
+    spin_up_couple_time = spin_up_couple_times.pop()
 
 is_spinup = True
 max_elevation = 1000 # in [m]
