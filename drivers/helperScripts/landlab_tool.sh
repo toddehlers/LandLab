@@ -1,10 +1,17 @@
 #!/bin/bash
 
 PYTHON_BIN=/usr/bin/python3
-TEMPLATE_DIR=/usr/local/landlab/Templates_2020_11_26
 
 if [[ -z "${LANDLABDRIVER}" ]]; then
     echo "Environment variable LANDLABDRIVER is not set"
+    echo "You should load the module first:"
+    echo "module load landlab"
+    echo "(This is only relevant when not using the singularity container)"
+    exit 1
+fi
+
+if [[ -z "${LANDLABTEMPLATE}" ]]; then
+    echo "Environment variable LANDLABTEMPLATE is not set"
     echo "You should load the module first:"
     echo "module load landlab"
     echo "(This is only relevant when not using the singularity container)"
@@ -64,16 +71,16 @@ case "$1" in
     template)
         case "$2" in
             az)
-                cp -v -r $TEMPLATE_DIR/TemplateAZ .
+                cp -v -r $LANDLABTEMPLATE/TemplateAZ .
             ;;
             lc)
-                cp -v -r $TEMPLATE_DIR/TemplateLC .
+                cp -v -r $LANDLABTEMPLATE/TemplateLC .
             ;;
             na)
-                cp -v -r $TEMPLATE_DIR/TemplateNA .
+                cp -v -r $LANDLABTEMPLATE/TemplateNA .
             ;;
             sg)
-                cp -v -r $TEMPLATE_DIR/TemplateSG .
+                cp -v -r $LANDLABTEMPLATE/TemplateSG .
             ;;
             *)
                 echo "Unknown template"
