@@ -1,0 +1,76 @@
+Bootstrap: localimage
+From: ubuntu_20.04_landlab_base.sif
+Stage: devel
+
+%post
+    apt -y update
+    apt -y dist-upgrade
+    apt -y autoremove
+
+    # Get source code for LPJGuess
+    cd /root/
+    git clone --depth 1 --branch "master" "https://singularity:ahnoosahLaing5fo@esdynamics.geo.uni-tuebingen.de/git/willi/lpj_guess_earthshape.git"
+
+    # Compile LPJGuess
+    cd lpj_guess_earthshape/guess_4.0.1/
+    cmake .
+    make
+    cp guess /bin/
+
+    cd ..
+    cd guess_utilities_1.3
+    make
+    cp bin/append      /bin/lpj_append
+    cp bin/aslice      /bin/lpj_aslice
+    cp bin/balance     /bin/lpj_balance
+    cp bin/bbox        /bin/lpj_bbox
+    cp bin/cbalance    /bin/lpj_cbalance
+    cp bin/clean       /bin/lpj_clean
+    cp bin/compute     /bin/lpj_compute
+    cp bin/delta       /bin/lpj_delta
+    cp bin/dominance   /bin/lpj_dominance
+    cp bin/extract     /bin/lpj_extract
+    cp gmap/gmap       /bin/lpj_gmap
+    cp bin/gmapall     /bin/lpj_gmapall
+    cp gplot/gplot     /bin/lpj_gplot
+    cp bin/joyn        /bin/lpj_joyn
+    cp bin/tslice      /bin/lpj_tslice
+
+    cd ..
+    cd lpjguesstools
+    python3 setup.py build
+    python3 setup.py install
+
+    # Get source code for Landlab
+    cd /root/
+    git clone --depth 1 --branch "master" "https://singularity:ahnoosahLaing5fo@esdynamics.geo.uni-tuebingen.de/git/mschmid/LandLab.git"
+
+    # Build LandLab
+    cd LandLab   
+    python3 setup.py build
+    python3 setup.py install
+
+    mkdir /usr/local/landlab
+    cp -r drivers /usr/local/landlab/
+    cp drivers/helperScripts/landlab_tool.sh /bin/
+
+    # Get templates
+    cd /usr/local/landlab
+    git clone --depth 1 --branch "master" "https://singularity:ahnoosahLaing5fo@esdynamics.geo.uni-tuebingen.de/git/willi/LandLabTemplates.git"
+
+%environment
+    export LANDLABDRIVER=/usr/local/landlab/drivers
+    export LANDLABTEMPLATE=/usr/local/landlab/LandLabTemplates
+
+%labels
+    Author "Willi Kappler, willi.kappler@uni-tuebingen.de"
+    Version v0.0.1
+
+%help
+    This is a container that downloads and compiles Landlab and LPJGuess.
+    After a successfull build the start script is provided via
+    the "singularity run" command.
+
+%runscript
+    /bin/landlab_tool.sh $@ 
+
