@@ -112,6 +112,7 @@ latitude = float(config['LPJ']['latitude'])
 longitude = float(config['LPJ']['longitude'])
 classificationType = config['LPJ']['classificationType']
 elevationStepBin = float(config['LPJ']['elevationStepBin'])
+
 LPJGUESS_INPUT_PATH = config['LPJ']['LPJGUESS_INPUT_PATH']
 LPJGUESS_TEMPLATE_PATH = config['LPJ']['LPJGUESS_TEMPLATE_PATH']
 LPJGUESS_FORCINGS_PATH = config['LPJ']['LPJGUESS_FORCINGS_PATH']
@@ -122,6 +123,9 @@ LPJGUESS_FORCINGS_STRING = config['LPJ']['LPJGUESS_FORCINGS_STRING']
 LPJGUESS_TIME_INTERVAL = config['LPJ']['LPJGUESS_TIME_INTERVAL']
 LPJGUESS_VEGI_MAPPING = config['LPJ']['LPJGUESS_VEGI_MAPPING']
 LPJGUESS_CALENDAR_YEAR = int(config['LPJ']['LPJGUESS_CALENDAR_YEAR'])
+LPJGUESS_IMPORT_VEGI = bool(config['LPJ']['LPJGUESS_IMPORT_VEGI'])
+LPJGUESS_IMPORT_PREC = bool(config['LPJ']['LPJGUESS_IMPORT_PREC'])
+
 lpj_coupled = config['LPJ']['lpj_coupled'].lower() in ["yes", "on", "true"]
 lpj_coupled_intervall = 50000
 if 'lpj_coupled_intervall' in config['LPJ']:
@@ -334,7 +338,7 @@ while elapsed_time < totalT:
             lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
 
             #import lpj lai and precipitation data
-            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, True, True)
             lpj_dbg.copy_temp_lpj(elapsed_time)
 
             #reinitialize the flow router
@@ -347,7 +351,7 @@ while elapsed_time < totalT:
                 lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
                 if lpj_coupled:
                     #import lpj lai and precipitation data
-                    lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
+                    lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, True, True)
                     #reinitialize the flow router
                     fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
 
@@ -362,7 +366,7 @@ while elapsed_time < totalT:
         counter += 1
         if lpj_coupled:
             #import lpj lai and precipitation data
-            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING)
+            lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, LPJGUESS_IMPORT_VEGI, LPJGUESS_IMPORT_PREC)
 
             #reinitialize the flow router
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])

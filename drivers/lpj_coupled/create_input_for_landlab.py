@@ -211,13 +211,17 @@ def import_evapo_trans_area(grid, filename):
 def import_npp(grid, filename):
     import_csv_data(grid, filename, "net_primary_productivity")
 
-def lpj_import_one_step(grid, vegi_mapping_method):
+def lpj_import_one_step(grid, vegi_mapping_method, import_vegi, import_prec):
     """
     main function for input_conversion to be called from landlab driver file
     """
 
-    import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
-    import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
+    if import_vegi:
+        import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
+    
+    if import_prec:
+        import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
+
     import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
     import_radiation(grid, "temp_lpj/output/sp_mrad.out")
     import_co2(grid, "temp_lpj/output/climate.out")
