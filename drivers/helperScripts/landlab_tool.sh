@@ -18,6 +18,9 @@ if [[ -z "${LANDLABTEMPLATE}" ]]; then
     exit 1
 fi
 
+echo "LANDLABDRIVER: $LANDLABDRIVER"
+echo "LANDLABTEMPLATE: $LANDLABTEMPLATE"
+
 case "$1" in
     init)
         bash $LANDLABDRIVER/helperScripts/makeModelSetup.sh $2
