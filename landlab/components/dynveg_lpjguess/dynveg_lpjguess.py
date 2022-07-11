@@ -139,6 +139,7 @@ class DynVeg_LpjGuess(Component):
 
         self._is_spinup = True
         self._timesteps = [0]
+        self._elapsed = 0
         self._dest = LPJGUESS_INPUT_PATH
         self._templatepath = LPJGUESS_INS_FILE_TPL
         self._binpath = LPJGUESS_BIN
@@ -162,7 +163,7 @@ class DynVeg_LpjGuess(Component):
         #    return self._timesteps[-1]
         #return None
         # TODO: change this
-        len(self._timesteps)
+        return len(self._timesteps)
 
 
     @property
@@ -171,10 +172,13 @@ class DynVeg_LpjGuess(Component):
         # TODO: change this
         return sum(self._timesteps)
 
-    def run_one_step(self, step_counter, dt: int, is_spinup: bool, lf_list) -> None:
+    def run_one_step(self, elapsed, step_counter, dt: int, is_spinup: bool, lf_list) -> None:
         '''Run one lpj simulation step (duration: dt)'''
         logging.debug("run_one_step")
-        self._is_spinup = is_spinup
+        self._elapsed = elapsed
+        # self._is_spinup = is_spinup
+        self._is_spinup = self.timestep < 2
+        logging.debug(f"ph:: self._is_spinup = {self._is_spinup}")
         self.prepare_runfiles(step_counter, self._templatepath, self._forcingsstring, self._co2_file)
         generate_landform_files(lf_list)
         self.execute_lpjguess()
@@ -186,6 +190,7 @@ class DynVeg_LpjGuess(Component):
         logging.debug("prepare_runfiles")
         # fill template files with per-run data:
         restart = '0' if self._is_spinup else '1'
+        logging.debug(f"ph--restart: {restart}")
 
         run_data = {# climate data
                     'CLIMPREC': str(input_name) + '_prec_%s.nc' % str(int(step_counter)).zfill(6),
@@ -212,6 +217,8 @@ class DynVeg_LpjGuess(Component):
 
     def move_state(self) -> None:
         '''Move state dumpm files into loaddir for next timestep'''
+        logging.info('ph - save snapshot')
+        subprocess.call(['cp', '--reflink=always', '--sparse=auto', '-r', '.', f'../debugging/temp_lpj_ph__{self.timestep}___{self._elapsed}'], cwd=self._dest)
         logging.info('Move state to loaddir')
         state_files = glob.glob(os.path.join(self._dest, 'dumpdir_eor/*'))
         for state_file in state_files:

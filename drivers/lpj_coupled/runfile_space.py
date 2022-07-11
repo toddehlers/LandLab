@@ -12,6 +12,8 @@ import logging
 import os.path
 import random
 import configparser
+import itertools
+import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -296,11 +298,25 @@ lpj_dbg = LPJDebug(LPJGUESS_INPUT_PATH)
 logging.info("finished with the initialization of the erosion components")
 elapsed_time = 0
 counter = 0
-spin_up_couple_time = lpj_coupled_intervall
+
+logging.info("Using increasing coupling frequency during spin-up.")
+# TODO: Make this configurable
+pretransient = 20000 # how many years before beginning of transient phase coupling frequency should have reached 1/dt
+spin_up_couple_times = list([int(spin_up - pretransient - i*dt) for i in itertools.takewhile(lambda t: t < ((spin_up - pretransient)/dt), itertools.accumulate((x*x*x for x in itertools.count())))])
+
+if len(spin_up_couple_times) == 0:
+    logging.error("spin_up is too low: '%f', please check your input file", spin_up)
+    sys.exit(1)
+else:
+    spin_up_couple_time = spin_up_couple_times.pop()
+
 is_spinup = True
-max_elevation = 10000 # in [m]
+max_elevation = 1000 # in [m]
 
 while elapsed_time < totalT:
+
+    logging.info(f"Start simulation step for simulated time [a]: {elapsed_time}")
+    logging.info(f"Climate chunk counter: {counter}")
 
     #create copy of "old" topography
     z0 = mg.at_node['topographic__elevation'].copy()
@@ -335,7 +351,7 @@ while elapsed_time < totalT:
             # for LPJGuess.
             # TODO: Fix this!
             netcdf_export.write(mg, elapsed_time)
-            lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
+            lpj.run_one_step(elapsed_time, counter, lpj_coupled_duration, is_spinup, lf_list)
 
             #import lpj lai and precipitation data
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, True, True)
@@ -345,15 +361,16 @@ while elapsed_time < totalT:
             fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
         else:
             if elapsed_time >= spin_up_couple_time:
-                spin_up_couple_time += lpj_coupled_intervall
+                spin_up_couple_time = spin_up_couple_times.pop() if len(spin_up_couple_times) > 0 else elapsed_time + dt
                 # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
                 netcdf_export.write(mg, elapsed_time)
-                lpj.run_one_step(counter, lpj_coupled_duration, is_spinup, lf_list)
+                lpj.run_one_step(elapsed_time, counter, lpj_coupled_duration, is_spinup, lf_list)
                 if lpj_coupled:
                     #import lpj lai and precipitation data
                     lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, True, True)
                     #reinitialize the flow router
                     fr = FlowRouter(mg, method='d8', runoff_rate=mg.at_node['precipitation'])
+                    netcdf_export.write_permanent(mg, elapsed_time)
 
     elif elapsed_time >= spin_up:
         if elapsed_time == spin_up:
@@ -362,7 +379,7 @@ while elapsed_time < totalT:
 
         # TODO: Fix this! Output is currently needed by LPJGuess and has to be written before it is run
         netcdf_export.write(mg, elapsed_time)
-        lpj.run_one_step(counter, dt, is_spinup, lf_list)
+        lpj.run_one_step(elapsed_time, counter, dt, is_spinup, lf_list)
         counter += 1
         if lpj_coupled:
             #import lpj lai and precipitation data
