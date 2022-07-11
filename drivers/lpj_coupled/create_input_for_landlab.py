@@ -224,12 +224,13 @@ def lpj_import_one_step(grid, vegi_mapping_method, import_vegi, import_prec):
     if import_prec:
         import_precipitation(grid, "temp_lpj/output/sp_mprec.out")
 
-    import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
-    import_radiation(grid, "temp_lpj/output/sp_mrad.out")
-    import_co2(grid, "temp_lpj/output/climate.out")
-    import_fire(grid, "temp_lpj/output/sp_firert.out")
+    if import_vegi and import_prec:
+        import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
+        import_radiation(grid, "temp_lpj/output/sp_mrad.out")
+        import_co2(grid, "temp_lpj/output/climate.out")
+        import_fire(grid, "temp_lpj/output/sp_firert.out")
 
-    import_runoff(grid, "temp_lpj/output/sp_mrunoff.out")
-    import_evapo_trans_soil(grid, "temp_lpj/output/sp_mevap.out")
-    import_evapo_trans_area(grid, "temp_lpj/output/sp_aaet.out")
-    import_npp(grid, "temp_lpj/output/sp_mnpp.out")
+        import_runoff(grid, "temp_lpj/output/sp_mrunoff.out")
+        import_evapo_trans_soil(grid, "temp_lpj/output/sp_mevap.out")
+        import_evapo_trans_area(grid, "temp_lpj/output/sp_aaet.out")
+        import_npp(grid, "temp_lpj/output/sp_mnpp.out")
