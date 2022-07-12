@@ -60,7 +60,7 @@ def process_vegetation_data(data, index_cols, other_cols):
     return (fpc_data.to_records(), lai_data.to_records())
 
 def import_vegetation(grid, vegi_mapping_method, filename):
-    logging.debug("create_input_for_landlab.import_vegetation")
+    # logging.debug("create_input_for_landlab.import_vegetation")
     csv_data = pd.read_table(filename, delim_whitespace=True)
     csv_data = csv_data[csv_data.Stand > 0]
     index_cols = [YEAR_STR, STAND_STR]
@@ -112,7 +112,7 @@ def import_vegetation(grid, vegi_mapping_method, filename):
         grid.at_node["grass_lai"] = map_vegi_per_landform_on_grid(grid, grass_lai)
 
 def import_csv_data(grid, filename, data_name, factor=None):
-    logging.debug("create_input_for_landlab.import_csv_data, data_name: '%s'", data_name)
+    # logging.debug("create_input_for_landlab.import_csv_data, data_name: '%s'", data_name)
     csv_data = pd.read_table(filename, delim_whitespace=True)
 
     month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(",")
@@ -134,7 +134,7 @@ def import_csv_data(grid, filename, data_name, factor=None):
     grid.at_node[data_name] = map_data_per_landform_on_grid(grid, final_data.to_records(), data_name)
 
 def import_precipitation(grid, filename):
-    logging.debug("create_input_for_landlab.import_precipitation")
+    # logging.debug("create_input_for_landlab.import_precipitation")
     import_csv_data(grid, filename, "precipitation", 10.0)
 
 def import_temperature(grid, filename):
@@ -228,9 +228,9 @@ def lpj_import_one_step(grid, vegi_mapping_method, import_vegi, import_prec):
         import_temperature(grid, "temp_lpj/output/sp_mtemp.out")
         import_radiation(grid, "temp_lpj/output/sp_mrad.out")
         import_co2(grid, "temp_lpj/output/climate.out")
-        import_fire(grid, "temp_lpj/output/sp_firert.out")
 
-        import_runoff(grid, "temp_lpj/output/sp_mrunoff.out")
-        import_evapo_trans_soil(grid, "temp_lpj/output/sp_mevap.out")
-        import_evapo_trans_area(grid, "temp_lpj/output/sp_aaet.out")
-        import_npp(grid, "temp_lpj/output/sp_mnpp.out")
+    import_fire(grid, "temp_lpj/output/sp_firert.out")
+    import_runoff(grid, "temp_lpj/output/sp_mrunoff.out")
+    import_evapo_trans_soil(grid, "temp_lpj/output/sp_mevap.out")
+    import_evapo_trans_area(grid, "temp_lpj/output/sp_aaet.out")
+    import_npp(grid, "temp_lpj/output/sp_mnpp.out")
