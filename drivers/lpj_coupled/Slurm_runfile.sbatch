@@ -14,7 +14,7 @@
 ## Number of nodes:
 #SBATCH -N 1
 
-apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh lpj run
+apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh run lpj
 
 apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh plot
 
