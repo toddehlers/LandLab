@@ -2,11 +2,6 @@
 
 PYTHON_BIN=/usr/bin/python3
 
-if [[ -n "$3" ]]; then
-    echo "New working directory: $3"
-    cd $3
-fi
-
 echo "landlab_tool.sh, current working directory: $(pwd)"
 
 if [[ -z "${LANDLABDRIVER}" ]]; then

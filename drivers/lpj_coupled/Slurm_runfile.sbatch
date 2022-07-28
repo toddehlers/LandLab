@@ -24,7 +24,7 @@ cd $SLURM_SUBMIT_DIR
 
 echo "SLURM, current folder: $(pwd)"
 
-apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh run lpj
+apptainer exec --bind /esd /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh run lpj
 
-apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh plot
+apptainer exec --bind /esd /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh plot
 
