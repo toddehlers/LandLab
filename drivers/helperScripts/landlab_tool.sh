@@ -2,6 +2,8 @@
 
 PYTHON_BIN=/usr/bin/python3
 
+echo "landlab_tool.sh, current working directory: $(pwd)"
+
 if [[ -z "${LANDLABDRIVER}" ]]; then
     echo "Environment variable LANDLABDRIVER is not set"
     echo "You should load the module first:"

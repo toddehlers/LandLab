@@ -2,10 +2,10 @@
 ## Example run script for SLURM
 
 ## General configuration options
-#SBATCH -J Landlab_Jobname
-#SBATCH -o myjob.%j.%N.out
-#SBATCH -e myjob.%j.%N_Err.out
-#SBATCH --mail-user=some.user@uni-tuebingen.de
+#SBATCH -J Landlab_test
+#SBATCH -o Landlab_test.%j.%N.out
+#SBATCH -e Landlab_test.%j.%N_Err.out
+#SBATCH --mail-user=willi.kappler@uni-tuebingen.de
 #SBATCH --mail-type=ALL
 
 ## Machine and CPU configuration
@@ -14,5 +14,18 @@
 ## Number of nodes:
 #SBATCH -N 1
 
-module load landlab
-landlab_tool.sh run lpj
+echo "current folder: $(pwd)"
+
+echo "path: $PATH"
+echo "apptainer binary: $(ls -l /usr/bin/apptainer)"
+echo "slurm submit host: $SLURM_SUBMIT_HOST"
+echo "slurm node name: $SLURMD_NODENAME"
+cd $SLURM_SUBMIT_DIR
+
+echo "current folder: $(pwd)"
+
+
+apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh run lpj
+
+apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh plot
+

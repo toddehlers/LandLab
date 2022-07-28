@@ -45,6 +45,7 @@ from netcdf_exporter import NetCDFExporter
 from lpj_debug import LPJDebug
 #external modules
 
+print("Landlab, current working directory: {}".format(os.getcwd()))
 
 t0 = time.time()
 
