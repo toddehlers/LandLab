@@ -14,16 +14,15 @@
 ## Number of nodes:
 #SBATCH -N 1
 
-echo "current folder: $(pwd)"
+echo "SLURM, current folder: $(pwd)"
 
-echo "path: $PATH"
-echo "apptainer binary: $(ls -l /usr/bin/apptainer)"
-echo "slurm submit host: $SLURM_SUBMIT_HOST"
-echo "slurm node name: $SLURMD_NODENAME"
+echo "SLURM, path: $PATH"
+echo "SLURM, apptainer binary: $(ls -l /usr/bin/apptainer)"
+echo "SLURM, submit host: $SLURM_SUBMIT_HOST"
+echo "SLURM, node name: $SLURMD_NODENAME"
 cd $SLURM_SUBMIT_DIR
 
-echo "current folder: $(pwd)"
-
+echo "SLURM, current folder: $(pwd)"
 
 apptainer exec /esd/esd01/share/archive/software/singularity_container/landlab_pecube_icecascade/ubuntu_18_04.sif landlab_tool.sh run lpj
 
