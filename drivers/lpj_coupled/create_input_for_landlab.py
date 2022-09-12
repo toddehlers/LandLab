@@ -60,7 +60,8 @@ def process_vegetation_data(data, index_cols, other_cols):
     return (fpc_data.to_records(), lai_data.to_records())
 
 def import_vegetation(grid, vegi_mapping_method, filename):
-    # logging.debug("create_input_for_landlab.import_vegetation")
+    logging.debug("create_input_for_landlab.import_vegetation")
+
     csv_data = pd.read_table(filename, delim_whitespace=True)
     csv_data = csv_data[csv_data.Stand > 0]
     index_cols = [YEAR_STR, STAND_STR]
@@ -76,7 +77,6 @@ def import_vegetation(grid, vegi_mapping_method, filename):
 
     grid.at_node["vegetation__density"] = map_vegi_per_landform_on_grid(grid, total_fpc)
     grid.at_node["vegetation__density_lai"] = map_vegi_per_landform_on_grid(grid, total_lai)
-
 
     if vegi_mapping_method == "individual":
         tree_cols = ["TeBE_tm", "TeBE_itm", "TeBE_itscl", "TeBS_tm", "TeBS_itm", "TeNE", "BBS_itm", "BBE_itm"]
@@ -112,7 +112,8 @@ def import_vegetation(grid, vegi_mapping_method, filename):
         grid.at_node["grass_lai"] = map_vegi_per_landform_on_grid(grid, grass_lai)
 
 def import_csv_data(grid, filename, data_name, factor=None):
-    # logging.debug("create_input_for_landlab.import_csv_data, data_name: '%s'", data_name)
+    logging.debug("create_input_for_landlab.import_csv_data, data_name: '%s'", data_name)
+
     csv_data = pd.read_table(filename, delim_whitespace=True)
 
     month_cols = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".split(",")
@@ -134,10 +135,11 @@ def import_csv_data(grid, filename, data_name, factor=None):
     grid.at_node[data_name] = map_data_per_landform_on_grid(grid, final_data.to_records(), data_name)
 
 def import_precipitation(grid, filename):
-    # logging.debug("create_input_for_landlab.import_precipitation")
+    logging.debug("create_input_for_landlab.import_precipitation")
     import_csv_data(grid, filename, "precipitation", 10.0)
 
 def import_temperature(grid, filename):
+    logging.debug("create_input_for_landlab.import_temperature")
     import_csv_data(grid, filename, "temperature", 10.0)
 
 def import_radiation(grid, filename):
@@ -217,6 +219,8 @@ def lpj_import_one_step(grid, vegi_mapping_method, import_vegi, import_prec):
     """
     main function for input_conversion to be called from landlab driver file
     """
+
+    logging.debug("create_input_for_landlab.lpj_import_one_step: {}, {}, {}".format(vegi_mapping_method, import_vegi, import_prec))
 
     if import_vegi:
         import_vegetation(grid, vegi_mapping_method, "temp_lpj/output/sp_lai.out")
