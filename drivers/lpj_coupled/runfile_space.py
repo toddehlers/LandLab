@@ -129,6 +129,8 @@ LPJGUESS_CALENDAR_YEAR = int(config['LPJ']['LPJGUESS_CALENDAR_YEAR'])
 LPJGUESS_IMPORT_VEGI = bool(config['LPJ']['LPJGUESS_IMPORT_VEGI'])
 LPJGUESS_IMPORT_PREC = bool(config['LPJ']['LPJGUESS_IMPORT_PREC'])
 
+logging.debug("Config: LPJGUESS_IMPORT_VEGI: {}, LPJGUESS_IMPORT_PREC: {}".format(LPJGUESS_IMPORT_VEGI, LPJGUESS_IMPORT_PREC))
+
 lpj_coupled = config['LPJ']['lpj_coupled'].lower() in ["yes", "on", "true"]
 lpj_coupled_intervall = 50000
 if 'lpj_coupled_intervall' in config['LPJ']:
@@ -384,6 +386,7 @@ while elapsed_time < totalT:
         counter += 1
         if lpj_coupled:
             #import lpj lai and precipitation data
+            logging.debug("no spinup, lpj_import_one_step, {}, {}, {}".format(LPJGUESS_VEGI_MAPPING, LPJGUESS_IMPORT_VEGI, LPJGUESS_IMPORT_PREC))
             lpj_import_one_step(mg, LPJGUESS_VEGI_MAPPING, LPJGUESS_IMPORT_VEGI, LPJGUESS_IMPORT_PREC)
 
             #reinitialize the flow router
