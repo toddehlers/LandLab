@@ -9,7 +9,7 @@ Stage: devel
 
     # Get source code for LPJGuess
     cd /root/
-    git clone --depth 1 --branch "master" "https://singularity:ahnoosahLaing5fo@esdynamics.geo.uni-tuebingen.de/git/willi/lpj_guess_earthshape.git"
+    git clone --depth 1 --branch "master" "https://xxxx:yyyy@esdynamics.geo.uni-tuebingen.de/git/willi/lpj_guess_earthshape.git"
 
     # Compile LPJGuess
     cd lpj_guess_earthshape/guess_4.0.1/
